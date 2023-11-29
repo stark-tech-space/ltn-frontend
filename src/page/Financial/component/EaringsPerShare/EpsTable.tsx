@@ -30,6 +30,7 @@ const createTableData = (number: number) => {
 export default function EpsTable() {
   const [columnHeaders, setColumnHeaders] = useState(createTableHeader(20));
   const [rowData, setRowData] = useState(createTableData(20));
+  
   const defaultColDef = useMemo(() => {
     return {
       resizable: false,
@@ -38,6 +39,7 @@ export default function EpsTable() {
       autoHeaderHeight: true,
     };
   }, []);
+
   return (
     <Box className="ag-theme-alpine" sx={{ height: 150 }}>
       <AgGridReact

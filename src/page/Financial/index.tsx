@@ -7,6 +7,8 @@ import styled from "@emotion/styled";
 import EarningsPerShare from "./component/EaringsPerShare";
 import MonthlyRevenue from "./component/MonthlyRevenue";
 import Developing from "component/Developing";
+import IncomeStatement from "./component/IncomeStatement";
+import PerStockShare from "./component/PerStockValue";
 
 const LinkTab = styled(Link)(({ isActive }: { isActive: boolean }) => ({
   padding: "12px 24px",
@@ -21,8 +23,8 @@ const LinkTab = styled(Link)(({ isActive }: { isActive: boolean }) => ({
 const CHILDREN_MAP: Record<PAGE_NAV_ENUM, React.ReactNode> = {
   [PAGE_NAV_ENUM.MONTHLY_REVENUE]: <MonthlyRevenue />,
   [PAGE_NAV_ENUM.EARNINGS_PER_SHARE]: <EarningsPerShare />,
-  [PAGE_NAV_ENUM.STOCK_PER_VALUE]: <Developing />,
-  [PAGE_NAV_ENUM.INCOME_TABLE]: <Developing />,
+  [PAGE_NAV_ENUM.STOCK_PER_VALUE]: <PerStockShare />,
+  [PAGE_NAV_ENUM.INCOME_TABLE]: <IncomeStatement />,
   [PAGE_NAV_ENUM.TOTAL_ASSETS]: <Developing />,
   [PAGE_NAV_ENUM.LIABILITIES_AND_SHAREHOLDERS]: <Developing />,
   [PAGE_NAV_ENUM.CASH_FLOW_STATEMENT]: <Developing />,

@@ -43,5 +43,13 @@ export interface IFinancialStatementRatio {
   //盈餘殖利率
   earningsYield: number;
 
+  bookValuePerShare: number;
+
   [field: string]: number;
 }
+
+export const PERIOD_YEAR = [
+  { label: "近3年", value: 3 },
+  { label: "近5年", value: 5 },
+  // { label: "近8年", value: 8 },
+];

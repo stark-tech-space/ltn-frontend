@@ -7,7 +7,7 @@ const createTableHeader = (number: number) => {
   const data: any[] = [];
   for (let i = 0; i < number; i++) {
     if (i === 0) {
-      data.push({ field: "qs", headerName: "年度/季度", pinned: "left" });
+      data.push({ field: "qs", headerName: "年度月份", pinned: "left" });
     } else {
       data.push({ field: `time_${i}`, headerName: "2023-01" });
     }
@@ -52,9 +52,6 @@ export default function EpsTable() {
         columnDefs={columnHeaders}
         defaultColDef={defaultColDef}
         domLayout="autoHeight"
-        // excelStyles={{
-
-        // }}
       />
     </div>
   );

@@ -1,9 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Box, Button, ButtonGroup, Stack } from "@mui/material";
+import { useState } from "react";
 import { Chart } from "react-chartjs-2";
 import { faker } from "@faker-js/faker";
+import { Box, Button, Stack } from "@mui/material";
 import { OPTIONS } from "./GraphConfig";
-import { PERIOD, PERIOD_YEAR } from "types/common";
 
 const labels = [
   "2021-01",
@@ -43,11 +42,8 @@ const labels = [
   "2023-11",
   "2023-12",
 ];
-
-export default function EpsChart() {
+export default function MonthlyIncomeChart() {
   const [period, setPeriod] = useState(3);
-
-  const [reportType, setReportType] = useState(PERIOD.QUARTER);
 
   const [data, setData] = useState({
     labels,
@@ -79,11 +75,10 @@ export default function EpsChart() {
       <Stack
         direction="row"
         alignItems="center"
-        justifyContent="space-between"
         sx={{
           mb: 3,
           px: 3,
-          "&>button": {
+          button: {
             mx: 1,
             bgcolor: "transparent",
             border: 0,
@@ -91,33 +86,30 @@ export default function EpsChart() {
           },
         }}
       >
-        <Box>
-          {PERIOD_YEAR.map((item) => (
-            <Button
-              key={item.value}
-              sx={{
-                color: item.value === period ? "primary" : "#333",
-              }}
-              onClick={() => setPeriod(item.value)}
-            >
-              {item.label}
-            </Button>
-          ))}
-        </Box>
-        <ButtonGroup variant="outlined">
-          <Button
-            variant={reportType === PERIOD.QUARTER ? "contained" : "outlined"}
-            onClick={() => setReportType(PERIOD.QUARTER)}
-          >
-            季報
-          </Button>
-          <Button
-            variant={reportType === PERIOD.ANNUAL ? "contained" : "outlined"}
-            onClick={() => setReportType(PERIOD.ANNUAL)}
-          >
-            年報
-          </Button>
-        </ButtonGroup>
+        <Button
+          sx={{
+            color: period === 3 ? "primary" : "#333",
+          }}
+          onClick={() => setPeriod(3)}
+        >
+          近3年
+        </Button>
+        <Button
+          sx={{
+            color: period === 5 ? "primary" : "#333",
+          }}
+          onClick={() => setPeriod(5)}
+        >
+          近5年
+        </Button>
+        <Button
+          sx={{
+            color: period === 8 ? "primary" : "#333",
+          }}
+          onClick={() => setPeriod(5)}
+        >
+          近8年
+        </Button>
       </Stack>
       <Box height={510} bgcolor="#fff" pb={3}>
         <Chart type="bar" data={data} options={OPTIONS as any} />

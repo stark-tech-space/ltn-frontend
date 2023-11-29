@@ -1,4 +1,5 @@
 import BigNumber from "bignumber.js";
+import { PERIOD } from "types/common";
 
 export const sleep = (time = 120) => {
   return new Promise((resolve) => {
@@ -45,4 +46,21 @@ export const formNumberToUnit = (
 
 export const toFixed = (n: number, d: number = 2) => {
   return n ? n.toFixed(d) : "-";
+};
+
+export const createYears = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const years = [];
+  for (let i = 0; i < 10; i++) {
+    years.push(year - i);
+  }
+  return years;
+};
+
+export const getDataLimit = (period: PERIOD, year: number) => {
+  if (period === PERIOD.QUARTER) {
+    return year * 4;
+  }
+  return year;
 };
