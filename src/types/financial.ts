@@ -39,7 +39,8 @@ export interface IncomeStatementTable {
   operatingincomeloss: number;
 
   //稅前淨利
-  incomelossfromcontinuingoperationsbeforeincometaxesextraordinaryitemsnoncontrollinginterest: number;
+  incomelossfromcontinuingoperationsbeforeincometaxesextraordinaryitemsnoncontrollinginterest:
+    number;
 
   // 稅後淨利
   netincomeloss: number;
@@ -51,5 +52,29 @@ export interface IMonthlyRevenue extends IFinMindApiResponse {
   data: {
     date: string;
     revenue: number;
+  }[];
+}
+
+export type IncomeType =
+  // 营收
+  | "Revenue"
+  // 毛利
+  | "GrossProfit"
+  // 營業費用
+  | "OperatingExpenses"
+  // 營業成本
+  | "CostOfGoodsSold"
+  // 營業利益
+  | "OperatingIncome"
+  // 稅前淨利
+  | "PreTaxIncome"
+  // 母公司
+  | "EquityAttributableToOwnersOfParent";
+
+export interface IIncome extends IFinMindApiResponse {
+  data: {
+    date: string;
+    type: IncomeType;
+    value: number;
   }[];
 }
