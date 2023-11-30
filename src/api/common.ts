@@ -18,7 +18,7 @@ export const fetchQuote = async (
 export const fetchCompanyRatios = async (
   symbol: string,
   period: PERIOD,
-  limit: number = 140
+  limit: number = 4
 ): Promise<IFinancialStatementRatio[] | undefined> => {
   try {
     const rst = await request.get(`/key-metrics/${symbol}`, {
@@ -59,5 +59,21 @@ export const fetchStockPriceByFinMind = async (params: {
     return rst.data;
   } catch (error) {
     console.error(`fetchStockPriceByFinMind error: ${error}`);
+  }
+};
+
+// 获取關鍵指標數據
+export const fetchKeyMetrics = async (
+  symbol: string,
+  period: PERIOD,
+  limit: number = 140
+): Promise<{ [field: string]: any }[] | undefined> => {
+  try {
+    const rst = await request.get(`/key-metrics/${symbol}`, {
+      params: { period, limit },
+    });
+    return rst.data;
+  } catch (error) {
+    console.error(`fetchKeyMetrics error: ${error}`);
   }
 };

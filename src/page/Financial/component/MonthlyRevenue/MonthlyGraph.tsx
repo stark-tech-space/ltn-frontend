@@ -8,9 +8,6 @@ import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import { fetchRevenue } from "api/financial";
 import moment from "moment";
-// import { fetchStockPriceByFinMind } from "api/common";
-
-console.log(moment().startOf("month").format("YYYY-MM-DD"));
 
 const genStartDate = (years: number) => {
   return moment().subtract(years, "years").startOf("year").format("YYYY-MM-DD");

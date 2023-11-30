@@ -9,6 +9,7 @@ import MonthlyRevenue from "./component/MonthlyRevenue";
 import Developing from "component/Developing";
 import IncomeStatement from "./component/IncomeStatement";
 import PerStockShare from "./component/PerStockValue";
+import CashFlow from "./component/CashFlow";
 
 const LinkTab = styled(Link)(({ isActive }: { isActive: boolean }) => ({
   padding: "12px 24px",
@@ -27,7 +28,7 @@ const CHILDREN_MAP: Record<PAGE_NAV_ENUM, React.ReactNode> = {
   [PAGE_NAV_ENUM.INCOME_TABLE]: <IncomeStatement />,
   [PAGE_NAV_ENUM.TOTAL_ASSETS]: <Developing />,
   [PAGE_NAV_ENUM.LIABILITIES_AND_SHAREHOLDERS]: <Developing />,
-  [PAGE_NAV_ENUM.CASH_FLOW_STATEMENT]: <Developing />,
+  [PAGE_NAV_ENUM.CASH_FLOW_STATEMENT]: <CashFlow />,
   [PAGE_NAV_ENUM.DIVIDEND_POLICY]: <Developing />,
   [PAGE_NAV_ENUM.EBOOK]: <Developing />,
 };

@@ -1,5 +1,5 @@
 import request from "./request";
-import { PERIOD } from "types/common";
+import { IFinancialStatementRatio, PERIOD } from "types/common";
 import { IMonthlyRevenue, IncomeStatementTable } from "types/financial";
 import http from "./http";
 

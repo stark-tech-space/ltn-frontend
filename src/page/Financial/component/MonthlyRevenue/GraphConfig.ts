@@ -23,7 +23,7 @@ export const OPTIONS = {
       position: "left",
       title: {
         display: true,
-        text: "千元",
+        text: "%",
         align: "end",
         font: {
           size: 12,

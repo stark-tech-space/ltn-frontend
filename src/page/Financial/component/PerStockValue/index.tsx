@@ -52,30 +52,31 @@ export default function PerStockShare() {
     if (rst) {
       const labels: string[] = [];
       const chartData: number[] = [];
+
       const columnHeaders: {
         field: string;
         headerName?: string;
         pinned?: string;
-      }[] = [];
-      const rowData: { [key: string]: string } = {};
+      }[] = [
+        {
+          field: "title",
+          headerName: reportType === PERIOD.ANNUAL ? "年度" : "年度/季度",
+        },
+      ];
+      const rowData: { [key: string]: string } = {
+        title: "每股淨值",
+      };
 
       rst.forEach((item, index) => {
+        const field =
+          reportType === PERIOD.ANNUAL
+            ? item.calendarYear.toString()
+            : `${item.calendarYear}-${item.period}`;
+
         labels.push(item.date.toString());
         chartData.push(item.bookValuePerShare);
-
-        if (index === 0) {
-          columnHeaders.push({
-            field: "title",
-            headerName: "年度/季度",
-            pinned: "left",
-          });
-          rowData.title = "每股淨值";
-        } else {
-          columnHeaders.push({
-            field: item.date.toString(),
-          });
-          rowData[item.date?.toString()] = item.bookValuePerShare.toFixed(2);
-        }
+        columnHeaders.push({ field });
+        rowData[field] = item.bookValuePerShare.toFixed(2);
       });
 
       setColumnHeaders(columnHeaders as any);

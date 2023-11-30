@@ -51,10 +51,21 @@ export interface IFinancialStatementRatio {
 export const PERIOD_YEAR = [
   { label: "近3年", value: 3 },
   { label: "近5年", value: 5 },
-  // { label: "近8年", value: 8 },
+  { label: "近8年", value: 8 },
 ];
 
 export interface IFinMindApiResponse {
   msg: string;
   status: number;
 }
+
+// CashProvidedByInvestingActivities 投資現金流
+// CashFlowsProvidedFromFinancingActivities 融資現金流
+
+
+
+// CashFlowsFromOperatingActivities :營業現金流
+
+// 自由現金流 = 
+
+// 淨現金流
