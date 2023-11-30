@@ -6,7 +6,6 @@ export default function IncomeStatement() {
   return (
     <Stack rowGap={1}>
       <Box height={510} bgcolor="#fff"></Box>
-
       <TagCard tabs={["詳細數據"]}>
         <div>table</div>
       </TagCard>

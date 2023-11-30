@@ -53,3 +53,8 @@ export const PERIOD_YEAR = [
   { label: "近5年", value: 5 },
   // { label: "近8年", value: 8 },
 ];
+
+export interface IFinMindApiResponse {
+  msg: string;
+  status: number;
+}

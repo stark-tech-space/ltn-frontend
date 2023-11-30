@@ -1,3 +1,5 @@
+import { IFinMindApiResponse } from "./common";
+
 export enum PAGE_NAV_ENUM {
   MONTHLY_REVENUE = "MONTHLY_REVENUE",
   EARNINGS_PER_SHARE = "EARNINGS_PER_SHARE",
@@ -41,4 +43,13 @@ export interface IncomeStatementTable {
 
   // 稅後淨利
   netincomeloss: number;
+}
+
+// 每月營收
+
+export interface IMonthlyRevenue extends IFinMindApiResponse {
+  data: {
+    date: string;
+    revenue: number;
+  }[];
 }

@@ -1,5 +1,6 @@
 import { IFinancialStatementRatio, IRealTimeQuote, PERIOD } from "types/common";
 import request from "./request";
+import http from "./http";
 
 // 实时提供股票的最新买入价和卖出价，以及成交量和最后成交价。
 export const fetchQuote = async (
@@ -42,5 +43,21 @@ export const fetchGrowthRates = async (
     return rst.data;
   } catch (error) {
     console.error(`fetchGrowthRates error: ${error}`);
+  }
+};
+
+export const fetchStockPriceByFinMind = async (params: {
+  data_id: string;
+  dataset: string;
+  start_date?: string;
+  end_date?: string;
+}): Promise<any | undefined> => {
+  try {
+    const rst = await http.get(`/data`, {
+      params,
+    });
+    return rst.data;
+  } catch (error) {
+    console.error(`fetchStockPriceByFinMind error: ${error}`);
   }
 };
