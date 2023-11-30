@@ -7,7 +7,7 @@ import http from "./http";
 export const fetchIncomeStatement = async (
   symbol: string,
   period: PERIOD,
-  limit: number = 40
+  limit: number = 40,
 ): Promise<IncomeStatementTable[] | undefined> => {
   try {
     const rst = await request.get(`/income-statement-growth/${symbol}`, {
@@ -20,12 +20,12 @@ export const fetchIncomeStatement = async (
 };
 
 // 公司營收
-export const fetchRevenue = async (params: {
+export async function fetchRevenue<T = IMonthlyRevenue>(params: {
   data_id: string;
   dataset: string;
   start_date?: string;
   end_date?: string;
-}): Promise<IMonthlyRevenue | undefined> => {
+}): Promise<T | undefined> {
   try {
     const rst = await http.get(`/data`, {
       params,
@@ -34,4 +34,4 @@ export const fetchRevenue = async (params: {
   } catch (error) {
     console.error(`fetchIncomeStatement error: ${error}`);
   }
-};
+}
