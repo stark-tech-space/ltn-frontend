@@ -1,7 +1,7 @@
 import { Button, Stack, Link, Box } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
 import { PageLayout } from "../../component/Layout";
-import { PAGE_NAV_CONVERTER, PAGE_NAV_ENUM } from "types/financial";
+import { FINANCIAL_PAGE_CONVERTER, FINANCIAL_PAGE_ENUM } from "types/financial";
 
 import styled from "@emotion/styled";
 import EarningsPerShare from "./component/EaringsPerShare";
@@ -22,21 +22,21 @@ const LinkTab = styled(Link)(({ isActive }: { isActive: boolean }) => ({
   cursor: "pointer",
 }));
 
-const CHILDREN_MAP: Record<PAGE_NAV_ENUM, React.ReactNode> = {
-  [PAGE_NAV_ENUM.MONTHLY_REVENUE]: <MonthlyRevenue />,
-  [PAGE_NAV_ENUM.EARNINGS_PER_SHARE]: <EarningsPerShare />,
-  [PAGE_NAV_ENUM.STOCK_PER_VALUE]: <PerStockShare />,
-  [PAGE_NAV_ENUM.INCOME_TABLE]: <IncomeStatement />,
-  [PAGE_NAV_ENUM.TOTAL_ASSETS]: <Developing />,
-  [PAGE_NAV_ENUM.LIABILITIES_AND_SHAREHOLDERS]: <Developing />,
-  [PAGE_NAV_ENUM.CASH_FLOW_STATEMENT]: <CashFlow />,
-  [PAGE_NAV_ENUM.DIVIDEND_POLICY]: <DividendPolicy />,
-  [PAGE_NAV_ENUM.EBOOK]: <Developing />,
+const CHILDREN_MAP: Record<FINANCIAL_PAGE_ENUM, React.ReactNode> = {
+  [FINANCIAL_PAGE_ENUM.MONTHLY_REVENUE]: <MonthlyRevenue />,
+  [FINANCIAL_PAGE_ENUM.EARNINGS_PER_SHARE]: <EarningsPerShare />,
+  [FINANCIAL_PAGE_ENUM.STOCK_PER_VALUE]: <PerStockShare />,
+  [FINANCIAL_PAGE_ENUM.INCOME_TABLE]: <IncomeStatement />,
+  [FINANCIAL_PAGE_ENUM.TOTAL_ASSETS]: <Developing />,
+  [FINANCIAL_PAGE_ENUM.LIABILITIES_AND_SHAREHOLDERS]: <Developing />,
+  [FINANCIAL_PAGE_ENUM.CASH_FLOW_STATEMENT]: <CashFlow />,
+  [FINANCIAL_PAGE_ENUM.DIVIDEND_POLICY]: <DividendPolicy />,
+  [FINANCIAL_PAGE_ENUM.EBOOK]: <Developing />,
 };
 
 function FinancialPage() {
-  const [activeTab, setActiveTab] = useState<PAGE_NAV_ENUM>(
-    PAGE_NAV_ENUM.MONTHLY_REVENUE
+  const [activeTab, setActiveTab] = useState<FINANCIAL_PAGE_ENUM>(
+    FINANCIAL_PAGE_ENUM.MONTHLY_REVENUE
   );
 
   const Child = useMemo(() => CHILDREN_MAP[activeTab], [activeTab]);
@@ -57,12 +57,12 @@ function FinancialPage() {
           },
         }}
       >
-        {Object.entries(PAGE_NAV_CONVERTER).map(([key, value], index) => (
+        {Object.entries(FINANCIAL_PAGE_CONVERTER).map(([key, value], index) => (
           <LinkTab
             key={key}
             variant="button"
             isActive={key === activeTab}
-            onClick={() => setActiveTab(key as PAGE_NAV_ENUM)}
+            onClick={() => setActiveTab(key as FINANCIAL_PAGE_ENUM)}
           >
             {value}
           </LinkTab>

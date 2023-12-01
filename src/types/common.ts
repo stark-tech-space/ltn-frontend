@@ -59,3 +59,10 @@ export interface IFinMindApiResponse {
   status: number;
   data: any;
 }
+
+export interface IFinMindDataItem {
+  date: string;
+  value: number;
+  type: string;
+  origin_name: string;
+}

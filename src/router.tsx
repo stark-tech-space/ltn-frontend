@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "./component/Layout";
 import Financial from "page/Financial";
 import RealTimeNewsPage from "page/News";
+import ProfitabilityPage from "page/Profitability";
 import Developing from "component/Developing";
 
 const router = createBrowserRouter([
@@ -18,8 +19,8 @@ const router = createBrowserRouter([
         element: <Financial />,
       },
       {
-        path: "/earning",
-        element: <Developing />,
+        path: "/profitability",
+        element: <ProfitabilityPage />,
       },
       {
         path: "/safety",
@@ -56,7 +57,7 @@ export const ROUTES = [
   },
   {
     title: "獲利能力",
-    path: "/earning",
+    path: "/profitability",
   },
   {
     title: "安全性分析",

@@ -1,5 +1,6 @@
 import BigNumber from "bignumber.js";
-import { PERIOD } from "types/common";
+import moment from "moment";
+import { IFinMindDataItem, PERIOD } from "types/common";
 
 export const sleep = (time = 120) => {
   return new Promise((resolve) => {
@@ -63,4 +64,17 @@ export const getDataLimit = (period: PERIOD, year: number) => {
     return year * 4;
   }
   return year;
+};
+
+export const getBeforeYears = (years: number) => {
+  return moment().subtract(years, "years").startOf("year").format("YYYY-MM-DD");
+};
+
+export const findMindDataToFmpData = (data: IFinMindDataItem) => {
+  return {
+    date: data.date,
+    calendarYear: moment(data.date).format("YYYY"),
+    [data.type]: data.value,
+    period: moment(data.date).format("MM"),
+  };
 };

@@ -1,5 +1,5 @@
 import { Stack, Box } from "@mui/material";
-import React, { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import TagCard from "../../../../component/tabCard";
 import MonthlyIncomeChart from "./MonthlyGraph";
 import PerStockIncomeChart from "./PerIncomeGraph";

@@ -13,6 +13,7 @@ import { IIncome } from "types/financial";
 const genStartDate = (years: number) => {
   return moment().subtract(years, "years").startOf("year").format("YYYY-MM-DD");
 };
+
 export default function IncomeGraph({
   getGraphData,
 }: {
