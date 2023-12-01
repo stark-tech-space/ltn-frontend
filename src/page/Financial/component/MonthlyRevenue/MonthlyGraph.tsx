@@ -38,20 +38,6 @@ export default function MonthlyGraph({
     }
   }, [stock.No, period, getGraphData]);
 
-  // console.log(graphData);
-
-  // useEffect(() => {
-  //   fetchStockPriceByFinMind({
-  //     data_id: stock.No,
-  //     start_date: genStartDate(period),
-  //     dataset: "TaiwanStockPriceTick",
-  //   }).then((rst) => {
-  //     if (rst?.status === 200) {
-  //       console.log(rst.data);
-  //     }
-  //   });
-  // }, [period, stock.No]);
-
   useEffect(() => {
     fetchData();
   }, [fetchData]);
@@ -84,31 +70,6 @@ export default function MonthlyGraph({
       ],
     };
   }, [graphData]);
-
-  // const [data, setData] = useState({
-  //   labels,
-  //   datasets: [
-  //     {
-  //       type: "line" as const,
-  //       label: "月均價",
-  //       borderColor: "#EB5757",
-  //       borderWidth: 2,
-  //       fill: false,
-  //       data: labels.map(() => +faker.finance.amount(200, 600)),
-  //       yAxisID: "y1",
-  //     },
-  //     {
-  //       type: "bar" as const,
-  //       label: "每月營收",
-  //       backgroundColor: "rgba(237, 88, 157, 0.15)",
-  //       data: labels.map(() => +faker.finance.amount(1200, 10000)),
-  //       borderColor: "rgba(237, 88, 157, 0.35)",
-  //       borderWidth: 1,
-  //       yAxisID: "y",
-  //       fill: false,
-  //     },
-  //   ],
-  // });
 
   return (
     <>

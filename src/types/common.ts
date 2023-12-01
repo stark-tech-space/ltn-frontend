@@ -57,15 +57,5 @@ export const PERIOD_YEAR = [
 export interface IFinMindApiResponse {
   msg: string;
   status: number;
+  data: any;
 }
-
-// CashProvidedByInvestingActivities 投資現金流
-// CashFlowsProvidedFromFinancingActivities 融資現金流
-
-
-
-// CashFlowsFromOperatingActivities :營業現金流
-
-// 自由現金流 = 
-
-// 淨現金流

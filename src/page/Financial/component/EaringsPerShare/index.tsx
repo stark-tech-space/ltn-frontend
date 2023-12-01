@@ -31,10 +31,7 @@ export default function EarningsPerShare() {
   const fetchGraphData = useCallback(async () => {
     const limit = getDataLimit(reportType, period);
     const rst = await fetchKeyMetrics(stock.Symbol, reportType, limit);
-
-    if (rst) {
-      setGraphData(rst as any);
-    }
+    rst && setGraphData(rst as any);
   }, [period, reportType, stock]);
 
   useEffect(() => {

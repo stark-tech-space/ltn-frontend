@@ -1,27 +1,22 @@
 import axios, { InternalAxiosRequestConfig } from "axios";
-import { FIN_MAIN_TOKEN } from "constant";
 import qs from "qs";
 
-const http = axios.create({
-  baseURL: `https://api.finmindtrade.com/api/v4`,
+const finMindApi = axios.create({
+  baseURL: `${process.env.REACT_APP_BASE_API}/api/v0/`,
 });
 
 const requestInterceptor = async (config: InternalAxiosRequestConfig) => {
-  config.params = {
-    ...config.params,
-    token: FIN_MAIN_TOKEN,
-  };
   config.paramsSerializer = {
     serialize: (params) => qs.stringify(params),
   };
   return config;
 };
 
-http.interceptors.request.use(requestInterceptor, (error) =>
+finMindApi.interceptors.request.use(requestInterceptor, (error) =>
   Promise.reject(error)
 );
 
-http.interceptors.response.use(
+finMindApi.interceptors.response.use(
   (response) => {
     return Promise.resolve(response);
   },
@@ -29,4 +24,4 @@ http.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-export default http;
+export default finMindApi;

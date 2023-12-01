@@ -1,16 +1,16 @@
-import request from "./request";
-import { IFinancialStatementRatio, PERIOD } from "types/common";
-import { IMonthlyRevenue, IncomeStatementTable } from "types/financial";
-import http from "./http";
+import { PERIOD } from "types/common";
+import { IMonthlyRevenue } from "types/financial";
+import fmpApi from "./http/fmpApi";
+import finMindApi from "./http/finmindApi";
 
 // 公司损益表
 export const fetchIncomeStatement = async (
   symbol: string,
   period: PERIOD,
-  limit: number = 40,
-): Promise<IncomeStatementTable[] | undefined> => {
+  limit: number = 40
+): Promise<any[] | undefined> => {
   try {
-    const rst = await request.get(`/income-statement-growth/${symbol}`, {
+    const rst = await fmpApi.get(`/income-statement-growth/${symbol}`, {
       params: { period, limit },
     });
     return rst.data;
@@ -27,11 +27,11 @@ export async function fetchRevenue<T = IMonthlyRevenue>(params: {
   end_date?: string;
 }): Promise<T | undefined> {
   try {
-    const rst = await http.get(`/data`, {
+    const rst = await finMindApi.get(`/finmind`, {
       params,
     });
     return rst.data;
   } catch (error) {
-    console.error(`fetchIncomeStatement error: ${error}`);
+    console.error(`fetchRevenue error: ${error}`);
   }
 }

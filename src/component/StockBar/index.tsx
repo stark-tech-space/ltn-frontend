@@ -51,7 +51,7 @@ export default function TopStockBar() {
         setQuote(rst[0]);
       }
     })();
-  }, [stock]);
+  }, [stock.Symbol]);
 
   return (
     <Stack flexDirection="row" columnGap="6px" alignItems="center">

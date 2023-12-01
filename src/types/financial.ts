@@ -24,28 +24,6 @@ export const PAGE_NAV_CONVERTER: Record<PAGE_NAV_ENUM, string> = {
   [PAGE_NAV_ENUM.EBOOK]: "電子書",
 };
 
-//损益表
-export interface IncomeStatementTable {
-  // 毛利
-  grossprofit: number;
-
-  //税后收入
-  comprehensiveincomenetoftax: number;
-
-  // 营收
-  revenuefromcontractwithcustomerexcludingassessedtax: number;
-
-  //营业利益
-  operatingincomeloss: number;
-
-  //稅前淨利
-  incomelossfromcontinuingoperationsbeforeincometaxesextraordinaryitemsnoncontrollinginterest:
-    number;
-
-  // 稅後淨利
-  netincomeloss: number;
-}
-
 // 每月營收
 
 export interface IMonthlyRevenue extends IFinMindApiResponse {
@@ -77,4 +55,28 @@ export interface IIncome extends IFinMindApiResponse {
     type: IncomeType;
     value: number;
   }[];
+}
+
+export interface IDividendPolicyItem {
+  //公告日
+  AnnouncementDate: string;
+  //現金股利
+  CashEarningsDistribution: number;
+  //除息日
+  CashExDividendTradingDate: string;
+  //現金股利發放日
+  CashDividendPaymentDate: string;
+  // 股票股利
+  StockEarningsDistribution: number;
+
+  date: string;
+
+  year: string;
+
+  // 除權日-不確定
+  // 填息花費日數-不確定
+}
+
+export interface IDividendPolicyRst extends IFinMindApiResponse {
+  data: IDividendPolicyItem[];
 }

@@ -2,7 +2,7 @@ import { Button, Stack, Link, Box } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
 import { PageLayout } from "../../component/Layout";
 import { PAGE_NAV_CONVERTER, PAGE_NAV_ENUM } from "types/financial";
-import request from "api/request";
+
 import styled from "@emotion/styled";
 import EarningsPerShare from "./component/EaringsPerShare";
 import MonthlyRevenue from "./component/MonthlyRevenue";
@@ -10,6 +10,7 @@ import Developing from "component/Developing";
 import IncomeStatement from "./component/IncomeStatement";
 import PerStockShare from "./component/PerStockValue";
 import CashFlow from "./component/CashFlow";
+import DividendPolicy from "./component/DividendPolicy";
 
 const LinkTab = styled(Link)(({ isActive }: { isActive: boolean }) => ({
   padding: "12px 24px",
@@ -29,7 +30,7 @@ const CHILDREN_MAP: Record<PAGE_NAV_ENUM, React.ReactNode> = {
   [PAGE_NAV_ENUM.TOTAL_ASSETS]: <Developing />,
   [PAGE_NAV_ENUM.LIABILITIES_AND_SHAREHOLDERS]: <Developing />,
   [PAGE_NAV_ENUM.CASH_FLOW_STATEMENT]: <CashFlow />,
-  [PAGE_NAV_ENUM.DIVIDEND_POLICY]: <Developing />,
+  [PAGE_NAV_ENUM.DIVIDEND_POLICY]: <DividendPolicy />,
   [PAGE_NAV_ENUM.EBOOK]: <Developing />,
 };
 

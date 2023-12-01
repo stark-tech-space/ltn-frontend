@@ -1,5 +1,5 @@
 import React from "react";
-import { Avatar, Box, Divider, Stack, Typography } from "@mui/material";
+import { Box, Divider, Stack, Typography } from "@mui/material";
 
 const Article = () => {
   return (
