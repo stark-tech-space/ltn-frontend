@@ -3,6 +3,9 @@ import Layout from "./component/Layout";
 import Financial from "page/Financial";
 import RealTimeNewsPage from "page/News";
 import ProfitabilityPage from "page/Profitability";
+import SecurityAnalysisPage from "page/SecurityAnalysis";
+import GrowthAnalysisPage from "page/GrowthAnalysis";
+import ValueAssessmentPage from "page/ValueAssessment";
 import Developing from "component/Developing";
 
 const router = createBrowserRouter([
@@ -23,16 +26,16 @@ const router = createBrowserRouter([
         element: <ProfitabilityPage />,
       },
       {
-        path: "/safety",
-        element: <Developing />,
+        path: "/security",
+        element: <SecurityAnalysisPage />,
       },
       {
         path: "/growth",
-        element: <Developing />,
+        element: <GrowthAnalysisPage />,
       },
       {
         path: "/evaluation",
-        element: <Developing />,
+        element: <ValueAssessmentPage />,
       },
       {
         path: "/indicator",
@@ -61,7 +64,7 @@ export const ROUTES = [
   },
   {
     title: "安全性分析",
-    path: "/safety",
+    path: "/security",
   },
   {
     title: "成長力分析",

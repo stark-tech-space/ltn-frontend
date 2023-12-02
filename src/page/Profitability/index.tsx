@@ -1,17 +1,17 @@
-import { Button, Stack, Link, Box } from "@mui/material";
-import React, { useEffect, useMemo, useState } from "react";
+import { Stack, Link, Box } from "@mui/material";
+import React, { useMemo, useState } from "react";
 import { PageLayout } from "../../component/Layout";
-import {
-  PROFITABILITY_PAGE_ENUM,
-  PROFITABILITY_PAGE_CONVERTER,
-} from "types/profitability";
+import { PROFIT_PAGE_CONVERTER, PROFIT_PAGE_ENUM } from "types/profitability";
 
 import styled from "@emotion/styled";
-import Developing from "component/Developing";
 import ProfitRatio from "./component/ProfitRatio";
 import OperatingRatio from "./component/OperatingRatio";
 import OutSideProfitRatio from "./component/OutsideProfitRatio";
 import RoEAndRoA from "./component/ROE";
+import DuPontAnalysis from "./component/DuPontAnalysis";
+import WeeklyTurnoverAbility from "./component/WeeklyTurnoverAbility";
+import OperatingDays from "./component/OperatingDays";
+import CashDividendRatio from "./component/CashDividendRatio";
 
 const LinkTab = styled(Link)(({ isActive }: { isActive: boolean }) => ({
   padding: "12px 24px",
@@ -23,19 +23,20 @@ const LinkTab = styled(Link)(({ isActive }: { isActive: boolean }) => ({
   cursor: "pointer",
 }));
 
-const CHILDREN_MAP: Record<PROFITABILITY_PAGE_ENUM, React.ReactNode> = {
-  [PROFITABILITY_PAGE_ENUM.PAGE1]: <ProfitRatio />,
-  [PROFITABILITY_PAGE_ENUM.PAGE2]: <OperatingRatio />,
-  [PROFITABILITY_PAGE_ENUM.PAGE3]: <OutSideProfitRatio />,
-  [PROFITABILITY_PAGE_ENUM.PAGE4]: <RoEAndRoA />,
-  [PROFITABILITY_PAGE_ENUM.PAGE5]: <Developing />,
-  [PROFITABILITY_PAGE_ENUM.PAGE6]: <Developing />,
-  [PROFITABILITY_PAGE_ENUM.PAGE7]: <Developing />,
+const CHILDREN_MAP: Record<PROFIT_PAGE_ENUM, React.ReactNode> = {
+  [PROFIT_PAGE_ENUM.PAGE1]: <ProfitRatio />,
+  [PROFIT_PAGE_ENUM.PAGE2]: <OperatingRatio />,
+  [PROFIT_PAGE_ENUM.PAGE3]: <OutSideProfitRatio />,
+  [PROFIT_PAGE_ENUM.PAGE4]: <RoEAndRoA />,
+  [PROFIT_PAGE_ENUM.PAGE5]: <DuPontAnalysis />,
+  [PROFIT_PAGE_ENUM.PAGE6]: <WeeklyTurnoverAbility />,
+  [PROFIT_PAGE_ENUM.PAGE7]: <OperatingDays />,
+  [PROFIT_PAGE_ENUM.PAGE8]: <CashDividendRatio />,
 };
 
 function ProfitabilityPage() {
-  const [activeTab, setActiveTab] = useState<PROFITABILITY_PAGE_ENUM>(
-    PROFITABILITY_PAGE_ENUM.PAGE1
+  const [activeTab, setActiveTab] = useState<PROFIT_PAGE_ENUM>(
+    PROFIT_PAGE_ENUM.PAGE1
   );
 
   const Child = useMemo(() => CHILDREN_MAP[activeTab], [activeTab]);
@@ -56,12 +57,12 @@ function ProfitabilityPage() {
           },
         }}
       >
-        {Object.entries(PROFITABILITY_PAGE_CONVERTER).map(([key, value]) => (
+        {Object.entries(PROFIT_PAGE_CONVERTER).map(([key, value]) => (
           <LinkTab
             key={key}
             variant="button"
             isActive={key === activeTab}
-            onClick={() => setActiveTab(key as PROFITABILITY_PAGE_ENUM)}
+            onClick={() => setActiveTab(key as PROFIT_PAGE_ENUM)}
           >
             {value}
           </LinkTab>

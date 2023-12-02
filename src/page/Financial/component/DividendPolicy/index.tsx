@@ -16,7 +16,7 @@ export default function DividendPolicy() {
     const rst = await fetchFindMindAPI<IDividendPolicyItem[]>({
       data_id: stock.No,
       dataset: "TaiwanStockDividend",
-      start_date: "2000-01-01",
+      start_date: "2015-01-01",
     });
 
     if (rst) {

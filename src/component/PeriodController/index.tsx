@@ -35,7 +35,7 @@ export default function PeriodController({
           <Button
             key={item.value}
             sx={{
-              color: item.value === period ? "primary" : "#333",
+              color: item.value === period ? "#405DF9" : "#333",
             }}
             onClick={() => {
               setPeriod(item.value);

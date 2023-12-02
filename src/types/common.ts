@@ -66,3 +66,12 @@ export interface IFinMindDataItem {
   type: string;
   origin_name: string;
 }
+
+export interface IDateField {
+  // 日期
+  date: string;
+  // 年度/季
+  period: string;
+  // 年
+  calendarYear: string;
+}
