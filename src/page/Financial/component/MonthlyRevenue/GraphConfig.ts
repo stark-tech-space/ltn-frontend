@@ -1,6 +1,7 @@
 export const OPTIONS = {
   maintainAspectRatio: false,
   responsive: true,
+  locale: "zh-TW",
   plugins: {
     legend: {
       position: "bottom",
@@ -13,16 +14,16 @@ export const OPTIONS = {
       type: "time",
       time: {
         unit: "year",
+        tooltipFormat: "YYYY/MM",
       },
     },
     y: {
       type: "linear",
       display: true,
       position: "left",
-      max: 12000,
       title: {
         display: true,
-        text: "千元",
+        text: "%",
         align: "end",
         font: {
           size: 12,

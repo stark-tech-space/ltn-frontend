@@ -3,7 +3,9 @@ import React, { ReactNode } from "react";
 
 interface ITabCard {
   tabs: any[];
+  disabled?: boolean;
   children: ReactNode;
+  visible?: boolean;
   onChange?: (current: any) => void;
 }
 
@@ -19,19 +21,31 @@ const ClickTabButton = styled(Button)(
   })
 );
 
-export default function TagCard({ tabs, onChange, children }: ITabCard) {
+export default function TagCard({
+  tabs,
+  onChange,
+  disabled,
+  children,
+  visible = true,
+}: ITabCard) {
   const [tabIndex, setTabIndex] = React.useState(0);
+
   return (
     <Box>
-      <Stack flexDirection="row" width="auto">
+      <Stack
+        flexDirection="row"
+        width="auto"
+        display={visible ? "flex" : "none"}
+      >
         {tabs.map((tab, index) => (
           <ClickTabButton
             key={tab}
+            disabled={disabled}
             onClick={() => {
               onChange?.(index);
               setTabIndex(index);
             }}
-            isActive={tabIndex === index}
+            isActive={disabled ? false : tabIndex === index}
           >
             {tab}
           </ClickTabButton>

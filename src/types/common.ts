@@ -51,5 +51,27 @@ export interface IFinancialStatementRatio {
 export const PERIOD_YEAR = [
   { label: "近3年", value: 3 },
   { label: "近5年", value: 5 },
-  // { label: "近8年", value: 8 },
+  { label: "近8年", value: 8 },
 ];
+
+export interface IFinMindApiResponse {
+  msg: string;
+  status: number;
+  data: any;
+}
+
+export interface IFinMindDataItem {
+  date: string;
+  value: number;
+  type: string;
+  origin_name: string;
+}
+
+export interface IDateField {
+  // 日期
+  date: string;
+  // 年度/季
+  period: string;
+  // 年
+  calendarYear: string;
+}
