@@ -1,45 +1,30 @@
 import { Box } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { PERIOD } from "types/common";
+import { IDateField, PERIOD } from "types/common";
 import { Chart as ReactChart } from "react-chartjs-2";
-import { graphConfig, labelDataSets } from "./GrapConfig";
+import { graphConfig, labelDataSets } from "./GraphConfig";
 import { getDataLimit } from "until";
-import { fetchBalanceSheetStatement, fetchProfitRatio } from "api/profitrato";
+import { fetchProfitRatio } from "api/profitrato";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
-import {
-  IDuPontAnalysisGraph1,
-  IDuPontAnalysisGraph2,
-} from "types/profitability";
+
 import PeriodController from "component/PeriodController";
 import type { Chart } from "chart.js";
+import { IValueAssessment } from "types/valueAssessment";
 
-interface IComposedData {
-  netProfitMargin: number;
-  assetTurnover: number;
-  equityMultiplier: number;
-  returnOnEquity: number;
-  date: string;
-  period: string;
-  calendarYear: string;
+interface IPriceToBookRatio extends IDateField {
+  priceToBookRatio: number;
+  averagePriceEarningsRatio: number;
 }
 
 export const GRAPH_FIELDS = [
   {
-    field: "netProfitMargin",
-    headerName: "稅後淨利率",
+    field: "priceToBookRatio",
+    headerName: "股價淨值比",
   },
   {
-    field: "assetTurnover",
-    headerName: "總資產迴轉",
-  },
-  {
-    field: "equityMultiplier",
-    headerName: "權益乘數",
-  },
-  {
-    field: "returnOnEquity",
-    headerName: "ROA",
+    field: "averagePriceEarningsRatio",
+    headerName: "月均價",
   },
 ];
 
@@ -53,7 +38,7 @@ export default function Graph({
   const [period, setPeriod] = useState(3);
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
 
-  const updateGraph = (data: IComposedData[]) => {
+  const updateGraph = (data: IPriceToBookRatio[]) => {
     if (chartRef.current) {
       const labels = data.map((item) => item.date);
       chartRef.current.data.labels = labels;
@@ -61,7 +46,7 @@ export default function Graph({
       GRAPH_FIELDS.forEach(async ({ field }, index) => {
         if (chartRef.current) {
           chartRef.current.data.datasets[index].data = data.map(
-            (item) => +item[field as keyof IComposedData] * 100
+            (item) => +item[field as keyof IPriceToBookRatio]
           );
         }
       });
@@ -69,7 +54,7 @@ export default function Graph({
     }
   };
 
-  const genGraphTableData = <T extends IComposedData>(data: T[]) => {
+  const genGraphTableData = <T extends IPriceToBookRatio>(data: T[]) => {
     if (data.length === 0) {
       return [[], []];
     }
@@ -97,13 +82,11 @@ export default function Graph({
       };
       data?.forEach((item) => {
         if (reportType === PERIOD.ANNUAL) {
-          dataSources[item.calendarYear] = (
-            +item[field as keyof T] * 100
-          ).toFixed(2);
+          dataSources[item.calendarYear] = (+item[field as keyof T]).toFixed(2);
         } else {
-          dataSources[`${item.calendarYear}-${item.period}`] = (
-            +item[field as keyof T] * 100
-          ).toFixed(2);
+          dataSources[`${item.calendarYear}-${item.period}`] = (+item[
+            field as keyof T
+          ]).toFixed(2);
         }
       });
       rowData.push(dataSources);
@@ -113,34 +96,21 @@ export default function Graph({
 
   const fetchGraphData = useCallback(async () => {
     const limit = getDataLimit(reportType, period);
-    const [data1, data2] = await Promise.all([
-      fetchProfitRatio<IDuPontAnalysisGraph1[]>(
-        stock.Symbol,
-        reportType,
-        limit
-      ),
-      fetchBalanceSheetStatement<IDuPontAnalysisGraph2[]>(
-        stock.Symbol,
-        PERIOD.QUARTER,
-        limit
-      ),
-    ]);
-    if (data1 && data2) {
-      const composeData = data1.map((item, index) => {
-        return {
-          date: item.date,
-          period: item.period,
-          calendarYear: item.calendarYear,
-          netProfitMargin: item.netProfitMargin,
-          assetTurnover: item.assetTurnover,
-          returnOnEquity: item.returnOnEquity,
-          equityMultiplier:
-            data2?.[index]?.totalAssets /
-            data2?.[index]?.totalStockholdersEquity,
-        };
-      });
-      updateGraph(composeData);
-      getGraphData(genGraphTableData(composeData));
+    const rst = await fetchProfitRatio<IValueAssessment[]>(
+      stock.Symbol,
+      reportType,
+      limit
+    );
+    if (rst) {
+      const data = rst.map((item) => ({
+        date: item.date,
+        period: item.period,
+        calendarYear: item.calendarYear,
+        priceToBookRatio: item.priceToBookRatio,
+        averagePriceEarningsRatio: 0,
+      }));
+      updateGraph(data);
+      getGraphData(genGraphTableData(data));
     }
   }, [stock, period, reportType]);
 

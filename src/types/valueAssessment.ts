@@ -22,3 +22,9 @@ export const VALUE_ASSESSMENT_CONVERTER: Record<
   [VALUE_ASSESS_PAGE_ENUM.PAGE6]: "平均現金股息殖利率",
   [VALUE_ASSESS_PAGE_ENUM.PAGE7]: "平均現金股息河流圖",
 };
+
+export interface IValueAssessment extends IDateField {
+  priceEarningsRatio: number;
+  priceToBookRatio: number;
+  dividendYield: number;
+}
