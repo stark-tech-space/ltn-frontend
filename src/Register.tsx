@@ -31,7 +31,6 @@ export default function Register() {
     TimeSeriesScale
   );
   // }, []);
-  console.log(111);
 
   return null;
 }

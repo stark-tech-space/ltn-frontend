@@ -98,11 +98,11 @@ export default function GraphSingleRatio({
     //   ?.filter((item) => item.type === "TotalNonoperatingIncomeAndExpense")
     //   .map((item) => findMindDataToFmpData(item));
 
-    console.log("graphData:", rst);
+    // console.log("graphData:", rst);
   }, [stock, period, reportType, getGraphData]);
 
   useEffect(() => {
-    fetchGraphData();
+    // fetchGraphData();
   }, [fetchGraphData]);
 
   return (

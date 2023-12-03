@@ -1,9 +1,8 @@
-import { Stack, Link, Box } from "@mui/material";
+import { Box } from "@mui/material";
 import React, { useMemo, useState } from "react";
 import { PageLayout } from "../../component/Layout";
 import { PROFIT_PAGE_CONVERTER, PROFIT_PAGE_ENUM } from "types/profitability";
 
-import styled from "@emotion/styled";
 import ProfitRatio from "./component/ProfitRatio";
 import OperatingRatio from "./component/OperatingRatio";
 import OutSideProfitRatio from "./component/OutsideProfitRatio";
@@ -12,16 +11,7 @@ import DuPontAnalysis from "./component/DuPontAnalysis";
 import WeeklyTurnoverAbility from "./component/WeeklyTurnoverAbility";
 import OperatingDays from "./component/OperatingDays";
 import CashDividendRatio from "./component/CashDividendRatio";
-
-const LinkTab = styled(Link)(({ isActive }: { isActive: boolean }) => ({
-  padding: "12px 24px",
-  fontWeight: 400,
-  fontSize: "16px",
-  borderRight: "1px solid #F2F2F2",
-  color: isActive ? "#405DF9" : "#828282",
-  textDecoration: "none",
-  cursor: "pointer",
-}));
+import PageNavigation from "component/PageNavigation";
 
 const CHILDREN_MAP: Record<PROFIT_PAGE_ENUM, React.ReactNode> = {
   [PROFIT_PAGE_ENUM.PAGE1]: <ProfitRatio />,
@@ -38,36 +28,15 @@ function ProfitabilityPage() {
   const [activeTab, setActiveTab] = useState<PROFIT_PAGE_ENUM>(
     PROFIT_PAGE_ENUM.PAGE1
   );
-
   const Child = useMemo(() => CHILDREN_MAP[activeTab], [activeTab]);
+
   return (
     <Box>
-      <Stack
-        flexDirection="row"
-        alignItems="center"
-        bgcolor="#fff"
-        px="48px"
-        mb={1}
-        sx={{
-          ".MuiTypography-button:last-child": {
-            borderRight: "none",
-          },
-          ".MuiTypography-button:first-child": {
-            pl: "16px",
-          },
-        }}
-      >
-        {Object.entries(PROFIT_PAGE_CONVERTER).map(([key, value]) => (
-          <LinkTab
-            key={key}
-            variant="button"
-            isActive={key === activeTab}
-            onClick={() => setActiveTab(key as PROFIT_PAGE_ENUM)}
-          >
-            {value}
-          </LinkTab>
-        ))}
-      </Stack>
+      <PageNavigation
+        defaultActiveTab={PROFIT_PAGE_ENUM.PAGE1}
+        menuConverter={PROFIT_PAGE_CONVERTER}
+        onChange={(tab) => setActiveTab(tab as PROFIT_PAGE_ENUM)}
+      />
       <Box mx="48px">{Child}</Box>
     </Box>
   );

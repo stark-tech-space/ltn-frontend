@@ -6,7 +6,7 @@ import ProfitabilityPage from "page/Profitability";
 import SecurityAnalysisPage from "page/SecurityAnalysis";
 import GrowthAnalysisPage from "page/GrowthAnalysis";
 import ValueAssessmentPage from "page/ValueAssessment";
-import Developing from "component/Developing";
+import IndicatorsPage from "page/Indicators";
 
 const router = createBrowserRouter([
   {
@@ -39,7 +39,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/indicator",
-        element: <Developing />,
+        element: <IndicatorsPage />,
       },
     ],
   },
