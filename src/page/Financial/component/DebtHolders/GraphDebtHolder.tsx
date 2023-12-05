@@ -142,12 +142,11 @@ export default function GraphDebtHolder({
       data_id: stock.No,
       dataset: "TaiwanStockBalanceSheet",
       start_date: getBeforeYears(period),
-      
     });
 
     const data = rst.map((item: any) => findMindDataToFmpData(item));
     // updateGraph(data);
-    console.log("data:", data);
+    // console.log("data:", data);
   }, [stock, period, reportType, getGraphData]);
 
   useEffect(() => {
