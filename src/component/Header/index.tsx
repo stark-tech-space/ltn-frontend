@@ -6,6 +6,7 @@ import {
   Stack,
   TextField,
   styled,
+  useTheme,
 } from "@mui/material";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -25,6 +26,7 @@ const StyledLogo = styled(Link)(() => ({
 }));
 
 export default function AppHeader() {
+  const theme = useTheme();
   return (
     <Box>
       <Stack
@@ -36,18 +38,13 @@ export default function AppHeader() {
           px: 6,
           flexShrink: 0,
           bgcolor: "#fff",
+          [theme.breakpoints.down("lg")]: {
+            px: 4,
+          },
         }}
       >
         <Stack flexDirection="row" alignItems="center" columnGap={3}>
           <StyledLogo to="/" />
-          {/* <TextField
-            variant="outlined"
-            size="small"
-            placeholder="找哪張股票"
-            InputProps={{
-              endAdornment: <SearchIcon htmlColor="#4F4F4F" />,
-            }}
-          /> */}
           <SearchStockTextField />
         </Stack>
         <Stack flexDirection="row" alignItems="center" columnGap={2}>
@@ -69,7 +66,10 @@ export default function AppHeader() {
         height="44px"
         py="10px"
         bgcolor="#fff"
-        px={6}
+        px={{
+          xs: 4,
+          lg: 6,
+        }}
       >
         <TopStockBar />
         <Button

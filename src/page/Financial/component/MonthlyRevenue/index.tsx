@@ -5,6 +5,7 @@ import MonthlyIncomeChart from "./MonthlyGraph";
 import PerStockIncomeChart from "./PerIncomeGraph";
 import { AgGridReact } from "ag-grid-react";
 import numeral from "numeral";
+import { useFetchIndicators } from "Hooks/common";
 
 export default function EarningsPerShare() {
   const [tabIndex, setTabIndex] = useState(0);
@@ -12,6 +13,8 @@ export default function EarningsPerShare() {
   const [graphData, setGraphData] = useState<
     { date: string; revenue: number }[]
   >([]);
+
+  const indicators = useFetchIndicators();
 
   const defaultColDef = useMemo(() => {
     return {

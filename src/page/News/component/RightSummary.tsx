@@ -179,9 +179,9 @@ export default function RightSummary() {
   return (
     <>
       <StockInformation />
-      <Box height="40px" />
+      <Box height={{ xs: "8px", lg: "40px" }} />
       <CompanyInformation />
-      <Box height="10px" />
+      <Box height="8px" />
       <ArticleList />
     </>
   );

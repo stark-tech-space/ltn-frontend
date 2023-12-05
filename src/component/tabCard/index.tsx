@@ -51,7 +51,12 @@ export default function TagCard({
           </ClickTabButton>
         ))}
       </Stack>
-      <Box px={3} pt={3} bgcolor="#fff" borderRadius="0 8px 8px 8px">
+      <Box
+        px={{ xs: 2, lg: 3 }}
+        pt={{ xs: 2, lg: 3 }}
+        bgcolor="#fff"
+        borderRadius="0 8px 8px 8px"
+      >
         {children}
       </Box>
     </Box>

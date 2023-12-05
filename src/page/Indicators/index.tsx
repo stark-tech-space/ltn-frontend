@@ -30,7 +30,7 @@ function IndicatorsPage() {
         menuConverter={INDICATORS_CONVERTER}
         onChange={(tab) => setActiveTab(tab as INDICATORS_PAGE_ENUM)}
       />
-      <Box mx="48px">{Child}</Box>
+      <Box mx={{ xs: 4, lg: 6 }}>{Child}</Box>
     </Box>
   );
 }

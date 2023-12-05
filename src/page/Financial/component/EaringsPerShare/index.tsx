@@ -1,9 +1,9 @@
-import { Stack, Box, ButtonGroup, Button } from "@mui/material";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Stack, Box } from "@mui/material";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import TagCard from "../../../../component/tabCard";
-import numeral from "numeral";
+
 import { AgGridReact } from "ag-grid-react";
-import { PERIOD, PERIOD_YEAR } from "types/common";
+import { PERIOD } from "types/common";
 import { Chart } from "react-chartjs-2";
 import { faker } from "@faker-js/faker";
 import { OPTIONS } from "./GraphConfig";
@@ -12,6 +12,7 @@ import { getDataLimit } from "until";
 import { fetchKeyMetrics } from "api/common";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
+import PeriodController from "component/PeriodController";
 
 export default function EarningsPerShare() {
   const stock = useRecoilValue(currentStock);
@@ -80,6 +81,7 @@ export default function EarningsPerShare() {
           type: "line" as const,
           label: "月均價",
           borderColor: "#EB5757",
+          backgroundColor: "#EB5757",
           borderWidth: 2,
           fill: false,
           data: new Array(graphData.length)
@@ -108,49 +110,10 @@ export default function EarningsPerShare() {
         onChange={setTabIndex}
         visible={reportType !== PERIOD.ANNUAL}
       >
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{
-            mb: 3,
-            px: 3,
-            "&>button": {
-              mx: 1,
-              bgcolor: "transparent",
-              border: 0,
-              cursor: "pointer",
-            },
-          }}
-        >
-          <Box>
-            {PERIOD_YEAR.map((item) => (
-              <Button
-                key={item.value}
-                sx={{
-                  color: item.value === period ? "primary" : "#333",
-                }}
-                onClick={() => setPeriod(item.value)}
-              >
-                {item.label}
-              </Button>
-            ))}
-          </Box>
-          <ButtonGroup variant="outlined">
-            <Button
-              variant={reportType === PERIOD.QUARTER ? "contained" : "outlined"}
-              onClick={() => setReportType(PERIOD.QUARTER)}
-            >
-              季報
-            </Button>
-            <Button
-              variant={reportType === PERIOD.ANNUAL ? "contained" : "outlined"}
-              onClick={() => setReportType(PERIOD.ANNUAL)}
-            >
-              年報
-            </Button>
-          </ButtonGroup>
-        </Stack>
+        <PeriodController
+          onChangePeriod={setPeriod}
+          onChangeReportType={setReportType}
+        />
         <Box height={510} bgcolor="#fff" pb={3}>
           <Chart type="bar" data={graphDataSets} options={OPTIONS as any} />
         </Box>

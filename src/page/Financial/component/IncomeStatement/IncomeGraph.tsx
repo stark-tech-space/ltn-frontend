@@ -9,6 +9,7 @@ import { currentStock } from "recoil/selector";
 import { fetchRevenue } from "api/financial";
 import moment from "moment";
 import { IIncome } from "types/financial";
+import PeriodController from "component/PeriodController";
 
 const genStartDate = (years: number) => {
   return moment().subtract(years, "years").startOf("year").format("YYYY-MM-DD");
@@ -204,7 +205,7 @@ export default function IncomeGraph({
 
   return (
     <>
-      <Stack
+      {/* <Stack
         direction="row"
         alignItems="center"
         sx={{
@@ -230,8 +231,9 @@ export default function IncomeGraph({
             {item.label}
           </Button>
         ))}
-      </Stack>
-      <Box height={510} bgcolor="#fff" pb={3} px={3}>
+      </Stack> */}
+      <PeriodController onChangePeriod={setPeriod} showReportType={false} />
+      <Box height={510} bgcolor="#fff" pb={3}>
         <Chart type="bar" data={graphDataSet as any} options={OPTIONS as any} />
       </Box>
     </>

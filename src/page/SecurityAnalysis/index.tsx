@@ -28,7 +28,7 @@ function SecurityAnalysisPage() {
         menuConverter={SECURITY_PAGE_CONVERTER}
         onChange={(tab) => setActiveTab(tab as SECURITY_PAGE_ENUM)}
       />
-      <Box mx="48px">{Child}</Box>
+      <Box mx={{ xs: 4, lg: 6 }}>{Child}</Box>
     </Box>
   );
 }

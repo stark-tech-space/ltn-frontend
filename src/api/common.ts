@@ -87,3 +87,32 @@ export async function fetchFindMindAPI<T>(params: {
     console.error(`finMindApi ${params.dataset} error: ${error}`);
   }
 }
+
+// 获取sma指标
+export async function fetchIndicators<T>(params: {
+  symbol: string;
+  period: number;
+  timeKey: string;
+  type: string;
+  from: string;
+  to: string;
+}): Promise<T | undefined> {
+  try {
+    const rst = await fmpApi.get<T>(
+      `/technical_indicator/${params.timeKey}/${params.symbol}`,
+      {
+        params: {
+          type: params.type,
+          period: params.period,
+          limit: 100,
+          from: params.from,
+          to: params.to,
+        },
+      }
+    );
+    // console.log(rst);
+    return rst.data;
+  } catch (error) {
+    console.error(`fetchSma ${params.symbol} error: ${error}`);
+  }
+}

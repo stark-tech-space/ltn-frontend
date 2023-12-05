@@ -13,6 +13,7 @@ export const OPTIONS = {
       type: "time",
       time: {
         unit: "year",
+        tooltipFormat: "YYYY/MM",
       },
     },
     y: {
@@ -28,7 +29,6 @@ export const OPTIONS = {
           weight: "bold",
         },
       },
-      
     },
     y1: {
       type: "linear",

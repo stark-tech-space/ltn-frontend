@@ -50,7 +50,7 @@ const PageNavigation: FC<PageMenuProps<string>> = ({
             borderRight: "none",
           },
           ".MuiTypography-button:first-child": {
-            pl: "16px",
+            pl: "0",
           },
         }}
       >

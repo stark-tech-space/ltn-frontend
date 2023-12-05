@@ -17,7 +17,7 @@ export const FINANCIAL_PAGE_CONVERTER: Record<FINANCIAL_PAGE_ENUM, string> = {
   [FINANCIAL_PAGE_ENUM.PAGE2]: "每股盈餘",
   [FINANCIAL_PAGE_ENUM.PAGE3]: "每股淨值",
   [FINANCIAL_PAGE_ENUM.PAGE4]: "損益表",
-  [FINANCIAL_PAGE_ENUM.PAGE5]: "總資產",
+  [FINANCIAL_PAGE_ENUM.PAGE5]: "資產項目",
   [FINANCIAL_PAGE_ENUM.PAGE6]: "負債和股東權益",
   [FINANCIAL_PAGE_ENUM.PAGE7]: "現金流量表",
   [FINANCIAL_PAGE_ENUM.PAGE8]: "股利政策",
@@ -79,4 +79,9 @@ export interface IDividendPolicyItem {
 
 export interface IDividendPolicyRst extends IFinMindApiResponse {
   data: IDividendPolicyItem[];
+}
+
+export interface IDebtTableItem {
+  date: string;
+  value: number;
 }

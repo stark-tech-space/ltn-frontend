@@ -68,7 +68,7 @@ export default function NavTabs() {
   };
 
   return (
-    <Box sx={{ px: 6, bgcolor: "#fff", mt: 1 }}>
+    <Box sx={{ bgcolor: "#fff", mt: 1 }} px={{ xs: 4, lg: 6 }}>
       <Tabs value={value} onChange={handleChange}>
         {ROUTES.map((item, index) => {
           return <LinkTab key={index} label={item.title} href={item.path} />;

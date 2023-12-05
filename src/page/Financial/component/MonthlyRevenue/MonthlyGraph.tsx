@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Chart } from "react-chartjs-2";
 import { faker } from "@faker-js/faker";
-import { Box, Button, Stack } from "@mui/material";
+import { Box } from "@mui/material";
 import { OPTIONS } from "./GraphConfig";
-import { PERIOD_YEAR } from "types/common";
+
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import { fetchRevenue } from "api/financial";
 import moment from "moment";
+import PeriodController from "component/PeriodController";
 
 const genStartDate = (years: number) => {
   return moment().subtract(years, "years").startOf("year").format("YYYY-MM-DD");
@@ -18,7 +19,7 @@ export default function MonthlyGraph({
   getGraphData: (data: { date: string; revenue: number }[]) => void;
 }) {
   const stock = useRecoilValue(currentStock);
-  const [period, setPeriod] = useState(3);
+  const [period] = useState(3);
   const [graphData, setGraphData] = useState<
     { date: string; revenue: number }[]
   >([]);
@@ -50,6 +51,7 @@ export default function MonthlyGraph({
           type: "line" as const,
           label: "月均價",
           borderColor: "#EB5757",
+          backgroundColor: "#EB5757",
           borderWidth: 2,
           fill: false,
           data: new Array(graphData.length)
@@ -73,32 +75,7 @@ export default function MonthlyGraph({
 
   return (
     <>
-      <Stack
-        direction="row"
-        alignItems="center"
-        sx={{
-          mb: 3,
-          px: 3,
-          button: {
-            mx: 1,
-            bgcolor: "transparent",
-            border: 0,
-            cursor: "pointer",
-          },
-        }}
-      >
-        {PERIOD_YEAR.map((item) => (
-          <Button
-            key={item.value}
-            sx={{
-              color: item.value === period ? "primary" : "#333",
-            }}
-            onClick={() => setPeriod(item.value)}
-          >
-            {item.label}
-          </Button>
-        ))}
-      </Stack>
+      {/* <PeriodController onChangePeriod={setPeriod} /> */}
       <Box height={510} bgcolor="#fff" pb={3}>
         <Chart type="bar" data={graphDataSet as any} options={OPTIONS as any} />
       </Box>
