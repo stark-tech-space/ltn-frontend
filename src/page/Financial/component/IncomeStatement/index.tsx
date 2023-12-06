@@ -25,87 +25,79 @@ export default function IncomeStatement() {
     const dataSources5: { [key: string]: any } = {};
     const dataSources6: { [key: string]: any } = {};
     const dataSources7: { [key: string]: any } = {};
+    const dataSources8: { [key: string]: any } = {};
+    const dataSources9: { [key: string]: any } = {};
+    const dataSources10: { [key: string]: any } = {};
+
     graphData.revenue?.forEach((item: any, index: number) => {
-      if (index === 0) {
-        dataSources1["title"] = "营收";
-      } else {
-        dataSources1[graphData.date[index]] = numeral(item).format("0,0");
-      }
+      dataSources1["title"] = "营收";
+      dataSources1[graphData.date[index]] = numeral(item).format("0,0");
     });
 
     graphData.grossProfit?.forEach((item: any, index: number) => {
-      if (index === 0) {
-        dataSources2["title"] = "毛利";
-      } else {
-        dataSources2[graphData.date[index]] = numeral(item).format("0,0");
-      }
+      dataSources2["title"] = "毛利";
+      dataSources2[graphData.date[index]] = numeral(item).format("0,0");
+    });
+    graphData.sellingAndMarketingExpenses?.forEach((item: any, index: number) => {
+      dataSources4["title"] = "銷售費用";
+      dataSources4[graphData.date[index]] = numeral(item).format("0,0");
+    });
+    graphData.generalAndAdministrativeExpenses?.forEach((item: any, index: number) => {
+      dataSources9["title"] = "管理費用";
+      dataSources9[graphData.date[index]] = numeral(item).format("0,0");
+    });
+    graphData.researchAndDevelopmentExpenses?.forEach((item: any, index: number) => {
+      dataSources10["title"] = "研發費用";
+      dataSources10[graphData.date[index]] = numeral(item).format("0,0");
     });
 
     graphData.operatingExpenses?.forEach((item: any, index: number) => {
-      if (index === 0) {
-        dataSources3["title"] = "營業費用";
-      } else {
-        dataSources3[graphData.date[index]] = numeral(item).format("0,0");
-      }
-    });
-
-    graphData.costOfGoodsSold?.forEach((item: any, index: number) => {
-      if (index === 0) {
-        dataSources4["title"] = "營業成本";
-      } else {
-        dataSources4[graphData.date[index]] = numeral(item).format("0,0");
-      }
+      dataSources3["title"] = "營業費用";
+      dataSources3[graphData.date[index]] = numeral(item).format("0,0");
     });
 
     graphData.operatingIncome?.forEach((item: any, index: number) => {
-      if (index === 0) {
-        dataSources5["title"] = "營業利益";
-      } else {
-        dataSources5[graphData.date[index]] = numeral(item).format("0,0");
-      }
+      dataSources5["title"] = "營業利益";
+      dataSources5[graphData.date[index]] = numeral(item).format("0,0");
     });
 
     graphData.preTaxIncome?.forEach((item: any, index: number) => {
-      if (index === 0) {
-        dataSources6["title"] = "稅前淨利";
-      } else {
-        dataSources6[graphData.date[index]] = numeral(item).format("0,0");
-      }
+      dataSources6["title"] = "稅前淨利";
+      dataSources6[graphData.date[index]] = numeral(item).format("0,0");
     });
 
-    graphData.equityAttributableToOwnersOfParent?.forEach(
-      (item: any, index: number) => {
-        if (index === 0) {
-          dataSources7["title"] = "母公司主業利益";
-        } else {
-          dataSources7[graphData.date[index]] = numeral(item).format("0,0");
-        }
-      }
-    );
+    graphData.afterTaxIncome?.forEach((item: any, index: number) => {
+      dataSources7["title"] = "稅後淨利";
+      dataSources7[graphData.date[index]] = numeral(item).format("0,0");
+    });
+
+    graphData.equityAttributableToOwnersOfParent?.forEach((item: any, index: number) => {
+      dataSources8["title"] = "母公司主業利益";
+      dataSources8[graphData.date[index]] = numeral(item).format("0,0");
+    });
 
     return [
       dataSources1,
       dataSources2,
       dataSources3,
       dataSources4,
+      dataSources9,
+      dataSources10,
       dataSources5,
       dataSources6,
       dataSources7,
+      dataSources8,
     ];
   }, [graphData]);
 
   const columnHeaders = useMemo(() => {
-    const columns = graphData.date?.map((item: any, index: number) => {
-      if (index === 0) {
-        return {
-          field: "title",
-          headerName: "年度/季度",
-          pinned: "left",
-        };
-      }
-      return {
-        field: item,
-      };
+    const columns = graphData.date?.map((item: any, index: number) => ({
+      field: item,
+    }));
+    columns?.unshift({
+      field: "title",
+      headerName: "年度/季度",
+      pinned: "left",
     });
     return columns;
   }, [graphData]);

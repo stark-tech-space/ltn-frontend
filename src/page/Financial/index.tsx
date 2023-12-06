@@ -25,9 +25,7 @@ const CHILDREN_MAP: Record<FINANCIAL_PAGE_ENUM, React.ReactNode> = {
 };
 
 function FinancialPage() {
-  const [activeTab, setActiveTab] = useState<FINANCIAL_PAGE_ENUM>(
-    FINANCIAL_PAGE_ENUM.PAGE1
-  );
+  const [activeTab, setActiveTab] = useState<FINANCIAL_PAGE_ENUM>(FINANCIAL_PAGE_ENUM.PAGE1);
   const Child = useMemo(() => CHILDREN_MAP[activeTab], [activeTab]);
   return (
     <Box>

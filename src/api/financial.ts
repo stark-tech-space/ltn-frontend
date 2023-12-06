@@ -7,10 +7,10 @@ import finMindApi from "./http/finmindApi";
 export const fetchIncomeStatement = async (
   symbol: string,
   period: PERIOD,
-  limit: number = 40
+  limit: number = 40,
 ): Promise<any[] | undefined> => {
   try {
-    const rst = await fmpApi.get(`/income-statement-growth/${symbol}`, {
+    const rst = await fmpApi.get(`/income-statement/${symbol}`, {
       params: { period, limit },
     });
     return rst.data;
