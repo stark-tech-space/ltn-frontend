@@ -22,3 +22,8 @@ export const stockKeyState = atom({
   default: { No: "2330", Name: "台積電", ChName: "", EnName: "" },
   effects_UNSTABLE: [localStorageEffect("ltn-stock-key")],
 });
+
+export const stockPerQuarterCountState = atom({
+  key: "stock-key-count",
+  default: [] as { date: string; StockCount: number; EPS: number }[],
+});

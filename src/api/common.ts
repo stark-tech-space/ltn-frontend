@@ -7,6 +7,7 @@ import {
 
 import fmpApi from "./http/fmpApi";
 import finMindApi from "./http/finmindApi";
+import ltnApi from "./http/ltnApi";
 
 // 实时提供股票的最新买入价和卖出价，以及成交量和最后成交价。
 export const fetchQuote = async (
@@ -114,5 +115,25 @@ export async function fetchIndicators<T>(params: {
     return rst.data;
   } catch (error) {
     console.error(`fetchSma ${params.symbol} error: ${error}`);
+  }
+}
+
+// 獲取每個季度的股數
+export async function fetchPerQuarterStocks<T>(params: {
+  data_id: string;
+  start_date?: string;
+  end_date?: string;
+  limit: number;
+}): Promise<T | undefined> {
+  try {
+    const rst = await ltnApi.get<IFinMindApiResponse>(
+      `/preprocess/stock-count`,
+      {
+        params,
+      }
+    );
+    return rst.data.data;
+  } catch (error) {
+    console.error(`fetchPerQuarterStocks error: ${error}`);
   }
 }

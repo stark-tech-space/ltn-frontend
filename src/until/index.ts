@@ -81,3 +81,14 @@ export const findMindDataToFmpData = (data: IFinMindDataItem) => {
     period: moment(data.date).format("MM"),
   };
 };
+
+export const genFullDateObject = (time: string) => {
+  const m = moment(time);
+  return {
+    date: m.format("YYYY-MM-DD"),
+    calendarYear: m.format("YYYY"),
+    month: m.format("MM"),
+    quarter: m.quarter(),
+    period: m.format("YYYY") + "Q" + m.quarter(),
+  };
+};

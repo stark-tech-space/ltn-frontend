@@ -1,17 +1,22 @@
 import { Stack, Box } from "@mui/material";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import TagCard from "../../../../component/tabCard";
 import MonthlyIncomeChart from "./MonthlyGraph";
 import PerStockIncomeChart from "./PerIncomeGraph";
 import { AgGridReact } from "ag-grid-react";
 import numeral from "numeral";
+import { useRecoilValue } from "recoil";
+import { currentStock } from "recoil/selector";
+import { fetchPerQuarterStocks } from "api/common";
+import { getBeforeYears } from "until";
 // import { useFetchIndicators } from "Hooks/common";
 
 export default function EarningsPerShare() {
+  const stock = useRecoilValue(currentStock);
   const [tabIndex, setTabIndex] = useState(0);
-
   const [graphData1, setGraphData1] = useState<any[][]>([]);
   const [graphData2, setGraphData2] = useState<any[][]>([]);
+
   const [columnHeaders, rowData] = useMemo(() => {
     return tabIndex === 0 ? graphData1 : graphData2;
   }, [tabIndex, graphData1, graphData2]);

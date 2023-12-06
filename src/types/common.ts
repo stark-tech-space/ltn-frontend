@@ -75,3 +75,9 @@ export interface IDateField {
   // 年
   calendarYear: string;
 }
+
+export interface IStockCount {
+  date: string;
+  StockCount: number;
+  EPS: number;
+}

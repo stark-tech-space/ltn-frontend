@@ -12,6 +12,7 @@ import { PERIOD_YEAR } from "types/common";
 import { getBeforeYears } from "until";
 import { fetchFindMindAPI } from "api/common";
 import numeral from "numeral";
+import { stockPerQuarterCountState } from "recoil/atom";
 
 interface IGraphField {
   date: string;
@@ -47,8 +48,12 @@ export default function MonthlyGraph({
 }) {
   const chartRef = useRef<Chart>();
   const stock = useRecoilValue(currentStock);
+  const stockCount = useRecoilValue(stockPerQuarterCountState);
+
   const [period, setPeriod] = useState(PERIOD_YEAR[0].value);
 
+  console.log("stockCount:", stockCount);
+  
   const updateGraph = (data: IGraphField[]) => {
     if (chartRef.current) {
       const labels = data.map((item) => item.date);
