@@ -10,6 +10,9 @@ import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import { IProfitRatio } from "types/profitability";
 import PeriodController from "component/PeriodController";
+import { fetchFindMindAPI } from "api/common";
+import { IDividendPolicyItem } from "types/financial";
+import moment from "moment";
 
 export const GRAPH_FIELDS = [
   {
@@ -22,11 +25,11 @@ export const GRAPH_FIELDS = [
   },
 ];
 
-export default function Graph({
-  getGraphData,
-}: {
-  getGraphData: (data: any[][]) => void;
-}) {
+const genStartDate = (years: number) => {
+  return moment().subtract(years, "years").startOf("year").format("YYYY-MM-DD");
+};
+
+export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) => void }) {
   const chartRef = useRef<Chart>();
   const stock = useRecoilValue(currentStock);
   const [period, setPeriod] = useState(3);
@@ -40,7 +43,7 @@ export default function Graph({
       GRAPH_FIELDS.forEach(async ({ field }, index) => {
         if (chartRef.current) {
           chartRef.current.data.datasets[index].data = data.map(
-            (item) => +item[field as keyof IProfitRatio] * 100
+            (item) => +item[field as keyof IProfitRatio] * (field === "payoutRatio" ? 100 : 1),
           );
         }
       });
@@ -64,9 +67,7 @@ export default function Graph({
     data?.forEach((item) => {
       columnHeaders.push({
         field:
-          reportType === PERIOD.QUARTER
-            ? `${item.calendarYear}-${item.period}`
-            : item.calendarYear,
+          reportType === PERIOD.QUARTER ? `${item.calendarYear}-${item.period}` : item.calendarYear,
       });
     });
 
@@ -76,9 +77,7 @@ export default function Graph({
       };
       data?.forEach((item) => {
         if (reportType === PERIOD.ANNUAL) {
-          dataSources[item.calendarYear] = (
-            +item[field as keyof IProfitRatio] * 100
-          ).toFixed(2);
+          dataSources[item.calendarYear] = (+item[field as keyof IProfitRatio] * 100).toFixed(2);
         } else {
           dataSources[`${item.calendarYear}-${item.period}`] = (
             +item[field as keyof IProfitRatio] * 100
@@ -92,20 +91,25 @@ export default function Graph({
 
   const fetchGraphData = useCallback(async () => {
     const limit = getDataLimit(reportType, period);
-
-    const rst = await fetchProfitRatio<IProfitRatio[]>(
-      stock.Symbol,
-      reportType,
-      limit
-    );
-    // 待確認
-    // fetchFindMindAPI<IDividendPolicyItem[]>({
-    //   data_id: stock.No,
-    //   dataset: "TaiwanStockDividend",
-    //   start_date: "2015-01-01",
-    // });
+    const startDate = genStartDate(period);
+    const rst = await fetchProfitRatio<IProfitRatio[]>(stock.Symbol, reportType, limit);
+    const rst2 = await fetchFindMindAPI<IDividendPolicyItem[]>({
+      data_id: stock.No,
+      dataset: "TaiwanStockDividend",
+      start_date: startDate,
+    });
 
     if (rst) {
+      if (rst2) {
+        rst.forEach((item) => {
+          const date = item.date.split("-").slice(0, 2).join("-");
+          const target = rst2?.find((item2) => item2.date.startsWith(date));
+          if (target) {
+            //@ts-ignore
+            item.payoutRatio1 = target.CashEarningsDistribution;
+          }
+        });
+      }
       updateGraph(rst);
       getGraphData(genGraphTableData(rst));
     }
@@ -117,17 +121,9 @@ export default function Graph({
 
   return (
     <>
-      <PeriodController
-        onChangePeriod={setPeriod}
-        onChangeReportType={setReportType}
-      />
+      <PeriodController onChangePeriod={setPeriod} onChangeReportType={setReportType} />
       <Box height={510} bgcolor="#fff" pb={3}>
-        <ReactChart
-          type="line"
-          data={labelDataSets}
-          options={graphConfig as any}
-          ref={chartRef}
-        />
+        <ReactChart type="line" data={labelDataSets} options={graphConfig as any} ref={chartRef} />
       </Box>
     </>
   );
