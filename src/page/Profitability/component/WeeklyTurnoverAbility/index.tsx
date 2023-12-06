@@ -1,44 +1,155 @@
-import { Stack, Box, Button, ButtonGroup } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
-import TagCard from "../../../../component/tabCard";
+import { Stack, Box, Button, ButtonGroup } from '@mui/material';
+import { useEffect, useMemo, useState } from 'react';
+import TagCard from '../../../../component/tabCard';
 
-import { AgGridReact } from "ag-grid-react";
-import GraphMultiRatio from "./GraphMultiRatio";
-import GraphSingleRatio from "./GraphSingleRatio";
+import { AgGridReact } from 'ag-grid-react';
+import { IProfitRatio } from 'types/profitability';
+
+import { currentStock } from 'recoil/selector';
+import { useRecoilValue } from 'recoil';
+import { fetchProfitRatio } from 'api/profitrato';
+import { PERIOD, PERIOD_YEAR } from 'types/common';
+import numeral from 'numeral';
+import { getBeforeYears, getDataLimit } from 'until';
+import { fetchFindMindAPI } from 'api/common';
+
+const TABLE_FIELDS: Record<string, Array<{ field: string; headerName: string }>> = {
+  '0': [
+    {
+      field: 'receivablesTurnover',
+      headerName: '應收帳款週轉',
+    },
+    {
+      field: 'inventoryTurnover',
+      headerName: '存貨週轉',
+    },
+  ],
+  '1': [
+    {
+      field: 'receivablesTurnover',
+      headerName: '固定資產',
+    },
+    {
+      field: 'fixedAssetTurnover',
+      headerName: '固定資產周轉',
+    },
+  ],
+  '2': [
+    {
+      field: 'TotalAssets',
+      headerName: '總資產',
+    },
+    {
+      field: 'assetTurnover',
+      headerName: '總資產週轉',
+    },
+  ],
+};
 
 export default function WeeklyTurnoverAbility() {
-  const [tabIndex, setTabIndex] = useState(0);
-  const [graphMultiTableData, setGraphMultiTableData] = useState<any[][]>([]);
-  const [graphSingleTableData, setGraphSingleTableData] = useState<any[][]>([]);
+  const stock = useRecoilValue(currentStock);
 
-  const [columnHeaders, rowData] = useMemo(() => {
-    return tabIndex === 0 ? graphMultiTableData : graphSingleTableData;
-  }, [tabIndex, graphMultiTableData, graphSingleTableData]);
+  const [tabIndex, setTabIndex] = useState(0);
+  const [data, setData] = useState<IProfitRatio[]>([]);
+  const [period, setPeriod] = useState(3);
+  const [reportType, setReportType] = useState<PERIOD>(PERIOD.QUARTER);
+
+  const handleGetAssets = async () => {
+    const rst = await fetchFindMindAPI<any>({
+      data_id: stock.No,
+      dataset: 'TaiwanStockBalanceSheet',
+      start_date: getBeforeYears(period),
+    });
+    console.log('rst', rst);
+  };
+
+  useEffect(() => {
+    const limit = getDataLimit(reportType, period);
+    fetchProfitRatio<IProfitRatio[]>(stock.Symbol, PERIOD.QUARTER, limit).then((res) => {
+      setData(res || []);
+    });
+    handleGetAssets();
+  }, [stock, reportType, period]);
+
+  const columnHeaders = useMemo(() => {
+    const columns: any[] = [
+      {
+        field: 'title',
+        headerName: reportType === PERIOD.QUARTER ? '年度/季度' : '年度',
+        pinned: 'left',
+      },
+    ];
+    data?.forEach((item) => {
+      columns.push({
+        field:
+          reportType === PERIOD.QUARTER ? `${item.calendarYear}-${item.period}` : item.calendarYear,
+      });
+    });
+    return columns;
+  }, [data, reportType]);
+
+  const tableRowData = useMemo(
+    () =>
+      TABLE_FIELDS[tabIndex.toString()].map(({ headerName, field }) => {
+        const dataSources: { [key: string]: any } = {
+          title: headerName,
+        };
+
+        data?.forEach((item) => {
+          if (reportType === PERIOD.ANNUAL) {
+            dataSources[item.calendarYear] = numeral(item[field as keyof IProfitRatio]).format(
+              '0,0.000',
+            );
+          } else {
+            dataSources[`${item.calendarYear}-${item.period}`] = numeral(
+              item[field as keyof IProfitRatio],
+            ).format('0,0.000');
+          }
+        });
+        return dataSources;
+      }),
+    [data, reportType, tabIndex],
+  );
 
   return (
     <Stack rowGap={1}>
-      <TagCard
-        tabs={["營運周轉", "固定資產周轉", "總資產周轉"]}
-        onChange={setTabIndex}
-      >
-        <Box bgcolor="#fff">
-          <div style={{ display: tabIndex === 0 ? "block" : "none" }}>
-            <GraphMultiRatio getGraphData={setGraphMultiTableData} />
-          </div>
-          <div style={{ display: tabIndex === 1 ? "block" : "none" }}>
-            <GraphSingleRatio getGraphData={setGraphSingleTableData} />
-          </div>
-        </Box>
+      <TagCard tabs={['營運周轉', '固定資產周轉', '總資產周轉']} onChange={setTabIndex}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          sx={{
+            mb: 3,
+            '&>button': {
+              mx: 1,
+              bgcolor: 'transparent',
+              border: 0,
+              cursor: 'pointer',
+            },
+          }}
+        >
+          {PERIOD_YEAR.map((item) => (
+            <Button
+              key={item.value}
+              sx={{
+                color: item.value === period ? 'primary' : '#333',
+              }}
+              onClick={() => setPeriod(item.value)}
+            >
+              {item.label}
+            </Button>
+          ))}
+        </Stack>
+        <Box bgcolor="#fff"></Box>
       </TagCard>
-      <TagCard tabs={["詳細數據"]}>
+      <TagCard tabs={['詳細數據']}>
         <Box
           className="ag-theme-alpine"
           style={{
-            paddingBottom: "24px",
+            paddingBottom: '24px',
           }}
         >
           <AgGridReact
-            rowData={rowData}
+            rowData={tableRowData}
             columnDefs={columnHeaders as any}
             defaultColDef={{
               resizable: false,
