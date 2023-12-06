@@ -46,6 +46,8 @@ export type IncomeType =
   | "OperatingIncome"
   // 稅前淨利
   | "PreTaxIncome"
+  // 税后淨利
+  | "IncomeAfterTaxes"
   // 母公司
   | "EquityAttributableToOwnersOfParent";
 

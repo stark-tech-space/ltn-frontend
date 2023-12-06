@@ -4,18 +4,17 @@ import { IFinMindDataItem, PERIOD } from "types/common";
 import { Chart as ReactChart } from "react-chartjs-2";
 import { labelDataSets, graphConfig } from "./GrapConfig";
 import type { Chart } from "chart.js";
-import { findMindDataToFmpData, getBeforeYears, getDataLimit } from "until";
+import { findMindDataToFmpData, getBeforeYears } from "until";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
-import { IProfitRatio } from "types/profitability";
+import { IOutsideProfitRatio, IPreTaxIncome } from "types/profitability";
 import PeriodController from "component/PeriodController";
-import { fetchProfitRatio } from "api/profitrato";
 import { fetchFindMindAPI } from "api/common";
 
 export const GRAPH_FIELDS = [
   {
-    field: "effectiveTaxRate",
-    headerName: "所得稅佔稅前淨利比",
+    field: "TotalNonoperatingIncomeAndExpense",
+    headerName: "業外收支佔稅前淨利比",
   },
 ];
 
@@ -29,7 +28,7 @@ export default function GraphSingleRatio({
   const [period, setPeriod] = useState(3);
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
 
-  const updateGraph = (data: IProfitRatio[]) => {
+  const updateGraph = (data: IOutsideProfitRatio[]) => {
     if (chartRef.current) {
       const labels = data.map((item) => item.date);
       chartRef.current.data.labels = labels;
@@ -37,7 +36,7 @@ export default function GraphSingleRatio({
       GRAPH_FIELDS.forEach(async ({ field }, index) => {
         if (chartRef.current) {
           chartRef.current.data.datasets[index].data = data.map(
-            (item) => +item[field as keyof IProfitRatio]
+            (item) => +item[field as keyof IOutsideProfitRatio] * 100,
           );
         }
       });
@@ -45,7 +44,7 @@ export default function GraphSingleRatio({
     }
   };
 
-  const genGraphTableData = (data: IProfitRatio[]) => {
+  const genGraphTableData = (data: IOutsideProfitRatio[]) => {
     if (data.length === 0) {
       return [[], []];
     }
@@ -61,9 +60,7 @@ export default function GraphSingleRatio({
     data?.forEach((item) => {
       columnHeaders.push({
         field:
-          reportType === PERIOD.QUARTER
-            ? `${item.calendarYear}-${item.period}`
-            : item.calendarYear,
+          reportType === PERIOD.QUARTER ? `${item.calendarYear}-${item.period}` : item.calendarYear,
       });
     });
 
@@ -74,11 +71,11 @@ export default function GraphSingleRatio({
       data?.forEach((item) => {
         if (reportType === PERIOD.ANNUAL) {
           dataSources[item.calendarYear] = (
-            +item[field as keyof IProfitRatio] * 100
+            +item[field as keyof IOutsideProfitRatio] * 100
           ).toFixed(2);
         } else {
           dataSources[`${item.calendarYear}-${item.period}`] = (
-            +item[field as keyof IProfitRatio] * 100
+            +item[field as keyof IOutsideProfitRatio] * 100
           ).toFixed(2);
         }
       });
@@ -93,16 +90,23 @@ export default function GraphSingleRatio({
       dataset: "TaiwanStockFinancialStatements",
       start_date: getBeforeYears(period),
     });
-
-    // const graphData = rst
-    //   ?.filter((item) => item.type === "TotalNonoperatingIncomeAndExpense")
-    //   .map((item) => findMindDataToFmpData(item));
-
-    // console.log("graphData:", rst);
+    if (rst) {
+      let allValues = rst.filter((item) => item.type === "TotalNonoperatingIncomeAndExpense");
+      let preTaxIncome = rst.filter((item) => item.type === "PreTaxIncome");
+      const newAllValues = allValues.map(findMindDataToFmpData) as unknown as IOutsideProfitRatio[];
+      const newPreTaxIncome = preTaxIncome.map(findMindDataToFmpData) as unknown as IPreTaxIncome[];
+      newAllValues.forEach((item, index) => {
+        item.TotalNonoperatingIncomeAndExpense =
+          +item.TotalNonoperatingIncomeAndExpense / +newPreTaxIncome[index].PreTaxIncome;
+      });
+      console.log(newAllValues);
+      updateGraph(newAllValues);
+      getGraphData(genGraphTableData(newAllValues));
+    }
   }, [stock, period, reportType, getGraphData]);
 
   useEffect(() => {
-    // fetchGraphData();
+    fetchGraphData();
   }, [fetchGraphData]);
 
   return (
@@ -110,14 +114,10 @@ export default function GraphSingleRatio({
       <PeriodController
         onChangePeriod={setPeriod}
         onChangeReportType={setReportType}
+        showReportType={false}
       />
       <Box height={510} bgcolor="#fff" pb={3}>
-        <ReactChart
-          type="line"
-          data={labelDataSets}
-          options={graphConfig as any}
-          ref={chartRef}
-        />
+        <ReactChart type="line" data={labelDataSets} options={graphConfig as any} ref={chartRef} />
       </Box>
     </>
   );

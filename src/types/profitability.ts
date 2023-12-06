@@ -52,6 +52,14 @@ export interface IDuPontAnalysisGraph2 extends IDateField {
   totalStockholdersEquity: number;
 }
 
+export interface IOutsideProfitRatio extends IDateField {
+  TotalNonoperatingIncomeAndExpense: number;
+}
+
+export interface IPreTaxIncome extends IDateField {
+  PreTaxIncome: number;
+}
+
 export interface IOperatingItem extends IDateField {
   // 應收帳款收現天數
   receivablesTurnover: number;
