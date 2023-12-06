@@ -34,7 +34,7 @@ export const addPlaceHolder = (value: any, symbol: string = "") => {
 export const formNumberToUnit = (
   number?: number,
   unit: string = "K",
-  pow = 3,
+  pow = 3
 ) => {
   if (!number) {
     return 0;
@@ -67,10 +67,7 @@ export const getDataLimit = (period: PERIOD, year: number, adder?: number) => {
 };
 
 export const getBeforeYears = (years: number) => {
-  return moment()
-    .subtract(years - 1, "years")
-    .startOf("year")
-    .format("YYYY-MM-DD");
+  return moment().subtract(years, "years").startOf("year").format("YYYY-MM-DD");
 };
 
 export const findMindDataToFmpData = (data: IFinMindDataItem) => {

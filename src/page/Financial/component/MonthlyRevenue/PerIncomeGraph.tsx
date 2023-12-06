@@ -30,11 +30,11 @@ export const GRAPH_FIELDS = [
 export const GRAPH_TABLE_FIELDS = [
   {
     field: "revenue",
-    headerName: "月每股營收",
+    headerName: "月每股營收（元）",
   },
   {
-    field: "growthRate",
-    headerName: "單月營收年增率",
+    field: "growthByMonthRate",
+    headerName: "單月營收月增率（%）",
   },
 ];
 
@@ -60,7 +60,7 @@ export default function PerStockIncomeChart({
     if (chartRef.current) {
       const labels = data.map((item) => item.date);
       chartRef.current.data.labels = labels;
-      fields.forEach(async ({ field }, index) => {
+      fields.forEach(async ({ field }) => {
         if (chartRef.current) {
           chartRef.current.data.datasets[dataIndex].data = data.map(
             (item) => +item[field as keyof IGraphField]
@@ -95,13 +95,16 @@ export default function PerStockIncomeChart({
         title: headerName,
       };
       data?.forEach((item) => {
-        dataSources[item.date] = item[field]
-          ? item[field as keyof IGraphField]
-          : 0;
+        if (field === "growthByMonthRate") {
+          dataSources[item.date] = item.growthByMonthRate;
+        } else {
+          dataSources[item.date] = item[field]
+            ? item[field as keyof IGraphField]
+            : 0;
+        }
       });
       rowData.push(dataSources);
     });
-
     return [columnHeaders, rowData];
   };
 
@@ -138,16 +141,31 @@ export default function PerStockIncomeChart({
           revenue: avgStockCount
             ? +(graphItem.revenue / avgStockCount.StockCount).toFixed(2)
             : 0,
+          growthByMonthRate: 0,
         };
       });
-      updateGraph(data, GRAPH_FIELDS.slice(0, 1), 0);
-      getGraphData(genGraphTableData(data));
+      const rst = data.map((item, index) => {
+        const prevMonthRevenue = index < 12 ? 1 : data[index - 1]?.revenue;
+        let growthByMonthRate = 0;
+        if (prevMonthRevenue && item.revenue) {
+          growthByMonthRate = +(
+            (item.revenue / prevMonthRevenue - 1) *
+            100
+          ).toFixed(2);
+        }
+        return {
+          ...item,
+          growthByMonthRate: index < 12 ? 1 : growthByMonthRate,
+        };
+      });
+      updateGraph(rst.slice(12), GRAPH_FIELDS.slice(0, 1), 0);
+      getGraphData(genGraphTableData(rst.slice(12)));
     }
   }, [graphData, getStockCountByDate, getGraphData]);
 
   useEffect(() => {
     if (avgPrice.length > 0) {
-      updateGraph(avgPrice as IGraphField[], GRAPH_FIELDS, 1);
+      updateGraph(avgPrice.slice(12) as IGraphField[], GRAPH_FIELDS, 1);
     }
   }, [avgPrice]);
 

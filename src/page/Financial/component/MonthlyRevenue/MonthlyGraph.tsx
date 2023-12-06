@@ -11,6 +11,7 @@ import { getBeforeYears } from "until";
 import { fetchFindMindAPI } from "api/common";
 import { useAvgPriceByMonth } from "Hooks/common";
 import numeral from "numeral";
+import moment from "moment";
 interface IGraphField {
   date: string;
   revenue: number;
@@ -19,22 +20,22 @@ interface IGraphField {
 export const GRAPH_FIELDS = [
   {
     field: "revenue",
-    headerName: "每月營收",
+    headerName: "每月營收(千元)",
   },
   {
     field: "sma",
-    headerName: "月均價",
+    headerName: "月均價（元）",
   },
 ];
 
 export const GRAPH_TABLE_FIELDS = [
   {
     field: "revenue",
-    headerName: "每月營收",
+    headerName: "每月營收(千元)",
   },
   {
-    field: "growthRate",
-    headerName: "單月營收年增率",
+    field: "growthByYearRate",
+    headerName: "單月營收年增率（%）",
   },
 ];
 
@@ -56,7 +57,7 @@ export default function MonthlyGraph({
     if (chartRef.current) {
       const labels = data.map((item) => item.date);
       chartRef.current.data.labels = labels;
-      fields.forEach(async ({ field }, index) => {
+      fields.forEach(async ({ field }) => {
         if (chartRef.current) {
           chartRef.current.data.datasets[dataIndex].data = data.map(
             (item) => +item[field as keyof IGraphField]
@@ -91,14 +92,33 @@ export default function MonthlyGraph({
         title: headerName,
       };
       data?.forEach((item) => {
-        dataSources[item.date] = item[field]
-          ? numeral(+item[field as keyof IGraphField]).format("0,0")
-          : 0;
+        if (field === "growthByYearRate") {
+          dataSources[item.date] = item.growthByYearRate;
+        } else {
+          dataSources[item.date] = item[field]
+            ? numeral(+item[field as keyof IGraphField] / 1000).format("0,0")
+            : 0;
+        }
       });
       rowData.push(dataSources);
     });
 
     return [columnHeaders, rowData];
+  };
+
+  // 計算單月營收年增長率
+  const cateGrowthRate = (data: any[], fieldValue: any) => {
+    const prev =
+      data.find(
+        (item) =>
+          moment(fieldValue.date).subtract(1, "year").format("YYYY-MM-DD") ===
+          item.date
+      )?.revenue || 1;
+
+    if (!prev) {
+      return "-";
+    }
+    return ((fieldValue.revenue / prev - 1) * 100).toFixed(2);
   };
 
   const fetchData = useCallback(async () => {
@@ -109,15 +129,18 @@ export default function MonthlyGraph({
     });
 
     if (rst) {
-      const graphData = rst.map((item) => {
+      const graphData = rst.map((item, index) => {
         return {
           date: item.date,
           revenue: item.revenue / 1000,
           sma: 0,
+          growthByYearRate: index < 12 ? 1 : cateGrowthRate(rst, item),
         };
       });
-      updateGraph(graphData, GRAPH_FIELDS.slice(0, 1), 0);
-      getGraphData(genGraphTableData(rst));
+
+      updateGraph(graphData.slice(12, -1), GRAPH_FIELDS.slice(0, 1), 0);
+      const tableData = genGraphTableData(graphData.slice(12, -1));
+      getGraphData(tableData);
     }
   }, [stock.No, period, getGraphData]);
 
@@ -127,7 +150,7 @@ export default function MonthlyGraph({
 
   useEffect(() => {
     if (avgPrice.length > 0) {
-      updateGraph(avgPrice as IGraphField[], GRAPH_FIELDS, 1);
+      updateGraph(avgPrice.slice(12) as IGraphField[], GRAPH_FIELDS, 1);
     }
   }, [avgPrice]);
 
