@@ -1,14 +1,10 @@
-import { Stack, Box, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
-import { useRecoilValue } from "recoil";
-import { currentStock } from "recoil/selector";
-import { PERIOD } from "types/common";
-import { fetchCompanyRatios, fetchGrowthRates } from "api/common";
-import {
-  COLOR_BG_CONVERTER,
-  COLOR_TEXT_CONVERTER,
-  COLOR_TYPE,
-} from "types/global";
+import { Stack, Box, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { useRecoilValue } from 'recoil';
+import { currentStock } from 'recoil/selector';
+import { PERIOD } from 'types/common';
+import { fetchCompanyRatios, fetchGrowthRates } from 'api/common';
+import { COLOR_BG_CONVERTER, COLOR_TEXT_CONVERTER, COLOR_TYPE } from 'types/global';
 
 const BlockChild = ({
   title,
@@ -33,10 +29,10 @@ const BlockChild = ({
       <Typography
         component="div"
         sx={{
-          fontSize: "14px",
-          color: "#475467",
+          fontSize: '14px',
+          color: '#475467',
           fontWeight: 400,
-          lineHeight: "20px",
+          lineHeight: '20px',
         }}
       >
         {title}
@@ -44,9 +40,9 @@ const BlockChild = ({
       <Typography
         component="div"
         sx={{
-          fontSize: "24px",
+          fontSize: '24px',
           fontWeight: 600,
-          lineHeight: "32px",
+          lineHeight: '32px',
           color: COLOR_TEXT_CONVERTER[color],
         }}
       >
@@ -66,39 +62,39 @@ export default function BlockQuota() {
     }[]
   >([
     {
-      title: "本益比 (倍)",
-      field: "peRatio",
-      value: "0",
+      title: '本益比 (倍)',
+      field: 'peRatio',
+      value: '0',
       color: COLOR_TYPE.UP,
     },
     {
-      title: "殖利率 (%)",
-      value: "0",
-      field: "dividendYield",
+      title: '殖利率 (%)',
+      value: '0',
+      field: 'dividendYield',
       color: COLOR_TYPE.UP,
     },
     {
-      title: "股價淨值比",
-      value: "0",
-      field: "pbRatio",
+      title: '股價淨值比',
+      value: '0',
+      field: 'pbRatio',
       color: COLOR_TYPE.UP,
     },
     {
-      title: "營收YOY",
-      value: "-13.36",
-      field: "YOY",
+      title: '營收YOY',
+      value: '-13.36',
+      field: 'YOY',
       color: COLOR_TYPE.DOWN,
     },
     {
-      title: "近4季EPS",
-      value: "0",
-      field: "netIncomePerShare",
+      title: '近4季EPS',
+      value: '0',
+      field: 'netIncomePerShare',
       color: COLOR_TYPE.UP,
     },
     {
-      title: "近4季ROE% ",
-      value: "0",
-      field: "roe",
+      title: '近4季ROE% ',
+      value: '0',
+      field: 'roe',
       color: COLOR_TYPE.UP,
     },
   ]);
@@ -117,17 +113,15 @@ export default function BlockQuota() {
         if (rst1 && rst1[0]) {
           values.forEach((item) => {
             const value = rst1[0]?.[item.field];
-            item.value = value ? value.toFixed(3) : "0";
-            item.color = value
-              ? value > 0
-                ? COLOR_TYPE.UP
-                : COLOR_TYPE.DOWN
-              : COLOR_TYPE.DOWN;
+            item.value = value ? value.toFixed(3) : '0';
+            item.color = value ? (value > 0 ? COLOR_TYPE.UP : COLOR_TYPE.DOWN) : COLOR_TYPE.DOWN;
           });
         }
         if (rst2 && rst2[0]) {
-          const index = values.findIndex((item) => item.field === "YOY");
+          const index = values.findIndex((item) => item.field === 'YOY');
           values[index].value = rst2[0]?.growthRevenue.toFixed(3);
+          values[index].color =
+            parseFloat(values[index].value) > 0 ? COLOR_TYPE.UP : COLOR_TYPE.DOWN;
         }
         return values;
       });
