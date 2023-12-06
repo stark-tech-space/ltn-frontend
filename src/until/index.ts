@@ -67,7 +67,10 @@ export const getDataLimit = (period: PERIOD, year: number) => {
 };
 
 export const getBeforeYears = (years: number) => {
-  return moment().subtract(years, "years").startOf("year").format("YYYY-MM-DD");
+  return moment()
+    .subtract(years - 1, "years")
+    .startOf("year")
+    .format("YYYY-MM-DD");
 };
 
 export const findMindDataToFmpData = (data: IFinMindDataItem) => {

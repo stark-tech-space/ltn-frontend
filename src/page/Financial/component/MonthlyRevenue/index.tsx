@@ -5,61 +5,23 @@ import MonthlyIncomeChart from "./MonthlyGraph";
 import PerStockIncomeChart from "./PerIncomeGraph";
 import { AgGridReact } from "ag-grid-react";
 import numeral from "numeral";
-import { useFetchIndicators } from "Hooks/common";
+// import { useFetchIndicators } from "Hooks/common";
 
 export default function EarningsPerShare() {
   const [tabIndex, setTabIndex] = useState(0);
 
-  const [graphData, setGraphData] = useState<
-    { date: string; revenue: number }[]
-  >([]);
-
-  const indicators = useFetchIndicators();
-
-  const defaultColDef = useMemo(() => {
-    return {
-      resizable: false,
-      initialWidth: 200,
-      wrapHeaderText: true,
-      autoHeaderHeight: true,
-    };
-  }, []);
-
-  const columnHeaders = useMemo(() => {
-    return graphData?.map((item, index) => {
-      if (index === 0) {
-        return {
-          field: "title",
-          headerName: "年度/季度",
-          pinned: "left",
-        };
-      }
-      return {
-        field: item.date.slice(0, -3),
-      };
-    });
-  }, [graphData]);
-
-  const tableRowData = useMemo(() => {
-    const dataSources: { [key: string]: any } = {};
-    graphData?.forEach((item, index) => {
-      if (index === 0) {
-        dataSources["title"] = "每月營收";
-      } else {
-        dataSources[item.date.slice(0, -3)] = numeral(item.revenue).format(
-          "0,0"
-        );
-      }
-    });
-    return [dataSources];
-  }, [graphData]);
+  const [graphData1, setGraphData1] = useState<any[][]>([]);
+  const [graphData2, setGraphData2] = useState<any[][]>([]);
+  const [columnHeaders, rowData] = useMemo(() => {
+    return tabIndex === 0 ? graphData1 : graphData2;
+  }, [tabIndex, graphData1, graphData2]);
 
   return (
     <Stack rowGap={1}>
       <TagCard tabs={["每月營收", "月每股營收"]} onChange={setTabIndex}>
         <Box bgcolor="#fff">
           <div style={{ display: tabIndex === 0 ? "block" : "none" }}>
-            <MonthlyIncomeChart getGraphData={setGraphData} />
+            <MonthlyIncomeChart getGraphData={setGraphData1} />
           </div>
           <div style={{ display: tabIndex === 1 ? "block" : "none" }}>
             <PerStockIncomeChart />
@@ -74,9 +36,14 @@ export default function EarningsPerShare() {
           }}
         >
           <AgGridReact
-            rowData={tableRowData}
-            columnDefs={columnHeaders as any}
-            defaultColDef={defaultColDef}
+            rowData={rowData || []}
+            columnDefs={(columnHeaders as any) || []}
+            defaultColDef={{
+              resizable: false,
+              initialWidth: 200,
+              wrapHeaderText: true,
+              autoHeaderHeight: true,
+            }}
             domLayout="autoHeight"
           />
         </Box>
