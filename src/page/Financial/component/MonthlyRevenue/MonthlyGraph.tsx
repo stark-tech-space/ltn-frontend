@@ -1,32 +1,29 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Chart as ReactChart } from "react-chartjs-2";
 import { Box } from "@mui/material";
-import { OPTIONS, labelDataSets_01 } from "./GraphConfig";
+import { OPTIONS_01, labelDataSets_01 } from "./GraphConfig";
 import type { Chart } from "chart.js";
+import { Chart as ReactChart } from "react-chartjs-2";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
-import { fetchRevenue } from "api/financial";
-import moment from "moment";
 import PeriodController from "component/PeriodController";
 import { PERIOD_YEAR } from "types/common";
 import { getBeforeYears } from "until";
 import { fetchFindMindAPI } from "api/common";
+import { useAvgPriceByMonth } from "Hooks/common";
 import numeral from "numeral";
-import { stockPerQuarterCountState } from "recoil/atom";
-
 interface IGraphField {
   date: string;
   revenue: number;
-  avgPrice: number;
+  sma: number;
 }
 export const GRAPH_FIELDS = [
   {
-    field: "avgPrice",
-    headerName: "月均價",
-  },
-  {
     field: "revenue",
     headerName: "每月營收",
+  },
+  {
+    field: "sma",
+    headerName: "月均價",
   },
 ];
 
@@ -48,19 +45,20 @@ export default function MonthlyGraph({
 }) {
   const chartRef = useRef<Chart>();
   const stock = useRecoilValue(currentStock);
-  const stockCount = useRecoilValue(stockPerQuarterCountState);
-
   const [period, setPeriod] = useState(PERIOD_YEAR[0].value);
+  const avgPrice = useAvgPriceByMonth(period);
 
-  console.log("stockCount:", stockCount);
-  
-  const updateGraph = (data: IGraphField[]) => {
+  const updateGraph = (
+    data: IGraphField[],
+    fields: { field: string; headerName: string }[],
+    dataIndex: number
+  ) => {
     if (chartRef.current) {
       const labels = data.map((item) => item.date);
       chartRef.current.data.labels = labels;
-      GRAPH_FIELDS.forEach(async ({ field }, index) => {
+      fields.forEach(async ({ field }, index) => {
         if (chartRef.current) {
-          chartRef.current.data.datasets[index].data = data.map(
+          chartRef.current.data.datasets[dataIndex].data = data.map(
             (item) => +item[field as keyof IGraphField]
           );
         }
@@ -111,12 +109,14 @@ export default function MonthlyGraph({
     });
 
     if (rst) {
-      const graphData = rst.map((item) => ({
-        date: item.date,
-        revenue: item.revenue / 1000,
-        avgPrice: Math.random() * 600,
-      }));
-      updateGraph(graphData);
+      const graphData = rst.map((item) => {
+        return {
+          date: item.date,
+          revenue: item.revenue / 1000,
+          sma: 0,
+        };
+      });
+      updateGraph(graphData, GRAPH_FIELDS.slice(0, 1), 0);
       getGraphData(genGraphTableData(rst));
     }
   }, [stock.No, period, getGraphData]);
@@ -125,15 +125,23 @@ export default function MonthlyGraph({
     fetchData();
   }, [fetchData]);
 
+  useEffect(() => {
+    if (avgPrice.length > 0) {
+      updateGraph(avgPrice as IGraphField[], GRAPH_FIELDS, 1);
+    }
+  }, [avgPrice]);
+
   return (
-    <Box height={510} bgcolor="#fff" pb={3}>
+    <>
       <PeriodController onChangePeriod={setPeriod} showReportType={false} />
-      <ReactChart
-        type="bar"
-        ref={chartRef}
-        data={labelDataSets_01 as any}
-        options={OPTIONS as any}
-      />
-    </Box>
+      <Box height={510} bgcolor="#fff" pb={3}>
+        <ReactChart
+          type="bar"
+          ref={chartRef}
+          data={labelDataSets_01 as any}
+          options={OPTIONS_01 as any}
+        />
+      </Box>
+    </>
   );
 }

@@ -25,5 +25,13 @@ export const stockKeyState = atom({
 
 export const stockPerQuarterCountState = atom({
   key: "stock-key-count",
-  default: [] as { date: string; StockCount: number; EPS: number }[],
+  default: [] as {
+    date: string;
+    StockCount: number;
+    EPS: number;
+    calendarYear: string;
+    month: string;
+    quarter: string;
+    period: string;
+  }[],
 });

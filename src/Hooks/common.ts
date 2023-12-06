@@ -4,6 +4,10 @@ import { fetchIndicators } from "api/common";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import { useMatch } from "react-router-dom";
+import { stockPerQuarterCountState } from "recoil/atom";
+import { genFullDateObject, getBeforeYears } from "until";
+import { IIndicatorItem } from "types/common";
+import { getSmaByMonth } from "lib/sma";
 
 export const useWindowResize = (node: HTMLDivElement, chart: any) => {
   const handleResize = debounce(() => {
@@ -25,25 +29,39 @@ export const useWindowResize = (node: HTMLDivElement, chart: any) => {
   }, [chart, node, handleResize]);
 };
 
-export const useFetchIndicators = () => {
-  const stock = useRecoilValue(currentStock);
-  const [data, setData] = useState<any[]>([]);
-  const fetchData = useCallback(async () => {
-    const rst = await fetchIndicators({
-      period: 20,
-      timeKey: "1day",
-      type: "sma",
-      symbol: stock.Symbol,
-      from: "2021-01-01",
-      to: "2021-02-01",
-    });
+// 获取月股票数量
 
-    setData(rst as any[]);
-  }, [stock.Symbol]);
+export const useGetStockCountByMonth = () => {
+  const stockCountLit = useRecoilValue(stockPerQuarterCountState);
+  return useCallback(
+    (date: string) => {
+      const dateObject = genFullDateObject(date);
+      return stockCountLit.find((item) => {
+        return item.period === dateObject.period;
+      });
+    },
+    [stockCountLit]
+  );
+};
+
+export const useAvgPriceByMonth = (period: number) => {
+  const [sma, setSma] = useState<{ sma: number; date: string }[]>([]);
+  const stock = useRecoilValue(currentStock);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchIndicators<IIndicatorItem[]>({
+      symbol: stock.Symbol,
+      type: "sma",
+      period: 20,
+      timeKey: "1day",
+      from: getBeforeYears(period),
+    }).then((rst) => {
+      if (rst) {
+        const data = getSmaByMonth(rst);
+        setSma(data);
+      }
+    });
+  }, [stock.Symbol, period]);
 
-  return useMemo(() => data, [data]);
+  return useMemo(() => sma, [sma]);
 };

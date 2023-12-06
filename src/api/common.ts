@@ -96,7 +96,7 @@ export async function fetchIndicators<T>(params: {
   timeKey: string;
   type: string;
   from: string;
-  to: string;
+  to?: string;
 }): Promise<T | undefined> {
   try {
     const rst = await fmpApi.get<T>(
