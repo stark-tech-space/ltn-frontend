@@ -21,6 +21,7 @@ export const fetchSymbolInfo = async (symbol: string): Promise<ICompanyState[] |
   }
 };
 
+// 提供總債務、現金和投資
 export const fetchBalanceSheetStatement = async (
   symbol: string,
 ): Promise<IBalanceSheetStatement[] | undefined> => {
@@ -32,6 +33,7 @@ export const fetchBalanceSheetStatement = async (
   }
 };
 
+// 提供企業價值
 export const fetchKeyMetrics = async (symbol: string): Promise<IKeyMetrics[] | undefined> => {
   try {
     const rst = await fmpApi.get(`/key-metrics/${symbol}?period=quarter`);
