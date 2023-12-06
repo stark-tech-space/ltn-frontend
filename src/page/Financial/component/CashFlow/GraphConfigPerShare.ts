@@ -1,8 +1,8 @@
-export const GRAPH_DATA = {
+export const PER_SHARE_GRAPH_DATA = {
   labels: [],
   datasets: [
     {
-      label: '營業現金流',
+      label: '每股營業現金流',
       data: [],
       borderColor: 'rgb(232,175,0)',
       backgroundColor: 'rgb(232,175,0)',
@@ -11,7 +11,7 @@ export const GRAPH_DATA = {
       fill: false,
     },
     {
-      label: '融資現金流',
+      label: '每股投資現金流出',
       data: [],
       backgroundColor: 'rgba(237, 88, 157, 0.15)',
       borderColor: 'rgba(237, 88, 157, 0.35)',
@@ -20,7 +20,7 @@ export const GRAPH_DATA = {
       fill: false,
     },
     {
-      label: '投資現金流',
+      label: '每股融資現金流入',
       data: [],
       borderColor: 'rgb(0, 99, 132)',
       backgroundColor: 'rgb(0, 99, 132)',
@@ -29,7 +29,7 @@ export const GRAPH_DATA = {
       fill: false,
     },
     {
-      label: '自由現金流',
+      label: '每股自由現金流入',
       data: [],
       borderColor: 'rgb(0, 199, 132)',
       backgroundColor: 'rgb(0, 199, 132)',
@@ -38,7 +38,7 @@ export const GRAPH_DATA = {
       fill: false,
     },
     {
-      label: '淨現金流',
+      label: '每股淨現金流入',
       data: [],
       borderColor: 'rgb(0, 99, 232)',
       backgroundColor: 'rgb(0, 99, 232)',
@@ -49,7 +49,7 @@ export const GRAPH_DATA = {
   ],
 };
 
-export const OPTIONS = {
+export const PER_SHARE_OPTIONS = {
   maintainAspectRatio: false,
   responsive: true,
   plugins: {
@@ -72,7 +72,7 @@ export const OPTIONS = {
       position: 'left',
       title: {
         display: true,
-        text: '千元',
+        text: '元',
         align: 'end',
         font: {
           size: 12,
