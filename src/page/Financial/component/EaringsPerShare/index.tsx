@@ -14,30 +14,54 @@ import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import PeriodController from "component/PeriodController";
 
+function getAnnualData(rst: IEaringPerShare[]) {
+  const newRst = rst.map((item, index, arr) => {
+    const nextItems = arr.slice(index + 1, index + 4);
+    const newNetIncomePerShare = nextItems.reduce(
+      (sum, currentItem) => sum + currentItem.netIncomePerShare,
+      item.netIncomePerShare,
+    );
+    return { ...item, netIncomePerShare: newNetIncomePerShare };
+  });
+  return newRst;
+}
+
+interface IEaringPerShare {
+  date: string;
+  netIncomePerShare: number;
+  period: string;
+  calendarYear: string;
+}
+
 export default function EarningsPerShare() {
   const stock = useRecoilValue(currentStock);
   const [tabIndex, setTabIndex] = useState(0);
 
+  const title = useMemo(() => {
+    if (tabIndex === 0) {
+      return "單季度EPS";
+    } else {
+      return "近4季累積EPS";
+    }
+  }, [tabIndex]);
+
   const [period, setPeriod] = useState(3);
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
-  const [graphData, setGraphData] = useState<
-    {
-      date: string;
-      netIncomePerShare: number;
-      period: string;
-      calendarYear: string;
-    }[]
-  >([]);
+  const [graphData, setGraphData] = useState<IEaringPerShare[]>([]);
+
+  const allPeriod = useMemo(() => {
+    return getDataLimit(reportType, period);
+  }, [reportType, period]);
 
   const fetchGraphData = useCallback(async () => {
-    const limit = getDataLimit(reportType, period);
+    const limit = getDataLimit(reportType, period, tabIndex === 0 ? 0 : 3);
     const rst = await fetchKeyMetrics(stock.Symbol, reportType, limit);
     rst && setGraphData(rst as any);
-  }, [period, reportType, stock]);
+  }, [period, reportType, stock, tabIndex]);
 
   useEffect(() => {
     fetchGraphData();
-  }, [fetchGraphData]);
+  }, [fetchGraphData, tabIndex]);
 
   const columnHeaders = useMemo(() => {
     const columns: any[] = [
@@ -50,9 +74,7 @@ export default function EarningsPerShare() {
     graphData?.forEach((item) => {
       columns.push({
         field:
-          reportType === PERIOD.QUARTER
-            ? `${item.calendarYear}-${item.period}`
-            : item.calendarYear,
+          reportType === PERIOD.QUARTER ? `${item.calendarYear}-${item.period}` : item.calendarYear,
       });
     });
     return columns;
@@ -66,16 +88,23 @@ export default function EarningsPerShare() {
       if (reportType === PERIOD.ANNUAL) {
         dataSources[item.calendarYear] = item.netIncomePerShare.toFixed(2);
       } else {
-        dataSources[`${item.calendarYear}-${item.period}`] =
-          item.netIncomePerShare.toFixed(2);
+        dataSources[`${item.calendarYear}-${item.period}`] = item.netIncomePerShare.toFixed(2);
       }
     });
     return [dataSources];
   }, [graphData, reportType]);
 
+  const netIncomePerShareDataSets = useMemo(() => {
+    if (tabIndex === 1 && reportType === PERIOD.QUARTER) {
+      return getAnnualData(graphData).map((item) => +item.netIncomePerShare.toFixed(2));
+    } else {
+      return graphData.map((item) => +item.netIncomePerShare.toFixed(2));
+    }
+  }, [graphData, tabIndex]);
+
   const graphDataSets = useMemo(() => {
     return {
-      labels: graphData.map((item) => item.date),
+      labels: graphData.map((item) => item.date).slice(0, allPeriod),
       datasets: [
         {
           type: "line" as const,
@@ -84,16 +113,14 @@ export default function EarningsPerShare() {
           backgroundColor: "#EB5757",
           borderWidth: 2,
           fill: false,
-          data: new Array(graphData.length)
-            .fill(0)
-            .map((item) => +faker.finance.amount(300, 600)),
+          data: new Array(graphData.length).fill(0).map((item) => +faker.finance.amount(300, 600)),
           yAxisID: "y1",
         },
         {
           type: "bar" as const,
-          label: "單季度EPS",
+          label: title,
           backgroundColor: "rgba(237, 88, 157, 0.15)",
-          data: graphData.map((item) => +item.netIncomePerShare.toFixed(2)),
+          data: netIncomePerShareDataSets,
           borderColor: "rgba(237, 88, 157, 0.35)",
           borderWidth: 1,
           yAxisID: "y",
@@ -101,7 +128,7 @@ export default function EarningsPerShare() {
         },
       ],
     };
-  }, [graphData]);
+  }, [graphData, title, netIncomePerShareDataSets]);
 
   return (
     <Stack rowGap={1}>
@@ -110,12 +137,10 @@ export default function EarningsPerShare() {
         onChange={setTabIndex}
         visible={reportType !== PERIOD.ANNUAL}
       >
-        <PeriodController
-          onChangePeriod={setPeriod}
-          onChangeReportType={setReportType}
-        />
+        <PeriodController onChangePeriod={setPeriod} onChangeReportType={setReportType} />
         <Box height={510} bgcolor="#fff" pb={3}>
-          <Chart type="bar" data={graphDataSets} options={OPTIONS as any} />
+          {tabIndex === 0 && <Chart type="bar" data={graphDataSets} options={OPTIONS as any} />}
+          {tabIndex === 1 && <Chart type="bar" data={graphDataSets} options={OPTIONS as any} />}
         </Box>
       </TagCard>
       <TagCard tabs={["詳細數據"]}>
