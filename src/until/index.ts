@@ -34,7 +34,7 @@ export const addPlaceHolder = (value: any, symbol: string = "") => {
 export const formNumberToUnit = (
   number?: number,
   unit: string = "K",
-  pow = 3
+  pow = 3,
 ) => {
   if (!number) {
     return 0;
@@ -59,9 +59,9 @@ export const createYears = () => {
   return years;
 };
 
-export const getDataLimit = (period: PERIOD, year: number) => {
+export const getDataLimit = (period: PERIOD, year: number, adder?: number) => {
   if (period === PERIOD.QUARTER) {
-    return year * 4;
+    return year * 4 + (adder || 0);
   }
   return year;
 };
