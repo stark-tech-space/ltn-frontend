@@ -99,7 +99,7 @@ export default function TimesInterestEarned() {
         updateGraph(rst || []);
       }
     });
-  }, [reportType, period]);
+  }, [stock.Symbol, reportType, period]);
 
   return (
     <Stack rowGap={1}>

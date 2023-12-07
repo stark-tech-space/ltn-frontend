@@ -103,7 +103,7 @@ export default function QuickAndCurrentRatio() {
         updateGraph(rst || []);
       }
     });
-  }, [reportType, period]);
+  }, [stock.Symbol, reportType, period]);
 
   return (
     <Stack rowGap={1}>
