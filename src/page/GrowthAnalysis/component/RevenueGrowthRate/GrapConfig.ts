@@ -1,4 +1,4 @@
-export const OPTIONS = {
+export const graphConfig = {
   maintainAspectRatio: false,
   responsive: true,
   plugins: {
@@ -19,6 +19,23 @@ export const OPTIONS = {
     y: {
       type: "linear",
       display: true,
+      position: "right",
+      title: {
+        display: true,
+        text: "元",
+        align: "end",
+        font: {
+          size: 12,
+          weight: "bold",
+        },
+      },
+      grid: {
+        drawOnChartArea: false,
+      },
+    },
+    y1: {
+      type: "linear",
+      display: true,
       position: "left",
       title: {
         display: true,
@@ -28,23 +45,6 @@ export const OPTIONS = {
           size: 12,
           weight: "bold",
         },
-      },
-    },
-    y1: {
-      type: "linear",
-      display: true,
-      position: "right",
-      title: {
-        display: true,
-        align: "end",
-        text: "股價",
-        font: {
-          size: 12,
-          weight: "bold",
-        },
-      },
-      grid: {
-        drawOnChartArea: false,
       },
     },
   },

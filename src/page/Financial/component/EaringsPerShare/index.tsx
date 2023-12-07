@@ -5,7 +5,6 @@ import TagCard from "../../../../component/tabCard";
 import { AgGridReact } from "ag-grid-react";
 import { PERIOD } from "types/common";
 import { Chart } from "react-chartjs-2";
-import { faker } from "@faker-js/faker";
 import { OPTIONS } from "./GraphConfig";
 
 import { getDataLimit } from "until";
@@ -13,8 +12,9 @@ import { fetchKeyMetrics } from "api/common";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import PeriodController from "component/PeriodController";
+import { useAvgPriceByMonth } from "Hooks/common";
 
-function getAnnualData(rst: IEaringPerShare[]) {
+function getAnnualData(rst: IEaringPerShare[], allPeriod: number) {
   const newRst = rst.map((item, index, arr) => {
     const nextItems = arr.slice(index + 1, index + 4);
     const newNetIncomePerShare = nextItems.reduce(
@@ -23,7 +23,12 @@ function getAnnualData(rst: IEaringPerShare[]) {
     );
     return { ...item, netIncomePerShare: newNetIncomePerShare };
   });
-  return newRst;
+  return newRst.slice(0, allPeriod);
+}
+
+interface ISma {
+  date: string;
+  sma: number;
 }
 
 interface IEaringPerShare {
@@ -31,6 +36,7 @@ interface IEaringPerShare {
   netIncomePerShare: number;
   period: string;
   calendarYear: string;
+  sma: number;
 }
 
 export default function EarningsPerShare() {
@@ -48,6 +54,9 @@ export default function EarningsPerShare() {
   const [period, setPeriod] = useState(3);
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
   const [graphData, setGraphData] = useState<IEaringPerShare[]>([]);
+  const [smaData, setSmaData] = useState<ISma[]>([]);
+
+  const avgPrice = useAvgPriceByMonth(period);
 
   const allPeriod = useMemo(() => {
     return getDataLimit(reportType, period);
@@ -96,15 +105,14 @@ export default function EarningsPerShare() {
 
   const netIncomePerShareDataSets = useMemo(() => {
     if (tabIndex === 1 && reportType === PERIOD.QUARTER) {
-      return getAnnualData(graphData).map((item) => +item.netIncomePerShare.toFixed(2));
+      return getAnnualData(graphData, allPeriod);
     } else {
-      return graphData.map((item) => +item.netIncomePerShare.toFixed(2));
+      return graphData;
     }
-  }, [graphData, tabIndex]);
+  }, [graphData, tabIndex, allPeriod]);
 
   const graphDataSets = useMemo(() => {
     return {
-      labels: graphData.map((item) => item.date).slice(0, allPeriod),
       datasets: [
         {
           type: "line" as const,
@@ -113,14 +121,17 @@ export default function EarningsPerShare() {
           backgroundColor: "#EB5757",
           borderWidth: 2,
           fill: false,
-          data: new Array(graphData.length).fill(0).map((item) => +faker.finance.amount(300, 600)),
+          data: smaData.map((item) => ({ x: item.date, y: item.sma })),
           yAxisID: "y1",
         },
         {
           type: "bar" as const,
           label: title,
           backgroundColor: "rgba(237, 88, 157, 0.15)",
-          data: netIncomePerShareDataSets,
+          data: netIncomePerShareDataSets.map((item) => ({
+            x: item.date,
+            y: +item.netIncomePerShare.toFixed(2),
+          })),
           borderColor: "rgba(237, 88, 157, 0.35)",
           borderWidth: 1,
           yAxisID: "y",
@@ -128,7 +139,13 @@ export default function EarningsPerShare() {
         },
       ],
     };
-  }, [graphData, title, netIncomePerShareDataSets]);
+  }, [graphData, title, netIncomePerShareDataSets, smaData]);
+
+  useEffect(() => {
+    if (avgPrice.length > 0) {
+      setSmaData(avgPrice);
+    }
+  }, [avgPrice]);
 
   return (
     <Stack rowGap={1}>
