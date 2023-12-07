@@ -54,64 +54,63 @@ function useResetCache(data: any) {
 }
 
 // Adapter for react-window
-const ListboxComponent = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLElement>
->(function ListboxComponent(props, ref) {
-  const { children, ...other } = props;
-  //   console.log("children:", children);
-  const itemData: React.ReactElement[] = [];
-  (children as React.ReactElement[]).forEach(
-    (item: React.ReactElement & { children?: React.ReactElement[] }) => {
-      itemData.push(item);
-      itemData.push(...(item.children || []));
-    }
-  );
+const ListboxComponent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLElement>>(
+  function ListboxComponent(props, ref) {
+    const { children, ...other } = props;
+    //   console.log("children:", children);
+    const itemData: React.ReactElement[] = [];
+    (children as React.ReactElement[]).forEach(
+      (item: React.ReactElement & { children?: React.ReactElement[] }) => {
+        itemData.push(item);
+        itemData.push(...(item.children || []));
+      }
+    );
 
-  const theme = useTheme();
-  const smUp = useMediaQuery(theme.breakpoints.up("sm"), {
-    noSsr: true,
-  });
-  const itemCount = itemData.length;
-  const itemSize = smUp ? 36 : 48;
+    const theme = useTheme();
+    const smUp = useMediaQuery(theme.breakpoints.up("sm"), {
+      noSsr: true,
+    });
+    const itemCount = itemData.length;
+    const itemSize = smUp ? 36 : 48;
 
-  const getChildSize = (child: React.ReactElement) => {
-    if (child.hasOwnProperty("group")) {
-      return 48;
-    }
+    const getChildSize = (child: React.ReactElement) => {
+      if (child.hasOwnProperty("group")) {
+        return 48;
+      }
 
-    return itemSize;
-  };
+      return itemSize;
+    };
 
-  const getHeight = () => {
-    if (itemCount > 8) {
-      return 8 * itemSize;
-    }
-    return itemData.map(getChildSize).reduce((a, b) => a + b, 0);
-  };
+    const getHeight = () => {
+      if (itemCount > 8) {
+        return 8 * itemSize;
+      }
+      return itemData.map(getChildSize).reduce((a, b) => a + b, 0);
+    };
 
-  const gridRef = useResetCache(itemCount);
+    const gridRef = useResetCache(itemCount);
 
-  return (
-    <div ref={ref}>
-      <OuterElementContext.Provider value={other}>
-        <VariableSizeList
-          itemData={itemData}
-          height={getHeight() + 2 * LISTBOX_PADDING}
-          width="100%"
-          ref={gridRef}
-          outerElementType={OuterElementType}
-          innerElementType="ul"
-          itemSize={(index) => getChildSize(itemData[index])}
-          overscanCount={5}
-          itemCount={itemCount}
-        >
-          {renderRow}
-        </VariableSizeList>
-      </OuterElementContext.Provider>
-    </div>
-  );
-});
+    return (
+      <div ref={ref}>
+        <OuterElementContext.Provider value={other}>
+          <VariableSizeList
+            itemData={itemData}
+            height={getHeight() + 2 * LISTBOX_PADDING}
+            width="100%"
+            ref={gridRef}
+            outerElementType={OuterElementType}
+            innerElementType="ul"
+            itemSize={(index) => getChildSize(itemData[index])}
+            overscanCount={5}
+            itemCount={itemCount}
+          >
+            {renderRow}
+          </VariableSizeList>
+        </OuterElementContext.Provider>
+      </div>
+    );
+  }
+);
 
 const StyledPopper = styled(Popper)({
   [`& .${autocompleteClasses.listbox}`]: {
@@ -126,6 +125,11 @@ const StyledPopper = styled(Popper)({
 export default function SearchStockTextField() {
   const setStockValue = useSetRecoilState(stockKeyState);
   const resetStockValue = useResetRecoilState(stockKeyState);
+
+  const FILTERED_TW_STOCKS = React.useMemo(
+    () => TW_STOCKS_LIST.filter(({ No }) => No.length === 4),
+    []
+  );
 
   return (
     <Autocomplete
@@ -144,16 +148,14 @@ export default function SearchStockTextField() {
       }}
       PopperComponent={StyledPopper}
       ListboxComponent={ListboxComponent}
-      options={TW_STOCKS_LIST}
+      options={FILTERED_TW_STOCKS}
       getOptionLabel={(option) => {
         return `${option.No}.TW-${option.Name}`;
       }}
       renderInput={(params) => (
         <TextField variant="outlined" {...params} placeholder="找哪張股票" />
       )}
-      renderOption={(props, option, state) =>
-        [props, option, state.index] as React.ReactNode
-      }
+      renderOption={(props, option, state) => [props, option, state.index] as React.ReactNode}
     />
   );
 }
