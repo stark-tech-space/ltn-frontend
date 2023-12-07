@@ -33,7 +33,6 @@ export const OPTIONS = {
     y1: {
       type: "linear",
       display: true,
-      max: 700,
       position: "right",
       title: {
         display: true,
