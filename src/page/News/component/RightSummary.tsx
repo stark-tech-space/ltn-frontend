@@ -1,32 +1,44 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Stack, Typography, styled, Chip, Divider } from '@mui/material';
-import ArticleList from './ArticleList';
-import { ICompanyState, IQuote, IBalanceSheetStatement, IKeyMetrics } from 'types/news';
-import { fetchQuote, fetchSymbolInfo, fetchBalanceSheetStatement, fetchKeyMetrics } from 'api/news';
-import { STOCK_SYMBOL } from 'constant';
-import { addPlaceHolder, formNumberToUnit } from 'until';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import { useRecoilValue } from 'recoil';
-import { currentStock } from 'recoil/selector';
-import { fetchCompanyRatios } from 'api/common';
-import { IFinancialStatementRatio, PERIOD } from 'types/common';
+import React, { useEffect, useState } from "react";
+import { Box, Stack, Typography, styled, Chip, Divider } from "@mui/material";
+import ArticleList from "./ArticleList";
+import {
+  ICompanyState,
+  IQuote,
+  IBalanceSheetStatement,
+  IKeyMetrics,
+} from "types/news";
+import {
+  fetchQuote,
+  fetchSymbolInfo,
+  fetchBalanceSheetStatement,
+  fetchKeyMetrics,
+} from "api/news";
+import { STOCK_SYMBOL } from "constant";
+import { addPlaceHolder, formNumberToUnit } from "until";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import { useRecoilValue } from "recoil";
+import { currentStock } from "recoil/selector";
+import { fetchCompanyRatios } from "api/common";
+import { IFinancialStatementRatio, PERIOD } from "types/common";
 
 const StyledLabel = styled(Typography)(({ theme, color }) => ({
-  fontSize: '16px',
-  color: '#000',
+  fontSize: "16px",
+  color: "#000",
   fontWeight: 400,
-  lineHeight: '24px',
+  lineHeight: "24px",
 }));
 
-const StyledValue = styled(Typography)(({ color = '#D92D20' }: { color?: string }) => ({
-  fontSize: '16px',
-  fontWeight: 400,
-  lineHeight: '24px',
-  color,
-}));
+const StyledValue = styled(Typography)(
+  ({ color = "#D92D20" }: { color?: string }) => ({
+    fontSize: "16px",
+    fontWeight: 400,
+    lineHeight: "24px",
+    color,
+  })
+);
 
-const StockInformation = () => {
+export const StockInformation = () => {
   const [quote, setQuote] = useState<IQuote>({} as IQuote);
   const [others, setOthers] = useState<IFinancialStatementRatio>();
   const stock = useRecoilValue(currentStock);
@@ -73,23 +85,27 @@ const StockInformation = () => {
               <ArrowDropUpIcon fontSize="small" />
             )
           }
-          label={addPlaceHolder(quote?.changesPercentage?.toFixed(2), '%')}
+          label={addPlaceHolder(quote?.changesPercentage?.toFixed(2), "%")}
           sx={{
-            bgcolor: '#EB57571A',
-            color: '#EB5757',
-            '&>.MuiSvgIcon-root': { color: '#D92D20', py: '4px' },
+            bgcolor: "#EB57571A",
+            color: "#EB5757",
+            "&>.MuiSvgIcon-root": { color: "#D92D20", py: "4px" },
           }}
         />
       </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>成交量</StyledLabel>
-        <StyledValue color="#000000">{formNumberToUnit(quote.volume, 'K', 3)}</StyledValue>
+        <StyledValue color="#000000">
+          {formNumberToUnit(quote.volume, "K", 3)}
+        </StyledValue>
       </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>前日收盤價</StyledLabel>
-        <StyledValue color="#000000">{addPlaceHolder(quote.previousClose)}</StyledValue>
+        <StyledValue color="#000000">
+          {addPlaceHolder(quote.previousClose)}
+        </StyledValue>
       </Box>
-      <Divider sx={{ bgcolor: '#D0D5DD' }} />
+      <Divider sx={{ bgcolor: "#D0D5DD" }} />
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>EPS (FWD)</StyledLabel>
         <StyledValue color="#000000">{addPlaceHolder(quote?.eps)}</StyledValue>
@@ -114,74 +130,85 @@ const StockInformation = () => {
       </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>市值</StyledLabel>
-        <StyledValue color="#000000">{formNumberToUnit(quote.marketCap, 'T', 12)}</StyledValue>
+        <StyledValue color="#000000">
+          {formNumberToUnit(quote.marketCap, "T", 12)}
+        </StyledValue>
       </Box>
     </Stack>
   );
 };
 
-const CompanyInformation = () => {
+export const CompanyInformation = () => {
   const [companyState, setCompanyState] = useState<ICompanyState>();
-  const [balanceSheetStatement, setBalanceSheetStatement] = useState<IBalanceSheetStatement>();
+  const [balanceSheetStatement, setBalanceSheetStatement] =
+    useState<IBalanceSheetStatement>();
   const [keyMetrics, setKeyMetrics] = useState<IKeyMetrics>();
   const stock = useRecoilValue(currentStock);
 
   useEffect(() => {
-    fetchSymbolInfo(stock.Symbol).then((rst) => {
-      if (rst && rst[0]) {
-        setCompanyState(rst[0]);
-      } else {
-        setCompanyState(undefined);
-      }
-    });
-
-    fetchBalanceSheetStatement(stock.Symbol).then((rst) => {
-      if (rst && rst[0]) {
-        setBalanceSheetStatement(rst[0]);
-      } else {
-        setBalanceSheetStatement(undefined);
-      }
-    });
-
-    fetchKeyMetrics(stock.Symbol).then((rst) => {
-      if (rst && rst[0]) {
-        setKeyMetrics(rst[0]);
-      } else {
-        setKeyMetrics(undefined);
-      }
-    });
+    // fetchSymbolInfo(stock.Symbol).then((rst) => {
+    //   if (rst && rst[0]) {
+    //     setCompanyState(rst[0]);
+    //   } else {
+    //     setCompanyState(undefined);
+    //   }
+    // });
+    // fetchBalanceSheetStatement(stock.Symbol).then((rst) => {
+    //   if (rst && rst[0]) {
+    //     setBalanceSheetStatement(rst[0]);
+    //   } else {
+    //     setBalanceSheetStatement(undefined);
+    //   }
+    // });
+    // fetchKeyMetrics(stock.Symbol).then((rst) => {
+    //   if (rst && rst[0]) {
+    //     setKeyMetrics(rst[0]);
+    //   } else {
+    //     setKeyMetrics(undefined);
+    //   }
+    // });
   }, [stock.Symbol]);
 
   return (
     <Stack borderRadius="8px" bgcolor="#fff" p={3} rowGap="12px">
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>交易所</StyledLabel>
-        <StyledValue color="#000000">{addPlaceHolder(companyState?.exchangeShortName)}</StyledValue>
+        <StyledValue color="#000000">
+          {addPlaceHolder(companyState?.exchangeShortName)}
+        </StyledValue>
       </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>產業類別</StyledLabel>
-        <StyledValue color="#000000">{addPlaceHolder(companyState?.industry)}</StyledValue>
+        <StyledValue color="#000000">
+          {addPlaceHolder(companyState?.industry)}
+        </StyledValue>
       </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>市值 (百萬)</StyledLabel>
-        <StyledValue color="#000000">{formNumberToUnit(companyState?.mktCap, 'M', 6)}</StyledValue>
+        <StyledValue color="#000000">
+          {formNumberToUnit(companyState?.mktCap, "M", 6)}
+        </StyledValue>
       </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>總債務 (百萬)</StyledLabel>
         <StyledValue color="#000000">
-          {formNumberToUnit(balanceSheetStatement?.totalDebt, 'M', 6)}
+          {formNumberToUnit(balanceSheetStatement?.totalDebt, "M", 6)}
         </StyledValue>
       </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>現金和投資 (百萬)</StyledLabel>
         <StyledValue color="#000000">
-          {formNumberToUnit(balanceSheetStatement?.cashAndShortTermInvestments, 'M', 6)}
+          {formNumberToUnit(
+            balanceSheetStatement?.cashAndShortTermInvestments,
+            "M",
+            6
+          )}
         </StyledValue>
       </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>企業價值 (百萬)</StyledLabel>
         <StyledValue color="#000000">
-          {formNumberToUnit(keyMetrics?.enterpriseValue, 'M', 6)}
+          {formNumberToUnit(keyMetrics?.enterpriseValue, "M", 6)}
         </StyledValue>
       </Box>
     </Stack>

@@ -2,10 +2,7 @@
 
 import moment from "moment";
 import { IIndicatorItem } from "types/common";
-
-const sortCallback = (t1: { date: string }, t2: { date: string }) => {
-  return moment(t1.date).unix() - moment(t2.date).unix();
-};
+import { sortCallback } from "until";
 
 export const getSmaByMonth = (data: IIndicatorItem[]) => {
   const sortedData = data.sort(sortCallback).map((item) => {
@@ -24,15 +21,14 @@ export const getSmaByMonth = (data: IIndicatorItem[]) => {
   sortedData.forEach((item, index) => {
     if (item.year !== keyId) {
       keyId = item.year;
+    }
+    if (groupByYears[keyId]) {
+      groupByYears[keyId].push({
+        month: item.month,
+        sma: item.sma,
+      });
     } else {
-      if (groupByYears[keyId]) {
-        groupByYears[keyId].push({
-          month: item.month,
-          sma: item.sma,
-        });
-      } else {
-        groupByYears[keyId] = [{ month: item.month, sma: item.sma }];
-      }
+      groupByYears[keyId] = [{ month: item.month, sma: item.sma }];
     }
   });
 
@@ -46,12 +42,11 @@ export const getSmaByMonth = (data: IIndicatorItem[]) => {
     yearData.forEach((item) => {
       if (item.month !== monthId) {
         monthId = item.month;
+      }
+      if (groupMonths[monthId]) {
+        groupMonths[monthId].push(item.sma);
       } else {
-        if (groupMonths[monthId]) {
-          groupMonths[monthId].push(item.sma);
-        } else {
-          groupMonths[monthId] = [item.sma];
-        }
+        groupMonths[monthId] = [item.sma];
       }
     });
     groupByMonths[key] = groupMonths;
@@ -70,5 +65,6 @@ export const getSmaByMonth = (data: IIndicatorItem[]) => {
       }
     );
   });
+
   return list.sort(sortCallback);
 };

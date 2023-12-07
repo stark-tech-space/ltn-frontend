@@ -2,23 +2,23 @@ import { Box } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PERIOD } from "types/common";
 import { Chart as ReactChart } from "react-chartjs-2";
-import { graphConfig_01, labelDataSets_01 } from "./GrapConfig";
+import { graphConfig, labelDataSets } from "./GraphConfig";
 import type { Chart } from "chart.js";
 import { getDataLimit } from "until";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
-import { ISecurityRatio } from "types/security";
 import PeriodController from "component/PeriodController";
-import { fetchSecurityRatio } from "api/security";
+import { fetchCashFlowStatement } from "api/cashflow";
+import { ICashFLowItem } from "types/cashflow";
 
 export const GRAPH_FIELDS = [
   {
-    field: "debtRatio",
-    headerName: "負債比率",
+    field: "operatingCashFlowRate",
+    headerName: "營業現金流對淨利比(%)",
   },
 ];
 
-export default function GraphDebt({
+export default function GraphOperatNetIncomeRate({
   getGraphData,
 }: {
   getGraphData: (data: any[][]) => void;
@@ -28,7 +28,9 @@ export default function GraphDebt({
   const [period, setPeriod] = useState(3);
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
 
-  const updateGraph = (data: ISecurityRatio[]) => {
+  const [graphData, setGraphData] = useState<ICashFLowItem[]>([]);
+
+  const updateGraph = (data: ICashFLowItem[]) => {
     if (chartRef.current) {
       const labels = data.map((item) => item.date);
       chartRef.current.data.labels = labels;
@@ -36,7 +38,7 @@ export default function GraphDebt({
       GRAPH_FIELDS.forEach(async ({ field }, index) => {
         if (chartRef.current) {
           chartRef.current.data.datasets[index].data = data.map(
-            (item) => +item[field as keyof ISecurityRatio] * 100
+            (item) => +item[field as keyof ICashFLowItem] * 100
           );
         }
       });
@@ -44,7 +46,7 @@ export default function GraphDebt({
     }
   };
 
-  const genGraphTableData = (data: ISecurityRatio[]) => {
+  const genGraphTableData = (data: ICashFLowItem[]) => {
     if (data.length === 0) {
       return [[], []];
     }
@@ -74,11 +76,11 @@ export default function GraphDebt({
       data?.forEach((item) => {
         if (reportType === PERIOD.ANNUAL) {
           dataSources[item.calendarYear] = (
-            +item[field as keyof ISecurityRatio] * 100
+            +item[field as keyof ICashFLowItem] * 100
           ).toFixed(2);
         } else {
           dataSources[`${item.calendarYear}-${item.period}`] = (
-            +item[field as keyof ISecurityRatio] * 100
+            +item[field as keyof ICashFLowItem] * 100
           ).toFixed(2);
         }
       });
@@ -89,20 +91,34 @@ export default function GraphDebt({
 
   const fetchGraphData = useCallback(async () => {
     const limit = getDataLimit(reportType, period);
-    const rst = await fetchSecurityRatio<ISecurityRatio[]>(
-      stock.Symbol,
-      reportType,
-      limit
-    );
+    const rst = await fetchCashFlowStatement(stock.Symbol, reportType, limit);
     if (rst) {
-      updateGraph(rst);
-      getGraphData(genGraphTableData(rst));
+      const graphData = rst.map((item) => ({
+        date: item.date,
+        operatingCashFlowRate:
+          item.netCashProvidedByOperatingActivities / item.netIncome,
+      }));
+      updateGraph(graphData as any);
+      setGraphData(rst);
     }
-  }, [stock, period, reportType, getGraphData]);
+  }, [stock, period, reportType]);
 
   useEffect(() => {
     fetchGraphData();
   }, [fetchGraphData]);
+
+  useEffect(() => {
+    if (graphData.length > 0) {
+      const tableData = graphData.map((item) => ({
+        date: item.date,
+        operatingCashFlowRate:
+          item.netCashProvidedByOperatingActivities / item.netIncome,
+        calendarYear: item.calendarYear,
+        period: item.period,
+      }));
+      getGraphData(genGraphTableData(tableData as any));
+    }
+  }, [graphData, getGraphData]);
 
   return (
     <>
@@ -110,11 +126,11 @@ export default function GraphDebt({
         onChangePeriod={setPeriod}
         onChangeReportType={setReportType}
       />
-      <Box height={510} bgcolor="#fff" pb={3}>
+      <Box height={510} bgcolor="#fff">
         <ReactChart
           type="line"
-          data={labelDataSets_01}
-          options={graphConfig_01 as any}
+          data={labelDataSets}
+          options={graphConfig as any}
           ref={chartRef}
         />
       </Box>

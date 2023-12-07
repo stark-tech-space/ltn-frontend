@@ -1,19 +1,24 @@
 import { Box } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { PERIOD } from "types/common";
+import { IDateField, PERIOD } from "types/common";
 import { Chart as ReactChart } from "react-chartjs-2";
 import { graphConfig_02, labelDataSets_02 } from "./GrapConfig";
 import type { Chart } from "chart.js";
-import { getDataLimit } from "until";
+import { getDataLimit, sortCallback } from "until";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
-import { ISecurityRatio } from "types/security";
+import { IAssetsSheetStatement, ISecurityRatio } from "types/security";
 import PeriodController from "component/PeriodController";
-import { fetchBalanceSheetStatement } from "api/profitrato";
+import { fetchSecurityBalanceSheetStatement } from "api/security";
+
+interface IGraphField extends IDateField {
+  longDebtRatio: number;
+  date: string;
+}
 
 export const GRAPH_FIELDS = [
   {
-    field: "debtRatio",
+    field: "longDebtRatio",
     headerName: "長期資金佔固定資產比率",
   },
 ];
@@ -28,7 +33,7 @@ export default function GraphDebtAssets({
   const [period, setPeriod] = useState(3);
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
 
-  const updateGraph = (data: ISecurityRatio[]) => {
+  const updateGraph = (data: IGraphField[]) => {
     if (chartRef.current) {
       const labels = data.map((item) => item.date);
       chartRef.current.data.labels = labels;
@@ -36,7 +41,7 @@ export default function GraphDebtAssets({
       GRAPH_FIELDS.forEach(async ({ field }, index) => {
         if (chartRef.current) {
           chartRef.current.data.datasets[index].data = data.map(
-            (item) => +item[field as keyof ISecurityRatio] * 100
+            (item) => +item[field as keyof IGraphField]
           );
         }
       });
@@ -44,7 +49,7 @@ export default function GraphDebtAssets({
     }
   };
 
-  const genGraphTableData = (data: ISecurityRatio[]) => {
+  const genGraphTableData = (data: IGraphField[]) => {
     if (data.length === 0) {
       return [[], []];
     }
@@ -72,13 +77,13 @@ export default function GraphDebtAssets({
       };
       data?.forEach((item) => {
         if (reportType === PERIOD.ANNUAL) {
-          dataSources[item.calendarYear] = (
-            +item[field as keyof ISecurityRatio] * 100
-          ).toFixed(2);
+          dataSources[item.calendarYear] = (+item[
+            field as keyof IGraphField
+          ]).toFixed(2);
         } else {
-          dataSources[`${item.calendarYear}-${item.period}`] = (
-            +item[field as keyof ISecurityRatio] * 100
-          ).toFixed(2);
+          dataSources[`${item.calendarYear}-${item.period}`] = (+item[
+            field as keyof IGraphField
+          ]).toFixed(2);
         }
       });
       rowData.push(dataSources);
@@ -88,25 +93,29 @@ export default function GraphDebtAssets({
 
   const fetchGraphData = useCallback(async () => {
     const limit = getDataLimit(reportType, period);
-    const rst = await fetchBalanceSheetStatement(
-      stock.Symbol,
-      reportType,
-      limit
-    );
-    // const rst = await fetchSecurityRatio<ISecurityRatio[]>(
-    //   stock.Symbol,
-    //   reportType,
-    //   limit
-    // );
-    // if (rst) {
-    //   updateGraph(rst);
-    //   getGraphData(genGraphTableData(rst));
-    // }
-    console.log("rst", rst);
-  }, [stock, period, reportType, getGraphData]);
+    const rst = await fetchSecurityBalanceSheetStatement<
+      IAssetsSheetStatement[]
+    >(stock.Symbol, reportType, limit);
+
+    const data = rst?.sort(sortCallback).map((item) => ({
+      date: item.date,
+      calendarYear: item.calendarYear,
+      period: item.period,
+      longDebtRatio:
+        +(
+          (item.longTermDebt + item.totalStockholdersEquity) /
+          item.propertyPlantEquipmentNet
+        ) * 100,
+    }));
+
+    if (data) {
+      updateGraph(data);
+      getGraphData(genGraphTableData(data));
+    }
+  }, [stock, period, reportType]);
 
   useEffect(() => {
-    // fetchGraphData();
+    fetchGraphData();
   }, [fetchGraphData]);
 
   return (

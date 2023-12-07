@@ -12,7 +12,21 @@ export function PageLayout({
   sx?: SxProps;
   children: ReactNode;
 }) {
-  return <Box sx={{ mx: 6, py: 1, ...sx }}>{children}</Box>;
+  return (
+    <Box
+      sx={{
+        mx: {
+          xs: 2,
+          md: 3,
+          lg: 6,
+        },
+        py: 1,
+        ...sx,
+      }}
+    >
+      {children}
+    </Box>
+  );
 }
 
 export default function Layout() {

@@ -41,16 +41,16 @@ export default function TopStockBar() {
     // return () => {
     //   stop = true;
     // };
-    (async () => {
-      setIsUpdating(true);
-      const rst = await fetchQuote(stock.Symbol).finally(async () => {
-        await sleep(1000);
-        setIsUpdating(false);
-      });
-      if (rst && rst[0]) {
-        setQuote(rst[0]);
-      }
-    })();
+    // (async () => {
+    //   setIsUpdating(true);
+    //   const rst = await fetchQuote(stock.Symbol).finally(async () => {
+    //     await sleep(1000);
+    //     setIsUpdating(false);
+    //   });
+    //   if (rst && rst[0]) {
+    //     setQuote(rst[0]);
+    //   }
+    // })();
   }, [stock.Symbol]);
 
   return (

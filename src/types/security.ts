@@ -27,3 +27,20 @@ export interface IDebtAssetsRatio extends IDateField {
   longTermDebt: number;
   totalStockholdersEquity: number;
 }
+
+export interface IAssetsSheetStatement extends IDateField {
+  // 固定资产
+  propertyPlantEquipmentNet: number;
+  // 短期债务
+  longTermDebt: number;
+  // 股东权益总额
+  totalStockholdersEquity: number;
+}
+
+// 單季
+export interface ICashFlowAnalysis extends IDateField {
+  // 流動負債
+  CurrentLiabilities: number;
+  // 負債
+  Liabilities: number;
+}

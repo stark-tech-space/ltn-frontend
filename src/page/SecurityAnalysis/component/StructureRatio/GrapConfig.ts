@@ -23,6 +23,7 @@ export const labelDataSets_02 = {
       backgroundColor: "rgb(0, 199, 132)",
       borderWidth: 1,
       yAxisID: "y",
+
       fill: false,
     },
   ],
@@ -85,6 +86,7 @@ export const graphConfig_02 = {
       type: "linear",
       display: true,
       position: "left",
+      min: 0,
       title: {
         display: true,
         text: "%",

@@ -43,11 +43,10 @@ export default function StructureRatio() {
             rowData={rowData}
             columnDefs={columnHeaders as any}
             defaultColDef={{
-              resizable: false,
+              resizable: true,
               initialWidth: 200,
               wrapHeaderText: true,
               autoHeaderHeight: true,
-              // flex: 1,
             }}
             domLayout="autoHeight"
           />

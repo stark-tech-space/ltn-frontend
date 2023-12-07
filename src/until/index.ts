@@ -89,3 +89,7 @@ export const genFullDateObject = (time: string) => {
     period: m.format("YYYY") + "Q" + m.quarter(),
   };
 };
+
+export const sortCallback = (t1: { date: string }, t2: { date: string }) => {
+  return moment(t1.date).unix() - moment(t2.date).unix();
+};

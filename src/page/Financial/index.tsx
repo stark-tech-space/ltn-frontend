@@ -1,6 +1,5 @@
 import { Box } from "@mui/material";
 import React, { useMemo, useState } from "react";
-import { PageLayout } from "../../component/Layout";
 import EarningsPerShare from "./component/EaringsPerShare";
 import MonthlyRevenue from "./component/MonthlyRevenue";
 import Developing from "component/Developing";
@@ -24,8 +23,10 @@ const CHILDREN_MAP: Record<FINANCIAL_PAGE_ENUM, React.ReactNode> = {
   [FINANCIAL_PAGE_ENUM.PAGE9]: <Developing />,
 };
 
-function FinancialPage() {
-  const [activeTab, setActiveTab] = useState<FINANCIAL_PAGE_ENUM>(FINANCIAL_PAGE_ENUM.PAGE1);
+export default function FinancialPage() {
+  const [activeTab, setActiveTab] = useState<FINANCIAL_PAGE_ENUM>(
+    FINANCIAL_PAGE_ENUM.PAGE1
+  );
   const Child = useMemo(() => CHILDREN_MAP[activeTab], [activeTab]);
   return (
     <Box>
@@ -34,15 +35,7 @@ function FinancialPage() {
         menuConverter={FINANCIAL_PAGE_CONVERTER}
         onChange={(tab) => setActiveTab(tab as FINANCIAL_PAGE_ENUM)}
       />
-      <Box mx={{ xs: 4, lg: 6 }}>{Child}</Box>
+      <Box mx={{ xs: 2, md: 3, lg: 6 }}>{Child}</Box>
     </Box>
-  );
-}
-
-export default function Page() {
-  return (
-    <PageLayout sx={{ mx: 0, py: 0 }}>
-      <FinancialPage />
-    </PageLayout>
   );
 }

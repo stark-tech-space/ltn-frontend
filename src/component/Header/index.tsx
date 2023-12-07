@@ -2,10 +2,12 @@ import {
   Box,
   Button,
   Divider,
+  IconButton,
   OutlinedInput,
   Stack,
   TextField,
   styled,
+  useMediaQuery,
   useTheme,
 } from "@mui/material";
 import React from "react";
@@ -16,6 +18,7 @@ import AddIcon from "@mui/icons-material/Add";
 import TopStockBar from "../StockBar";
 import NavTabs from "../Menu";
 import SearchStockTextField from "component/SearchStockTextField";
+import SegmentIcon from "@mui/icons-material/Segment";
 
 const StyledLogo = styled(Link)(() => ({
   display: "inline-block",
@@ -27,6 +30,7 @@ const StyledLogo = styled(Link)(() => ({
 
 export default function AppHeader() {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   return (
     <Box>
       <Stack
@@ -38,16 +42,51 @@ export default function AppHeader() {
           px: 6,
           flexShrink: 0,
           bgcolor: "#fff",
-          [theme.breakpoints.down("lg")]: {
+          [theme.breakpoints.up("md")]: {
             px: 4,
+          },
+          [theme.breakpoints.down("md")]: {
+            p: 2,
+            height: "auto",
           },
         }}
       >
-        <Stack flexDirection="row" alignItems="center" columnGap={3}>
-          <StyledLogo to="/" />
+        <Stack
+          flex={1}
+          flexDirection="row"
+          alignItems="center"
+          columnGap={{
+            xs: 0,
+            md: 2,
+            lg: 4,
+          }}
+        >
+          <StyledLogo
+            to="/"
+            sx={{ display: isMobile ? "none" : "inline-block" }}
+          />
           <SearchStockTextField />
         </Stack>
-        <Stack flexDirection="row" alignItems="center" columnGap={2}>
+        <IconButton
+          sx={{
+            p: 0,
+            [theme.breakpoints.up("md")]: {
+              display: "none",
+            },
+            [theme.breakpoints.down("md")]: {
+              display: "inline-flex",
+              ml: 1,
+            },
+          }}
+        >
+          <SegmentIcon htmlColor="#000000E5" fontSize="large" />
+        </IconButton>
+        <Stack
+          flexDirection="row"
+          alignItems="center"
+          columnGap={2}
+          sx={{ display: isMobile ? "none" : "inline-flex" }}
+        >
           <Button sx={{ color: "#828282" }}>註冊</Button>
           <Divider
             sx={{
@@ -78,6 +117,9 @@ export default function AppHeader() {
             background: "#405DF9",
             color: "#fff",
             borderRadius: "8px",
+            [theme.breakpoints.down("md")]: {
+              display: "none",
+            },
             ":hover": {
               background: "#405DF9",
             },

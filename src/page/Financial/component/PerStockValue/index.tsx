@@ -1,17 +1,20 @@
 import { useRecoilValue } from "recoil";
-import { Chart } from "react-chartjs-2";
-import { PERIOD, } from "types/common";
+import { Box, Stack } from "@mui/material";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { PERIOD } from "types/common";
 import { currentStock } from "recoil/selector";
 import { fetchCompanyRatios } from "api/common";
-import { getDataLimit } from "until";
-import { OPTIONS } from "./GraphConfig";
 import { AgGridReact } from "ag-grid-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Box, Stack } from "@mui/material";
-import TagCard from "../../../../component/tabCard";
+import { getDataLimit } from "until";
+import { OPTIONS, labelDataSets } from "./GraphConfig";
+import type { Chart } from "chart.js";
+import { Chart as ReactChart } from "react-chartjs-2";
 import PeriodController from "component/PeriodController";
+import TagCard from "../../../../component/tabCard";
+import { useAvgPriceByMonth } from "Hooks/common";
 
 export default function PerStockShare() {
+  const chartRef = useRef<Chart>();
   const stock = useRecoilValue(currentStock);
   const [period, setPeriod] = useState(3);
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
@@ -21,30 +24,7 @@ export default function PerStockShare() {
   >([]);
   const [rowData, setRowData] = useState<{ [key: string]: any }[]>([]);
 
-  const defaultColDef = useMemo(() => {
-    return {
-      resizable: false,
-      initialWidth: 200,
-      wrapHeaderText: true,
-      autoHeaderHeight: true,
-    };
-  }, []);
-
-  const [data, setData] = useState({
-    labels: ["2021-01-01", "2022-01-01", "2023-01-01"],
-    datasets: [
-      {
-        type: "bar" as const,
-        label: "每股淨值",
-        backgroundColor: "#405DF9",
-        data: [0, 0, 0, 0],
-        borderColor: "#405DF9",
-        borderWidth: 1,
-        yAxisID: "y",
-        fill: false,
-      },
-    ],
-  });
+  const avgPrice = useAvgPriceByMonth(period - 1);
 
   const fetchGraphData = useCallback(async () => {
     const limit = getDataLimit(reportType, period);
@@ -62,10 +42,12 @@ export default function PerStockShare() {
         {
           field: "title",
           headerName: reportType === PERIOD.ANNUAL ? "年度" : "年度/季度",
+          pinned: "left",
         },
       ];
       const rowData: { [key: string]: string } = {
         title: "每股淨值",
+        pinned: "left",
       };
 
       rst.forEach((item, index) => {
@@ -83,27 +65,24 @@ export default function PerStockShare() {
       setColumnHeaders(columnHeaders as any);
       setRowData([rowData]);
 
-      setData({
-        labels,
-        datasets: [
-          {
-            type: "bar" as const,
-            label: "每股淨值",
-            backgroundColor: "rgba(64, 93, 249, 0.5)",
-            data: chartData,
-            borderColor: "#405DF9",
-            borderWidth: 1,
-            yAxisID: "y",
-            fill: false,
-          },
-        ],
-      });
+      if (chartRef.current) {
+        chartRef.current.data.labels = labels;
+        chartRef.current.data.datasets[0].data = chartData;
+        chartRef.current.update();
+      }
     }
-  }, [period, reportType, stock]);
+  }, [period, reportType, stock.Symbol]);
 
   useEffect(() => {
     fetchGraphData();
   }, [fetchGraphData]);
+
+  useEffect(() => {
+    if (chartRef.current && avgPrice.length > 0) {
+      chartRef.current.data.datasets[1].data = avgPrice.map((item) => item.sma);
+      chartRef.current.update();
+    }
+  }, [avgPrice]);
 
   return (
     <Stack rowGap={1}>
@@ -113,7 +92,12 @@ export default function PerStockShare() {
           onChangeReportType={setReportType}
         />
         <Box height={510} bgcolor="#fff" pb={3}>
-          <Chart type="bar" data={data} options={OPTIONS as any} />
+          <ReactChart
+            type="bar"
+            data={labelDataSets}
+            options={OPTIONS as any}
+            ref={chartRef}
+          />
         </Box>
       </Box>
       <TagCard tabs={["詳細數據"]}>
@@ -126,7 +110,12 @@ export default function PerStockShare() {
           <AgGridReact
             rowData={rowData}
             columnDefs={columnHeaders as any}
-            defaultColDef={defaultColDef}
+            defaultColDef={{
+              resizable: false,
+              initialWidth: 200,
+              wrapHeaderText: true,
+              autoHeaderHeight: true,
+            }}
             domLayout="autoHeight"
           />
         </Box>

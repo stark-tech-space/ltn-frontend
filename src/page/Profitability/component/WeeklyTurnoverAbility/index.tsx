@@ -16,7 +16,10 @@ import { fetchProfitRatio } from "api/profitrato";
 import { TURNOVER_DATASETS, TURNOVER_GRAPH_OPTIONS } from "./GrapConfig";
 import { Chart } from "chart.js";
 
-const TABLE_FIELDS: Record<string, Array<{ field: string; headerName: string }>> = {
+const TABLE_FIELDS: Record<
+  string,
+  Array<{ field: string; headerName: string }>
+> = {
   "0": [
     {
       field: "receivablesTurnover",
@@ -77,10 +80,12 @@ export default function WeeklyTurnoverAbility() {
 
   useEffect(() => {
     const limit = getDataLimit(reportType, period);
-    fetchProfitRatio<IProfitRatio[]>(stock.Symbol, PERIOD.QUARTER, limit).then((res) => {
-      setData(res || []);
-      handleUpdateGraph(res || []);
-    });
+    fetchProfitRatio<IProfitRatio[]>(stock.Symbol, PERIOD.QUARTER, limit).then(
+      (res) => {
+        setData(res || []);
+        handleUpdateGraph(res || []);
+      }
+    );
   }, [stock, reportType, period]);
 
   useEffect(() => {
@@ -98,7 +103,9 @@ export default function WeeklyTurnoverAbility() {
     data?.forEach((item) => {
       columns.push({
         field:
-          reportType === PERIOD.QUARTER ? `${item.calendarYear}-${item.period}` : item.calendarYear,
+          reportType === PERIOD.QUARTER
+            ? `${item.calendarYear}-${item.period}`
+            : item.calendarYear,
       });
     });
     return columns;
@@ -113,9 +120,9 @@ export default function WeeklyTurnoverAbility() {
 
         data?.forEach((item) => {
           if (reportType === PERIOD.ANNUAL) {
-            dataSources[item.calendarYear] = numeral(item[field as keyof IProfitRatio]).format(
-              "0,0.000"
-            );
+            dataSources[item.calendarYear] = numeral(
+              item[field as keyof IProfitRatio]
+            ).format("0,0.000");
           } else {
             dataSources[`${item.calendarYear}-${item.period}`] = numeral(
               item[field as keyof IProfitRatio]
@@ -157,7 +164,7 @@ export default function WeeklyTurnoverAbility() {
             </Button>
           ))}
         </Stack>
-        <Box bgcolor="#fff">
+        <Box bgcolor="#fff" height={510} pb={3}>
           <ReactChart
             type="line"
             data={TURNOVER_DATASETS[tabIndex.toString()]}

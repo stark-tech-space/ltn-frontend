@@ -7,6 +7,7 @@ import SecurityAnalysisPage from "page/SecurityAnalysis";
 import GrowthAnalysisPage from "page/GrowthAnalysis";
 import ValueAssessmentPage from "page/ValueAssessment";
 import IndicatorsPage from "page/Indicators";
+import ChipsPage from "page/Chips";
 
 const router = createBrowserRouter([
   {
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
       {
         path: "/indicator",
         element: <IndicatorsPage />,
+      },
+      {
+        path: "/chips",
+        element: <ChipsPage />,
       },
     ],
   },
@@ -77,5 +82,9 @@ export const ROUTES = [
   {
     title: "關鍵指標",
     path: "/indicator",
+  },
+  {
+    title: "籌碼",
+    path: "/chips",
   },
 ];

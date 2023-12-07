@@ -1,6 +1,8 @@
 // 现金流相关
 
-export interface ICashFLowItem {
+import { IDateField } from "./common";
+
+export interface ICashFLowItem extends IDateField {
   // 营业现金流
   netCashProvidedByOperatingActivities: number;
   // 融资现金流
@@ -13,6 +15,9 @@ export interface ICashFLowItem {
   netChangeInCash: number;
   // 季度、年度
   period: string;
+
+  // 税后净利润
+  netIncome: number;
 
   calendarYear: string;
 

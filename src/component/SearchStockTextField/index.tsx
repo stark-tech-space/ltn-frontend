@@ -134,11 +134,11 @@ export default function SearchStockTextField() {
   return (
     <Autocomplete
       id="virtualize-demo"
-      sx={{ width: 320 }}
+      fullWidth
+      sx={{ xs: { width: "100%" }, md: { width: 320 } }}
       disableListWrap
       size="small"
       onChange={(e: any, value) => {
-        console.log("value:", value);
         if (!value) {
           console.log("value");
           resetStockValue();
