@@ -63,7 +63,8 @@ export const PER_SHARE_OPTIONS = {
       offset: false,
       type: 'time',
       time: {
-        unit: 'quarter',
+        unit: 'year',
+        tooltipFormat: "YYYY/MM",
       },
     },
     y: {
