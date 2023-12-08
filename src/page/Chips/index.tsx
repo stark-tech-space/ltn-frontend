@@ -9,7 +9,6 @@ import StockInstitutionalInvestorsBuySell from "./compoent/StockInstitutionalInv
 const CHILDREN_MAP: Record<CHIPS_PAGE_ENUM, React.ReactNode> = {
   [CHIPS_PAGE_ENUM.PAGE1]: <StockInstitutionalInvestorsBuySell />,
   [CHIPS_PAGE_ENUM.PAGE2]: <Developing />,
-  [CHIPS_PAGE_ENUM.PAGE3]: <Developing />,
 };
 
 export default function ChipsPage() {

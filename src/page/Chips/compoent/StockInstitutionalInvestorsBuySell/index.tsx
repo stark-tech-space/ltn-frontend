@@ -1,111 +1,45 @@
 import React from "react";
-import { Box, Button } from "@mui/material";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-
-import { Chart as ReactChart } from "react-chartjs-2";
-
-import type { Chart } from "chart.js";
-
-import PeriodController from "component/PeriodController";
-import { graphConfig, labelDataSets } from "./GraphConfig";
-import { genFullDateObject, getBeforeYears } from "until";
-
-import { useRecoilValue } from "recoil";
-import { currentStock } from "recoil/selector";
-import { fetchFindMindAPI } from "api/common";
-import { PERIOD_TYPE } from "types/common";
-import moment from "moment";
-
-const PERIOD_YEAR = [
-  { label: "近1月", value: 1, type: PERIOD_TYPE.MONTH },
-  { label: "近1年", value: 1, type: PERIOD_TYPE.YEAR },
-  { label: "近3年", value: 3, type: PERIOD_TYPE.YEAR },
-  { label: "近5年", value: 5, type: PERIOD_TYPE.YEAR },
-];
+import { Box, Stack } from "@mui/material";
+import { useMemo, useState } from "react";
+import TagCard from "component/tabCard";
+import { AgGridReact } from "ag-grid-react";
+import Graph1 from "./graph1";
 
 export default function StockInstitutionalInvestorsBuySell() {
-  const chartRef = useRef<Chart>();
-  const stock = useRecoilValue(currentStock);
+  const [tabIndex, setTabIndex] = useState(0);
+  const [graphData1, setGraphData1] = useState<any>([]);
+  const [graphData2, setGraphData2] = useState<any>([]);
 
-  const [graphData, setGraphData] = useState<any>([]);
-  const [period, setPeriod] = useState({
-    label: "近1月",
-    value: 1,
-    type: PERIOD_TYPE.MONTH,
-  });
-
-  const fetchGraphData = useCallback(async () => {
-    let start_date = "";
-
-    if (period.type === PERIOD_TYPE.MONTH) {
-      start_date = moment()
-        .subtract(21, "day")
-        .startOf("day")
-        .format("YYYY-MM-DD");
-    } else {
-      start_date = getBeforeYears(period.value - 1);
-    }
-
-    const rst = await fetchFindMindAPI({
-      data_id: stock.No,
-      dataset: "TaiwanStockInstitutionalInvestorsBuySell",
-      start_date,
-    });
-    console.log("rst:", rst);
-    /**
-     * 外陸資=外陸資買賣超股數(不含外資自營商) + 外資自營商買賣超股數
-     * Foreign_Investor +Foreign_Dealer_Self
-     *
-     * 投信=投信買賣超股數
-     * Investment_Trust
-     *
-     * 自營商=自營商買賣超股數(自行買賣)+自營商買賣超股數(避險)
-     * Dealer_self +Dealer_Hedging
-     * */
-
-    // const fields = [{
-    //     'Foreign_Investor':[],
-    //     'Foreign_Dealer_Self':[],
-    //     'Investment_Trust':[],
-    //     'Foreign_Investor':[],
-    //     'Foreign_Investor':[],
-
-    // }]
-  }, [period, stock]);
-
-  useEffect(() => {
-    // fetchGraphData();
-  }, [fetchGraphData]);
+  const [columnHeader, rowData] = useMemo(
+    () => [graphData1, graphData2][tabIndex],
+    [graphData1, graphData2, tabIndex]
+  );
 
   return (
-    <Box bgcolor="#fff" p={3} borderRadius="8px">
-      <Box>
-        {PERIOD_YEAR.map((item) => (
-          <Button
-            key={item.value}
-            sx={{
-              color:
-                item.value === period.value && item.type === period.type
-                  ? "#405DF9"
-                  : "#333",
-            }}
-            onClick={() => {
-              setPeriod(item);
-            }}
-          >
-            {item.label}
-          </Button>
-        ))}
-      </Box>
+    <Stack rowGap={1}>
+      <TagCard tabs={["三大買賣超", "外資及陸資買賣超"]} onChange={setTabIndex}>
+        {tabIndex === 0 ? (
+          <Graph1 getGraphData={setGraphData1} />
+        ) : (
+          <Graph1 getGraphData={setGraphData2} />
+        )}
+      </TagCard>
 
-      <Box height={510}>
-        <ReactChart
-          type="bar"
-          data={labelDataSets}
-          options={graphConfig as any}
-          ref={chartRef}
-        />
-      </Box>
-    </Box>
+      <TagCard tabs={["詳細數據"]}>
+        <Box className="ag-theme-alpine" pb={3}>
+          <AgGridReact
+            rowData={rowData}
+            columnDefs={columnHeader}
+            defaultColDef={{
+              resizable: true,
+              initialWidth: 200,
+              wrapHeaderText: true,
+              autoHeaderHeight: true,
+            }}
+            domLayout="autoHeight"
+          />
+        </Box>
+      </TagCard>
+    </Stack>
   );
 }

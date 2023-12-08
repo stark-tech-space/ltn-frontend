@@ -10,6 +10,7 @@ import DividendPolicy from "./component/DividendPolicy";
 import PageNavigation from "component/PageNavigation";
 import { FINANCIAL_PAGE_CONVERTER, FINANCIAL_PAGE_ENUM } from "types/financial";
 import DebtHolders from "./component/DebtHolders";
+import EBooks from "./component/Ebook";
 
 const CHILDREN_MAP: Record<FINANCIAL_PAGE_ENUM, React.ReactNode> = {
   [FINANCIAL_PAGE_ENUM.PAGE1]: <MonthlyRevenue />,
@@ -20,7 +21,7 @@ const CHILDREN_MAP: Record<FINANCIAL_PAGE_ENUM, React.ReactNode> = {
   [FINANCIAL_PAGE_ENUM.PAGE6]: <DebtHolders />,
   [FINANCIAL_PAGE_ENUM.PAGE7]: <CashFlow />,
   [FINANCIAL_PAGE_ENUM.PAGE8]: <DividendPolicy />,
-  [FINANCIAL_PAGE_ENUM.PAGE9]: <Developing />,
+  [FINANCIAL_PAGE_ENUM.PAGE9]: <EBooks />,
 };
 
 export default function FinancialPage() {

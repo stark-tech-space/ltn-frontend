@@ -1,4 +1,4 @@
-export const labelDataSets = {
+export const labelDataSets_01 = {
   labels: [],
   datasets: [
     {
@@ -7,7 +7,7 @@ export const labelDataSets = {
       backgroundColor: "#ED589D",
     },
     {
-      label: "自營商",
+      label: "投信",
       data: [],
       backgroundColor: "#FF7E47",
     },
@@ -19,9 +19,10 @@ export const labelDataSets = {
   ],
 };
 
-export const graphConfig = {
+export const graphConfig_01 = {
   type: "bar",
   responsive: true,
+  locale: "zh-TW",
   maintainAspectRatio: false,
   plugins: {
     legend: {
@@ -35,12 +36,21 @@ export const graphConfig = {
       offset: false,
       type: "time",
       time: {
-        unit: "year",
-        tooltipFormat: "YYYY/MM",
+        unit: "day",
+        tooltipFormat: "YYYY/MM/DD",
       },
     },
     y: {
       stacked: true,
+      title: {
+        display: true,
+        text: "张",
+        align: "end",
+        font: {
+          size: 12,
+          weight: "bold",
+        },
+      },
     },
   },
 };

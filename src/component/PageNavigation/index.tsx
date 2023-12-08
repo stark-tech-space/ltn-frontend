@@ -48,9 +48,10 @@ const PageNavigation: FC<PageMenuProps<string>> = ({
         sx={{
           ".MuiTypography-button:last-child": {
             borderRight: "none",
+            pl: 2,
           },
           ".MuiTypography-button:first-child": {
-            pl: "0",
+            pl: 2,
           },
         }}
       >
