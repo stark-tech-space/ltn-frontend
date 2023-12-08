@@ -9,9 +9,7 @@ export default function NetIncomeGrowthRate() {
   const [columnHeaders, rowData] = graphData;
   return (
     <Stack rowGap={1}>
-      <Box bgcolor="#fff" p={3} borderRadius="8px">
-        <Graph getGraphData={setGraphData} />
-      </Box>
+      <Graph getGraphData={setGraphData} />
       <TagCard tabs={["詳細數據"]}>
         <Box
           className="ag-theme-alpine"
