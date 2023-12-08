@@ -8,13 +8,19 @@ import { currentStock } from "recoil/selector";
 import PeriodController from "component/PeriodController";
 import { fetchFindMindAPI } from "api/common";
 import { useAvgPriceByMonth } from "Hooks/common";
-import RevenueTypedController from "./Controller";
 import moment from "moment";
+import TagCard from "component/tabCard";
 
 interface ISma {
   date: string;
   sma: number;
 }
+
+const changeINfo = [
+  { label: "單月營收年增率", value: 1 },
+  { label: "單月每股營收年增率", value: 2 },
+  { label: "單月營收月增率", value: 3 },
+];
 
 interface IMonthlyRevenueGrowth {
   date: string;
@@ -41,12 +47,9 @@ function generateGraphData(data: IMonthlyRevenueGrowth[]) {
     return acc;
   }, {});
 
-  console.log("dataByYear:", dataByYear);
-
   const result = [];
 
   for (const year in dataByYear) {
-    console.log("year:", year);
     const sortedData = dataByYear[year].sort((a, b) => a.revenue_month - b.revenue_month);
     for (let i = 0; i < sortedData.length; i++) {
       // @ts-ignore
@@ -65,7 +68,6 @@ function generateGraphData(data: IMonthlyRevenueGrowth[]) {
       }
     }
   }
-  console.log("result:", result);
   return result;
 }
 
@@ -122,7 +124,6 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
       start_date: genStartDate(period),
       dataset: "TaiwanStockMonthRevenue",
     });
-    console.log("rst:", rst);
     const data = rst.map((item: any) => ({
       ...item,
       calendarYear: moment(item.date).format("YYYY"),
@@ -130,7 +131,6 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
     }));
     if (data) {
       const newData = generateGraphData(data);
-      console.log("newData:", newData);
       setGraphData(newData);
     }
   }, [stock, period, reportType, getGraphData]);
@@ -183,15 +183,23 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
 
   return (
     <>
-      <PeriodController
-        onChangePeriod={setPeriod}
-        onChangeReportType={setReportType}
-        showReportType={false}
-      />
-      <RevenueTypedController onChangeType={changeType} />
-      <Box height={510} bgcolor="#fff" pb={3}>
-        <ReactChart type="line" data={graphDataSets} options={graphConfig as any} />
-      </Box>
+      <TagCard
+        tabs={["單月營收年增率", "單月每股營收年增率", "單月營收月增率"]}
+        onChange={(cur) => {
+          changeType(changeINfo[cur].label, changeINfo[cur].value);
+        }}
+      >
+        <Box bgcolor="#fff">
+          <PeriodController
+            onChangePeriod={setPeriod}
+            onChangeReportType={setReportType}
+            showReportType={false}
+          />
+          <Box height={510} bgcolor="#fff" pb={3}>
+            <ReactChart type="line" data={graphDataSets} options={graphConfig as any} />
+          </Box>
+        </Box>
+      </TagCard>
     </>
   );
 }
