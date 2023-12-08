@@ -1,13 +1,14 @@
-import { Box } from "@mui/material";
-import React, { useMemo, useState } from "react";
-import { SECURITY_PAGE_CONVERTER, SECURITY_PAGE_ENUM } from "types/security";
-import Developing from "component/Developing";
-import StructureRatio from "./component/StructureRatio";
-import QuickAndCurrentRatio from "./component/QuickAndCurrentRatio";
-import TimesInterestEarned from "./component/TimesInterestEarned";
-import PageNavigation from "component/PageNavigation";
-import FlowRate from "./component/FlowRatio";
-import OperatingNetIncomeRate from "./component/OperatingNetIncomeRate";
+import { Box } from '@mui/material';
+import React, { useMemo, useState } from 'react';
+import { SECURITY_PAGE_CONVERTER, SECURITY_PAGE_ENUM } from 'types/security';
+import Developing from 'component/Developing';
+import StructureRatio from './component/StructureRatio';
+import QuickAndCurrentRatio from './component/QuickAndCurrentRatio';
+import TimesInterestEarned from './component/TimesInterestEarned';
+import PageNavigation from 'component/PageNavigation';
+import FlowRate from './component/FlowRatio';
+import OperatingNetIncomeRate from './component/OperatingNetIncomeRate';
+import ReinvestmentRate from './component/ReinvestmentRate';
 
 const CHILDREN_MAP: Record<SECURITY_PAGE_ENUM, React.ReactNode> = {
   [SECURITY_PAGE_ENUM.PAGE1]: <StructureRatio />,
@@ -15,13 +16,11 @@ const CHILDREN_MAP: Record<SECURITY_PAGE_ENUM, React.ReactNode> = {
   [SECURITY_PAGE_ENUM.PAGE3]: <TimesInterestEarned />,
   [SECURITY_PAGE_ENUM.PAGE4]: <FlowRate />,
   [SECURITY_PAGE_ENUM.PAGE5]: <OperatingNetIncomeRate />,
-  [SECURITY_PAGE_ENUM.PAGE6]: <Developing />,
+  [SECURITY_PAGE_ENUM.PAGE6]: <ReinvestmentRate />,
 };
 
 export default function SecurityAnalysisPage() {
-  const [activeTab, setActiveTab] = useState<SECURITY_PAGE_ENUM>(
-    SECURITY_PAGE_ENUM.PAGE1
-  );
+  const [activeTab, setActiveTab] = useState<SECURITY_PAGE_ENUM>(SECURITY_PAGE_ENUM.PAGE1);
 
   const Child = useMemo(() => CHILDREN_MAP[activeTab], [activeTab]);
   return (
