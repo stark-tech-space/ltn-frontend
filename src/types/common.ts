@@ -33,6 +33,12 @@ export enum PERIOD {
   QUARTER = "quarter",
 }
 
+export enum PERIOD_TYPE {
+  YEAR = "year",
+  MONTH = "month",
+  QUARTER = "quarter",
+}
+
 export interface IFinancialStatementRatio {
   // 本益比 (倍)
   peRatio: number;
@@ -49,9 +55,11 @@ export interface IFinancialStatementRatio {
 }
 
 export const PERIOD_YEAR = [
-  { label: "近3年", value: 3 },
-  { label: "近5年", value: 5 },
-  { label: "近8年", value: 8 },
+  // { label: "近1月", value: 1, type: PERIOD_TYPE.MONTH },
+  // { label: "近1年", value: 1, type: PERIOD_TYPE.YEAR },
+  { label: "近3年", value: 3, type: PERIOD_TYPE.YEAR },
+  { label: "近5年", value: 5, type: PERIOD_TYPE.YEAR },
+  { label: "近8年", value: 8, type: PERIOD_TYPE.YEAR },
 ];
 
 export interface IFinMindApiResponse {

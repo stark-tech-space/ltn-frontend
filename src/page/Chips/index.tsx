@@ -4,9 +4,10 @@ import Developing from "component/Developing";
 
 import PageNavigation from "component/PageNavigation";
 import { CHIPS_PAGE_CONVERTER, CHIPS_PAGE_ENUM } from "types/chips";
+import StockInstitutionalInvestorsBuySell from "./compoent/StockInstitutionalInvestorsBuySell";
 
 const CHILDREN_MAP: Record<CHIPS_PAGE_ENUM, React.ReactNode> = {
-  [CHIPS_PAGE_ENUM.PAGE1]: <Developing />,
+  [CHIPS_PAGE_ENUM.PAGE1]: <StockInstitutionalInvestorsBuySell />,
   [CHIPS_PAGE_ENUM.PAGE2]: <Developing />,
   [CHIPS_PAGE_ENUM.PAGE3]: <Developing />,
 };

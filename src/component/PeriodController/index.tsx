@@ -1,15 +1,17 @@
 import { Box, Button, ButtonGroup, Stack } from "@mui/material";
 import { useState } from "react";
 
-import { PERIOD_YEAR, PERIOD } from "types/common";
+import { PERIOD_YEAR, PERIOD, PERIOD_TYPE } from "types/common";
 
 export default function PeriodController({
   onChangePeriod,
   onChangeReportType,
   showReportType = true,
+  showMonthType = false,
 }: {
   showReportType?: boolean;
-  onChangePeriod?: (value: number) => void;
+  showMonthType?: boolean;
+  onChangePeriod?: (value: number, type?: PERIOD_TYPE) => void;
   onChangeReportType?: (value: PERIOD) => void;
 }) {
   const [period, setPeriod] = useState(3);
@@ -39,7 +41,7 @@ export default function PeriodController({
             }}
             onClick={() => {
               setPeriod(item.value);
-              onChangePeriod?.(item.value);
+              onChangePeriod?.(item.value, item.type);
             }}
           >
             {item.label}

@@ -1,58 +1,53 @@
-import { Stack, Box, Button } from '@mui/material';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import TagCard from '../../../../component/tabCard';
+import { Stack, Box, Button } from "@mui/material";
+import { useEffect, useMemo, useRef, useState } from "react";
+import TagCard from "../../../../component/tabCard";
 
-import { Chart as ReactChart } from 'react-chartjs-2';
-import { AgGridReact } from 'ag-grid-react';
-import numeral from 'numeral';
+import { Chart as ReactChart } from "react-chartjs-2";
+import { AgGridReact } from "ag-grid-react";
+import numeral from "numeral";
 
-import { IProfitRatio } from 'types/profitability';
-import { PERIOD, PERIOD_YEAR } from 'types/common';
-import { getDataLimit } from 'until';
+import { IProfitRatio } from "types/profitability";
+import { PERIOD, PERIOD_YEAR } from "types/common";
+import { getDataLimit } from "until";
 
-import { currentStock } from 'recoil/selector';
-import { useRecoilValue } from 'recoil';
-import { fetchProfitRatio } from 'api/profitrato';
-import { TURNOVER_DATASETS, TURNOVER_GRAPH_OPTIONS } from './GrapConfig';
-import { Chart } from 'chart.js';
+import { currentStock } from "recoil/selector";
+import { useRecoilValue } from "recoil";
+import { fetchProfitRatio } from "api/profitrato";
+import { TURNOVER_DATASETS, TURNOVER_GRAPH_OPTIONS } from "./GrapConfig";
+import { Chart } from "chart.js";
 
-<<<<<<< HEAD
 const TABLE_FIELDS: Record<
   string,
   Array<{ field: string; headerName: string }>
 > = {
   "0": [
-=======
-const TABLE_FIELDS: Record<string, Array<{ field: string; headerName: string }>> = {
-  '0': [
->>>>>>> a38ba8273d4dadb5b6da9a4f73df86c46e9cbb86
     {
-      field: 'receivablesTurnover',
-      headerName: '應收帳款週轉',
+      field: "receivablesTurnover",
+      headerName: "應收帳款週轉",
     },
     {
-      field: 'inventoryTurnover',
-      headerName: '存貨週轉',
+      field: "inventoryTurnover",
+      headerName: "存貨週轉",
     },
   ],
-  '1': [
+  "1": [
     {
-      field: '',
-      headerName: '固定資產',
+      field: "",
+      headerName: "固定資產",
     },
     {
-      field: 'fixedAssetTurnover',
-      headerName: '固定資產周轉',
+      field: "fixedAssetTurnover",
+      headerName: "固定資產周轉",
     },
   ],
-  '2': [
+  "2": [
     {
-      field: 'TotalAssets',
-      headerName: '總資產',
+      field: "TotalAssets",
+      headerName: "總資產",
     },
     {
-      field: 'assetTurnover',
-      headerName: '總資產週轉',
+      field: "assetTurnover",
+      headerName: "總資產週轉",
     },
   ],
 };
@@ -74,7 +69,7 @@ export default function WeeklyTurnoverAbility() {
       TABLE_FIELDS[tabIndex].forEach(async ({ field }, index) => {
         if (chartRef.current) {
           chartRef.current.data.datasets[index].data = data.map(
-            (item) => +item[field as keyof IProfitRatio],
+            (item) => +item[field as keyof IProfitRatio]
           );
         }
       });
@@ -100,9 +95,9 @@ export default function WeeklyTurnoverAbility() {
   const columnHeaders = useMemo(() => {
     const columns: any[] = [
       {
-        field: 'title',
-        headerName: reportType === PERIOD.QUARTER ? '年度/季度' : '年度',
-        pinned: 'left',
+        field: "title",
+        headerName: reportType === PERIOD.QUARTER ? "年度/季度" : "年度",
+        pinned: "left",
       },
     ];
     data?.forEach((item) => {
@@ -125,41 +120,35 @@ export default function WeeklyTurnoverAbility() {
 
         data?.forEach((item) => {
           if (reportType === PERIOD.ANNUAL) {
-<<<<<<< HEAD
             dataSources[item.calendarYear] = numeral(
               item[field as keyof IProfitRatio]
             ).format("0,0.000");
-=======
-            dataSources[item.calendarYear] = numeral(item[field as keyof IProfitRatio]).format(
-              '0,0.000',
-            );
->>>>>>> a38ba8273d4dadb5b6da9a4f73df86c46e9cbb86
           } else {
             dataSources[`${item.calendarYear}-${item.period}`] = numeral(
-              item[field as keyof IProfitRatio],
-            ).format('0,0.000');
+              item[field as keyof IProfitRatio]
+            ).format("0,0.000");
           }
         });
         return dataSources;
       }),
-    [data, reportType, tabIndex],
+    [data, reportType, tabIndex]
   );
 
   return (
     <Stack rowGap={1}>
       {/* 資產的資料問題，先不做固定資產周轉與總資展週轉 */}
       {/* <TagCard tabs={["營運周轉", "固定資產周轉", "總資產周轉"]} onChange={setTabIndex}> */}
-      <TagCard tabs={['營運周轉']} onChange={setTabIndex}>
+      <TagCard tabs={["營運周轉"]} onChange={setTabIndex}>
         <Stack
           direction="row"
           alignItems="center"
           sx={{
             mb: 3,
-            '&>button': {
+            "&>button": {
               mx: 1,
-              bgcolor: 'transparent',
+              bgcolor: "transparent",
               border: 0,
-              cursor: 'pointer',
+              cursor: "pointer",
             },
           }}
         >
@@ -167,7 +156,7 @@ export default function WeeklyTurnoverAbility() {
             <Button
               key={item.value}
               sx={{
-                color: item.value === period ? 'primary' : '#333',
+                color: item.value === period ? "primary" : "#333",
               }}
               onClick={() => setPeriod(item.value)}
             >
@@ -175,11 +164,7 @@ export default function WeeklyTurnoverAbility() {
             </Button>
           ))}
         </Stack>
-<<<<<<< HEAD
-        <Box bgcolor="#fff" height={510} pb={3}>
-=======
         <Box bgcolor="#fff" height={510}>
->>>>>>> a38ba8273d4dadb5b6da9a4f73df86c46e9cbb86
           <ReactChart
             type="line"
             data={TURNOVER_DATASETS[tabIndex.toString()]}
@@ -188,11 +173,11 @@ export default function WeeklyTurnoverAbility() {
           />
         </Box>
       </TagCard>
-      <TagCard tabs={['詳細數據']}>
+      <TagCard tabs={["詳細數據"]}>
         <Box
           className="ag-theme-alpine"
           style={{
-            paddingBottom: '24px',
+            paddingBottom: "24px",
           }}
         >
           <AgGridReact
