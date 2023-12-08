@@ -1,14 +1,14 @@
-import { PERIOD } from "types/common";
-import { IMonthlyRevenue } from "types/financial";
-import fmpApi from "./http/fmpApi";
-import finMindApi from "./http/finmindApi";
+import { PERIOD } from 'types/common';
+import { IIncomeStatements, IMonthlyRevenue } from 'types/financial';
+import fmpApi from './http/fmpApi';
+import finMindApi from './http/finmindApi';
 
 // 公司损益表
 export const fetchIncomeStatement = async (
   symbol: string,
   period: PERIOD,
   limit: number = 40,
-): Promise<any[] | undefined> => {
+): Promise<IIncomeStatements[] | undefined> => {
   try {
     const rst = await fmpApi.get(`/income-statement/${symbol}`, {
       params: { period, limit },

@@ -47,7 +47,6 @@ export const graphConfig = {
       type: "linear",
       display: true,
       position: "right",
-      min: 250,
       title: {
         display: true,
         text: "元",
