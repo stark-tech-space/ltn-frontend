@@ -9,6 +9,7 @@ import RevenueGrowthRate from "./component/RevenueGrowthRate";
 import GrossProfitGrowthRate from "./component/GrossProfitGrowthRate";
 import OperatingIncomeGrowthRate from "./component/OperatingIncomeGrowthRate";
 import NetIncomeGrowthRate from "./component/NetIncomeGrowthRate";
+import EpsGrowthRate from "./component/EpsGrowthRate";
 
 const CHILDREN_MAP: Record<GROWTH_PAGE_ENUM, React.ReactNode> = {
   [GROWTH_PAGE_ENUM.PAGE1]: <MonthlyRevenueGrowthRate />,
@@ -16,7 +17,7 @@ const CHILDREN_MAP: Record<GROWTH_PAGE_ENUM, React.ReactNode> = {
   [GROWTH_PAGE_ENUM.PAGE3]: <GrossProfitGrowthRate />,
   [GROWTH_PAGE_ENUM.PAGE4]: <OperatingIncomeGrowthRate />,
   [GROWTH_PAGE_ENUM.PAGE5]: <NetIncomeGrowthRate />,
-  [GROWTH_PAGE_ENUM.PAGE6]: <Developing />,
+  [GROWTH_PAGE_ENUM.PAGE6]: <EpsGrowthRate />,
 };
 
 function GrowthAnalysisPage() {
