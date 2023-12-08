@@ -137,8 +137,6 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
       dataset: "TaiwanStockMonthRevenue",
     });
 
-    console.log("rst", rst);
-
     const data = rst.map((item: any) => ({
       ...item,
       calendarYear: moment(item.date).format("YYYY"),

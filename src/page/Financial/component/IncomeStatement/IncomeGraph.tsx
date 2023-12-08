@@ -83,10 +83,6 @@ export default function IncomeGraph({ getGraphData }: { getGraphData: (data: any
         });
       }
 
-      console.log("sellingAndMarketingExpenses", sellingAndMarketingExpenses);
-      console.log("generalAndAdministrativeExpenses", generalAndAdministrativeExpenses);
-      console.log("researchAndDevelopmentExpenses", researchAndDevelopmentExpenses);
-
       getGraphData({
         date,
         revenue: revenueData.map((item) => item.value),
