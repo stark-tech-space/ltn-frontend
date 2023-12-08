@@ -227,7 +227,7 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
     const rst = await fetchFindMindAPI<any>({
       data_id: stock.No,
       dataset: "TaiwanStockFinancialStatements",
-      start_date: getBeforeYears(period + 1),
+      start_date: getBeforeYears(period + 2),
     });
 
     const data = rst.map((item: any) => {
