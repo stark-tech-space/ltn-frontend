@@ -235,7 +235,6 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
           field: item.calendarYear,
         });
       });
-      console.log("AllYearData", AllYearData);
       const dataSources: { [key: string]: any } = {
         title: "營收年增率",
       };
@@ -246,7 +245,6 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
         );
       });
       rowData.push(dataSources);
-      console.log("rowData", rowData);
     }
 
     return [columnHeaders, rowData];
