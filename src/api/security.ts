@@ -1,11 +1,11 @@
-import { PERIOD } from "types/common";
-import fmpApi from "./http/fmpApi";
+import { PERIOD } from 'types/common';
+import fmpApi from './http/fmpApi';
 
-// 成長分析
+// 成長分析、速動比、流動比
 export async function fetchSecurityRatio<T>(
   symbol: string,
   period: PERIOD,
-  limit: number = 1
+  limit: number = 1,
 ): Promise<T | undefined> {
   try {
     const rst = await fmpApi.get(`/ratios/${symbol}`, {
@@ -32,4 +32,3 @@ export async function fetchSecurityRatio<T>(
 //     console.error(`fetchBalanceSheetStatement error: ${error}`);
 //   }
 // }
-
