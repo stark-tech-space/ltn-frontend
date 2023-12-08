@@ -4,8 +4,7 @@ import { PERIOD } from "types/common";
 import { Chart as ReactChart } from "react-chartjs-2";
 import { graphConfig, labelDataSets_01 } from "./GraphConfig";
 import type { Chart } from "chart.js";
-import { findMindDataToFmpData, getBeforeYears, getDataLimit } from "until";
-import { fetchProfitRatio } from "api/profitrato";
+import { findMindDataToFmpData, getBeforeYears } from "until";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import { IProfitRatio } from "types/profitability";
@@ -86,9 +85,7 @@ export default function GraphDebtHolder({
 
       GRAPH_FIELDS.forEach(async ({ field }, index) => {
         if (chartRef.current) {
-          chartRef.current.data.datasets[index].data = data.map(
-            (item) => +item[field] / 1000
-          );
+          chartRef.current.data.datasets[index].data = data.map((item) => +item[field] / 1000);
         }
       });
       chartRef.current.update();
@@ -111,9 +108,7 @@ export default function GraphDebtHolder({
     data?.forEach((item) => {
       columnHeaders.push({
         field:
-          reportType === PERIOD.QUARTER
-            ? `${item.calendarYear}-${item.period}`
-            : item.calendarYear,
+          reportType === PERIOD.QUARTER ? `${item.calendarYear}-${item.period}` : item.calendarYear,
       });
     });
 
@@ -123,9 +118,7 @@ export default function GraphDebtHolder({
       };
       data?.forEach((item) => {
         if (reportType === PERIOD.ANNUAL) {
-          dataSources[item.calendarYear] = (
-            +item[field as keyof IProfitRatio] * 100
-          ).toFixed(2);
+          dataSources[item.calendarYear] = (+item[field as keyof IProfitRatio] * 100).toFixed(2);
         } else {
           dataSources[`${item.calendarYear}-${item.period}`] = (
             +item[field as keyof IProfitRatio] * 100
@@ -155,10 +148,7 @@ export default function GraphDebtHolder({
 
   return (
     <>
-      <PeriodController
-        onChangePeriod={setPeriod}
-        onChangeReportType={setReportType}
-      />
+      <PeriodController onChangePeriod={setPeriod} onChangeReportType={setReportType} />
       <Box height={510} bgcolor="#fff" pb={3}>
         <ReactChart
           type="line"

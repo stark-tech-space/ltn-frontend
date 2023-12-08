@@ -7,7 +7,7 @@ import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import PeriodController from "component/PeriodController";
 import { fetchFindMindAPI } from "api/common";
-import { useAvgPriceByMonth } from "Hooks/common";
+import { useAvgPriceByMonth, useGetStockCountByMonth } from "Hooks/common";
 import moment from "moment";
 import TagCard from "component/tabCard";
 
@@ -30,6 +30,7 @@ interface IMonthlyRevenueGrowth {
   calendarYear: number;
   period: number;
   revenue_year_difference: number;
+  revenue_year_per_difference: number;
   revenue_month_difference: number;
 }
 
@@ -37,7 +38,7 @@ const genStartDate = (years: number) => {
   return moment().subtract(years, "years").startOf("year").format("YYYY-MM-DD");
 };
 
-function generateGraphData(data: IMonthlyRevenueGrowth[]) {
+function generateGraphData(data: IMonthlyRevenueGrowth[], getStockCountByDate: any) {
   const dataByYear = data.reduce((acc: { [key: number]: IMonthlyRevenueGrowth[] }, cur) => {
     const year = cur.revenue_year;
     if (!acc[year]) {
@@ -59,11 +60,21 @@ function generateGraphData(data: IMonthlyRevenueGrowth[]) {
       const preMonthData =
         // @ts-ignore
         sortedData[i - 1] || dataByYear[year - 1]?.find((item) => item.revenue_month === 12);
+
       if (prevYearData) {
+        const avgStockCount: any = getStockCountByDate(sortedData[i].date);
+        const perAvgStockCount: any = getStockCountByDate(prevYearData.date);
         result.push({
           ...sortedData[i],
-          revenue_year_difference: sortedData[i].revenue / prevYearData.revenue - 1,
-          revenue_month_difference: sortedData[i].revenue / preMonthData.revenue - 1,
+          revenue_year_difference:
+            (sortedData[i].revenue - prevYearData.revenue) / prevYearData.revenue,
+          revenue_year_per_difference:
+            (sortedData[i].revenue / (avgStockCount ? avgStockCount.StockCount : 1) -
+              prevYearData.revenue / (perAvgStockCount ? perAvgStockCount.StockCount : 1)) /
+            prevYearData.revenue /
+            (perAvgStockCount ? perAvgStockCount.StockCount : 1),
+          revenue_month_difference:
+            (sortedData[i].revenue - preMonthData.revenue) / preMonthData.revenue,
         });
       }
     }
@@ -78,6 +89,7 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
   const [smaData, setSmaData] = useState<ISma[]>([]);
   const [graphData, setGraphData] = useState<IMonthlyRevenueGrowth[]>([]);
   const avgPrice = useAvgPriceByMonth(period);
+  const getStockCountByDate = useGetStockCountByMonth();
   const [title, setTitle] = useState("單月營收年增率");
   const [type, setType] = useState(1);
 
@@ -124,13 +136,14 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
       start_date: genStartDate(period),
       dataset: "TaiwanStockMonthRevenue",
     });
+
     const data = rst.map((item: any) => ({
       ...item,
       calendarYear: moment(item.date).format("YYYY"),
       period: moment(item.date).format("MM"),
     }));
     if (data) {
-      const newData = generateGraphData(data);
+      const newData = generateGraphData(data, getStockCountByDate);
       setGraphData(newData);
     }
   }, [stock, period, reportType, getGraphData]);
@@ -155,6 +168,7 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
           backgroundColor: "#EB5757",
           borderWidth: 2,
           fill: false,
+          pointRadius: 0,
           data: smaData.map((item) => ({ x: item.date, y: item.sma })),
           yAxisID: "y",
         },

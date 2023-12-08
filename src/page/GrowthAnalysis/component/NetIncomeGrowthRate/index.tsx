@@ -4,7 +4,7 @@ import TagCard from "../../../../component/tabCard";
 import { AgGridReact } from "ag-grid-react";
 import Graph from "./Graph";
 
-export default function RevenueGrowthRate() {
+export default function NetIncomeGrowthRate() {
   const [graphData, setGraphData] = useState<any[][]>([]);
   const [columnHeaders, rowData] = graphData;
   return (

@@ -10,7 +10,7 @@ import { fetchFindMindAPI } from "api/common";
 import { useAvgPriceByMonth } from "Hooks/common";
 import moment from "moment";
 import TagCard from "component/tabCard";
-import { getDataLimit } from "until";
+import { findMindDataToFmpData, getBeforeYears, getDataLimit } from "until";
 
 interface ISma {
   date: string;
@@ -18,27 +18,26 @@ interface ISma {
 }
 
 const changeINfo = [
-  { label: "單季營收年增率", value: 1 },
-  { label: "單季營收季增率", value: 2 },
+  { label: "單季稅後淨利年增率", value: 1 },
+  { label: "單季稅後淨利季增率", value: 2 },
 ];
 
 const change4INfo = [
-  { label: "近4季營收年增率", value: 1 },
-  { label: "近4季營收季增率", value: 2 },
+  { label: "近4季稅後淨利年增率", value: 1 },
+  { label: "近4季稅後淨利季增率", value: 2 },
 ];
 
 interface IMonthlyRevenueGrowth {
   date: string;
-  revenue: number;
-  revenue_year: number;
-  revenue_month: number;
+  IncomeAfterTaxes: number;
   calendarYear: string;
-  period: string;
   quarter: number;
+  period: string;
   revenue_year_difference?: number;
   revenue_month_difference?: number;
   revenue_four_month_difference?: number;
   revenue_four_year_difference?: number;
+  revenue_year_pre?: number;
 }
 
 const genStartDate = (years: number) => {
@@ -54,49 +53,22 @@ function getAllFourData(
   const allData = preYearData.concat(data);
   const allIndex = index + preYearData.length;
   return (
-    (allData[allIndex]?.revenue || 0) +
-    (allData[allIndex - 1]?.revenue || 0) +
-    (allData[allIndex - 2]?.revenue || 0) +
-    (allData[allIndex - 3]?.revenue || 0)
+    (allData[allIndex]?.IncomeAfterTaxes || 0) +
+    (allData[allIndex - 1]?.IncomeAfterTaxes || 0) +
+    (allData[allIndex - 2]?.IncomeAfterTaxes || 0) +
+    (allData[allIndex - 3]?.IncomeAfterTaxes || 0)
   );
 }
 
 function generateGraphData(data: IMonthlyRevenueGrowth[], limit: number) {
-  const quarterlyData = data.reduce((acc: Array<IMonthlyRevenueGrowth>, cur) => {
-    const quarter = Math.floor((cur.revenue_month - 1) / 3) + 1;
-    const key = `${cur.revenue_year}-${quarter}`;
-    const item = acc.find((item) => item.date === key);
-    if (!item) {
-      acc.push({
-        date: key,
-        quarter,
-        revenue: cur.revenue,
-        calendarYear: cur.calendarYear,
-        period: cur.period,
-        revenue_month: cur.revenue_month,
-        revenue_year: cur.revenue_year,
-      });
-    } else {
-      item.revenue += cur.revenue;
-      item.revenue_month = cur.revenue_month;
-      item.revenue_year = cur.revenue_year;
-      item.calendarYear = cur.calendarYear;
-      item.period = cur.period;
+  const dataByYear = data.reduce((acc: { [key: string]: IMonthlyRevenueGrowth[] }, cur) => {
+    const year = cur.calendarYear;
+    if (!acc[year]) {
+      acc[year] = [];
     }
+    acc[year].push(cur);
     return acc;
-  }, []);
-
-  const dataByYear = quarterlyData.reduce(
-    (acc: { [key: number]: IMonthlyRevenueGrowth[] }, cur) => {
-      const year = cur.revenue_year;
-      if (!acc[year]) {
-        acc[year] = [];
-      }
-      acc[year].push(cur);
-      return acc;
-    },
-    {},
-  );
+  }, {});
 
   const result = [];
 
@@ -105,11 +77,11 @@ function generateGraphData(data: IMonthlyRevenueGrowth[], limit: number) {
     for (let i = 0; i < sortedData.length; i++) {
       // @ts-ignore
       const prevYearData = dataByYear[year - 1]?.find(
-        (item) => item.quarter === sortedData[i].quarter,
+        (item) => item.period === sortedData[i].period,
       );
       const preMonthData =
         // @ts-ignore
-        sortedData[i - 1] || dataByYear[year - 1]?.find((item) => item.quarter === 4);
+        sortedData[i - 1] || dataByYear[year - 1]?.find((item) => item.period === "12");
 
       const fourAllData = getAllFourData(
         sortedData,
@@ -137,13 +109,13 @@ function generateGraphData(data: IMonthlyRevenueGrowth[], limit: number) {
       );
 
       const allYearData = sortedData.reduce((acc: number, cur) => {
-        acc += cur.revenue;
+        acc += cur.IncomeAfterTaxes;
         return acc;
       }, 0);
 
       // @ts-ignore
       const allYearPreData = (dataByYear[year - 1] || []).reduce((acc: number, cur) => {
-        acc += cur.revenue;
+        acc += cur.IncomeAfterTaxes;
         return acc;
       }, 0);
 
@@ -151,9 +123,11 @@ function generateGraphData(data: IMonthlyRevenueGrowth[], limit: number) {
         result.push({
           ...sortedData[i],
           revenue_year_difference:
-            (sortedData[i].revenue - prevYearData.revenue) / prevYearData.revenue,
+            (sortedData[i].IncomeAfterTaxes - prevYearData.IncomeAfterTaxes) /
+            prevYearData.IncomeAfterTaxes,
           revenue_month_difference:
-            (sortedData[i].revenue - preMonthData.revenue) / preMonthData.revenue,
+            (sortedData[i].IncomeAfterTaxes - preMonthData.IncomeAfterTaxes) /
+            preMonthData.IncomeAfterTaxes,
           revenue_four_year_difference: (fourAllData - preFourYearAllData) / preFourYearAllData,
           revenue_four_month_difference:
             (fourAllData - preFourQuarterAllData) / preFourQuarterAllData,
@@ -175,8 +149,8 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
   const [smaData, setSmaData] = useState<ISma[]>([]);
   const [graphData, setGraphData] = useState<IMonthlyRevenueGrowth[]>([]);
   const avgPrice = useAvgPriceByMonth(period);
-  const [title, setTitle] = useState("單季營收年增率");
-  const [subTitle, setSubTitle] = useState("近4季營收年增率");
+  const [title, setTitle] = useState("單季稅後淨利年增率");
+  const [subTitle, setSubTitle] = useState("近4季稅後淨利年增率");
   const [type, setType] = useState(1);
 
   const changeType = (value: number) => {
@@ -236,7 +210,7 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
         });
       });
       const dataSources: { [key: string]: any } = {
-        title: "營收年增率",
+        title: "稅後淨利年增率",
       };
       AllYearData?.forEach((item) => {
         dataSources[`${item.calendarYear}`] = +(
@@ -254,17 +228,21 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
     const limit = getDataLimit(PERIOD.QUARTER, period);
     const rst = await fetchFindMindAPI<any>({
       data_id: stock.No,
-      start_date: genStartDate(period + 1),
-      dataset: "TaiwanStockMonthRevenue",
+      dataset: "TaiwanStockFinancialStatements",
+      start_date: getBeforeYears(period + 2),
     });
 
-    const data = rst.map((item: any) => ({
-      ...item,
-      calendarYear: moment(item.date).format("YYYY"),
-      period: moment(item.date).format("MM"),
-    }));
+    const data = rst.map((item: any) => {
+      return {
+        ...findMindDataToFmpData(item),
+        quarter: +moment(item.date).format("Q"),
+      };
+    });
     if (data) {
-      const newData = generateGraphData(data, limit);
+      const realData = data.filter(
+        (item: any) => item.IncomeAfterTaxes && item.IncomeAfterTaxes !== 0,
+      );
+      const newData = generateGraphData(realData, limit);
       setGraphData(newData);
     }
   }, [stock, period, reportType, getGraphData]);
@@ -298,7 +276,7 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
           label: title,
           backgroundColor: "#ffe75a",
           data: graphData.map((item) => ({
-            x: item.revenue_year + "-" + item.revenue_month,
+            x: item.calendarYear + "-" + item.period,
             y:
               type === 1
                 ? //@ts-ignore
@@ -316,7 +294,7 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
           label: subTitle,
           backgroundColor: "rgb(0, 99, 232)",
           data: graphData.map((item) => ({
-            x: item.revenue_year + "-" + item.revenue_month,
+            x: item.calendarYear + "-" + item.period,
             y:
               type === 1
                 ? //@ts-ignore
@@ -336,10 +314,10 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
   const AllYearData = useMemo(() => {
     const seenYears = new Set();
     const filteredData = graphData.filter((item) => {
-      if (seenYears.has(item.revenue_year)) {
+      if (seenYears.has(item.revenue_year_pre)) {
         return false;
       } else {
-        seenYears.add(item.revenue_year);
+        seenYears.add(item.revenue_year_pre);
         return true;
       }
     });
@@ -362,10 +340,10 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
         },
         {
           type: "line" as const,
-          label: "營收年增率",
+          label: "稅後淨利年增率",
           backgroundColor: "rgb(0, 99, 232)",
           data: AllYearData.map((item) => ({
-            x: item.revenue_year + "",
+            x: item.calendarYear + "",
             // @ts-ignore
             y: +(item.revenue_year_pre * 100).toFixed(2),
           })),
@@ -385,7 +363,7 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
   return (
     <>
       <TagCard
-        tabs={["營收年增率", "營收季增率"]}
+        tabs={["稅後淨利年增率", "稅後淨利季增率"]}
         onChange={(cur) => {
           changeType(cur);
         }}
