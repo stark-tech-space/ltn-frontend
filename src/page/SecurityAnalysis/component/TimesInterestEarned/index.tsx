@@ -41,8 +41,10 @@ export default function TimesInterestEarned() {
 
       GRAPH_FIELDS.forEach(async ({ field }, index) => {
         if (chartRef.current) {
-          chartRef.current.data.datasets[index].data = data.map(
-            (item) => item['incomeBeforeTax'] / (item['interestExpense'] || 0),
+          chartRef.current.data.datasets[index].data = data.map((item) =>
+            item['incomeBeforeTax'] <= 0 || item['interestExpense'] <= 0
+              ? NaN
+              : item['incomeBeforeTax'] / (item['interestExpense'] || 0),
           );
         }
       });
@@ -77,13 +79,21 @@ export default function TimesInterestEarned() {
 
       data?.forEach((item) => {
         if (reportType === PERIOD.ANNUAL) {
-          dataSources[item.calendarYear] = numeral(
-            item['incomeBeforeTax'] / (item['interestExpense'] || 0),
-          ).format('0,0.000');
+          if (item['incomeBeforeTax'] <= 0 || item['interestExpense'] <= 0) {
+            dataSources[item.calendarYear] = '-';
+          } else {
+            dataSources[item.calendarYear] = numeral(
+              item['incomeBeforeTax'] / (item['interestExpense'] || 0),
+            ).format('0,0.000');
+          }
         } else {
-          dataSources[`${item.calendarYear}-${item.period}`] = numeral(
-            item['incomeBeforeTax'] / (item['interestExpense'] || 0),
-          ).format('0,0.000');
+          if (item['incomeBeforeTax'] <= 0 || item['interestExpense'] <= 0) {
+            dataSources[`${item.calendarYear}-${item.period}`] = '-';
+          } else {
+            dataSources[`${item.calendarYear}-${item.period}`] = numeral(
+              item['incomeBeforeTax'] / (item['interestExpense'] || 0),
+            ).format('0,0.000');
+          }
         }
       });
       rowData.push(dataSources);
