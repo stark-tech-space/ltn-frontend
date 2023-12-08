@@ -13,8 +13,8 @@ import { useAvgPriceByMonth } from "Hooks/common";
 
 export const GRAPH_FIELDS = [
   {
-    field: "growthGrossProfit",
-    headerName: "毛利年增率",
+    field: "growthNetIncome",
+    headerName: "稅後淨利年增率",
   },
 ];
 
@@ -104,11 +104,11 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
         },
         {
           type: "line" as const,
-          label: "毛利年增率",
+          label: "稅後淨利年增率",
           backgroundColor: "rgb(0, 99, 232)",
           data: graphData.map((item) => ({
             x: item.date + "",
-            y: +(item.growthGrossProfit * 100).toFixed(2),
+            y: +(item.growthNetIncome * 100).toFixed(2),
           })),
           borderColor: "rgb(0, 99, 232)",
           borderWidth: 1,

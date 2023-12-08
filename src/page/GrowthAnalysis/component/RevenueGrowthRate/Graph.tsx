@@ -10,6 +10,7 @@ import { IProfitRatio } from "types/profitability";
 import PeriodController from "component/PeriodController";
 import { fetchGrowthRates } from "api/common";
 import { useAvgPriceByMonth } from "Hooks/common";
+import TagCard from "component/tabCard";
 
 export const GRAPH_FIELDS = [
   {
@@ -21,6 +22,60 @@ export const GRAPH_FIELDS = [
 interface ISma {
   date: string;
   sma: number;
+}
+
+interface IRevenueGrowth {
+  date: string;
+  revenue: number;
+  growthRevenue: number;
+  revenue_year: number;
+  revenue_month: number;
+  calendarYear: number;
+  period: number;
+  revenue_year_difference: number;
+  revenue_year_per_difference: number;
+  revenue_month_difference: number;
+}
+
+function generateGraphData(data: IRevenueGrowth[], getStockCountByDate: any) {
+  const dataByYear = data.reduce((acc: { [key: number]: IRevenueGrowth[] }, cur) => {
+    const year = cur.revenue_year;
+    if (!acc[year]) {
+      acc[year] = [];
+    }
+    acc[year].push(cur);
+    return acc;
+  }, {});
+
+  const result = [];
+
+  for (const year in dataByYear) {
+    const sortedData = dataByYear[year].sort((a, b) => a.revenue_month - b.revenue_month);
+    for (let i = 0; i < sortedData.length; i++) {
+      // @ts-ignore
+      const prevYearData = dataByYear[year - 1]?.find(
+        (item) => item.revenue_month === sortedData[i].revenue_month,
+      );
+      const preMonthData =
+        // @ts-ignore
+        sortedData[i - 1] || dataByYear[year - 1]?.find((item) => item.revenue_month === 12);
+
+      const avgStockCount: any = getStockCountByDate(sortedData[i].date);
+      
+      console.log("sortedData[i].date", sortedData[i].date, "avgStockCount", avgStockCount);
+      if (prevYearData) {
+        result.push({
+          ...sortedData[i],
+          revenue_year_difference: sortedData[i].revenue / prevYearData.revenue - 1,
+          revenue_year_per_difference:
+            sortedData[i].revenue / (avgStockCount ? avgStockCount.StockCount : 1) -
+            prevYearData.revenue / (avgStockCount ? avgStockCount.StockCount : 1) / -1,
+          revenue_month_difference: sortedData[i].revenue / preMonthData.revenue - 1,
+        });
+      }
+    }
+  }
+  return result;
 }
 
 export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) => void }) {
@@ -71,7 +126,7 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
 
   const fetchGraphData = useCallback(async () => {
     const limit = getDataLimit(reportType, period);
-    const rst = await fetchGrowthRates(stock.Symbol, PERIOD.QUARTER, limit);
+    const rst = await fetchGrowthRates(stock.Symbol, reportType, limit);
     if (rst) {
       setGraphData(rst);
       getGraphData(genGraphTableData(rst));
@@ -98,6 +153,7 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
           backgroundColor: "#EB5757",
           borderWidth: 2,
           fill: false,
+          pointRadius: 0,
           data: smaData.map((item) => ({ x: item.date, y: item.sma })),
           yAxisID: "y",
         },
@@ -120,14 +176,19 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
 
   return (
     <>
-      <PeriodController
-        onChangePeriod={setPeriod}
-        onChangeReportType={setReportType}
-        showReportType={false}
-      />
-      <Box height={510} bgcolor="#fff" pb={3}>
-        <ReactChart type="line" data={graphDataSets} options={graphConfig as any} />
-      </Box>
+      <TagCard
+        tabs={["營收年增率", "營收季增率"]}
+        onChange={(cur) => {
+          // changeType(changeINfo[cur].label, changeINfo[cur].value);
+        }}
+      >
+        <Box bgcolor="#fff">
+          <PeriodController onChangePeriod={setPeriod} onChangeReportType={setReportType} />
+          <Box height={510} bgcolor="#fff" pb={3}>
+            <ReactChart type="line" data={graphDataSets} options={graphConfig as any} />
+          </Box>
+        </Box>
+      </TagCard>
     </>
   );
 }
