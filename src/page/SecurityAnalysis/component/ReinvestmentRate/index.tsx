@@ -1,28 +1,28 @@
-import { Stack, Box } from '@mui/material';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { AgGridReact } from 'ag-grid-react';
-import { Chart as ReactChart } from 'react-chartjs-2';
-import { Chart } from 'chart.js';
+import { Stack, Box } from "@mui/material";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AgGridReact } from "ag-grid-react";
+import { Chart as ReactChart } from "react-chartjs-2";
+import { Chart } from "chart.js";
 
-import TagCard from '../../../../component/tabCard';
-import { REINVESTMENT_RATE_DATASET, REINVESTMENT_RATE_GRAPH_CONFIG } from './GrapConfig';
-import { PERIOD } from 'types/common';
+import TagCard from "../../../../component/tabCard";
+import { REINVESTMENT_RATE_DATASET, REINVESTMENT_RATE_GRAPH_CONFIG } from "./GrapConfig";
+import { PERIOD } from "types/common";
 
-import { currentStock } from 'recoil/selector';
-import { useRecoilValue } from 'recoil';
+import { currentStock } from "recoil/selector";
+import { useRecoilValue } from "recoil";
 
-import PeriodController from 'component/PeriodController';
-import { getDataLimit } from 'until';
-import numeral from 'numeral';
-import { fetchIncomeStatement } from 'api/financial';
-import { IIncomeStatements } from 'types/financial';
-import { fetchSecurityBalanceSheetStatement } from 'api/security';
-import { IBalanceSheetStatement } from 'types/news';
+import PeriodController from "component/PeriodController";
+import { getDataLimit } from "until";
+import numeral from "numeral";
+import { fetchIncomeStatement } from "api/financial";
+import { IIncomeStatements } from "types/financial";
+import { fetchSecurityBalanceSheetStatement } from "api/security";
+import { IBalanceSheetStatement } from "types/news";
 
 const GRAPH_FIELDS = [
   {
-    field: 'RIR',
-    headerName: '盈再率',
+    field: "RIR",
+    headerName: "盈再率",
   },
 ];
 
@@ -42,7 +42,7 @@ export default function ReinvestmentRate() {
           .map((_, pastIndex) => incomeData[index + 16 - pastIndex] || {})
           .reduce((prev, cur) => prev + cur?.netIncome, 0);
         return [`${item.calendarYear}-${item.period}`, total];
-      }),
+      })
     );
   }, [incomeData]);
 
@@ -55,13 +55,7 @@ export default function ReinvestmentRate() {
       .map((item) => {
         const period = `${item.calendarYear}-${item.period}`;
         const fourYearBeforeData = dataByYear[`${Number(item.calendarYear) - 4}-${item.period}`];
-        if (
-          item?.propertyPlantEquipmentNet <= 0 ||
-          item?.longTermInvestments <= 0 ||
-          !fourYearBeforeData ||
-          fourYearBeforeData.propertyPlantEquipmentNet <= 0 ||
-          fourYearBeforeData.longTermInvestments <= 0
-        ) {
+        if (!fourYearBeforeData || netIncomeSummaryOf16Period[period] <= 0) {
           return { period, date: item.date, value: NaN };
         }
 
@@ -89,9 +83,7 @@ export default function ReinvestmentRate() {
 
       GRAPH_FIELDS.forEach(async ({ field }, index) => {
         if (chartRef.current) {
-          chartRef.current.data.datasets[index].data = data.map((v) =>
-            parseFloat(numeral(v.value).format('0,0.000')),
-          );
+          chartRef.current.data.datasets[index].data = data.map((v) => v.value);
         }
       });
       chartRef.current.update();
@@ -101,9 +93,9 @@ export default function ReinvestmentRate() {
   const columnHeaders = useMemo(() => {
     const columns: any[] = [
       {
-        field: 'title',
-        headerName: '年度/季度',
-        pinned: 'left',
+        field: "title",
+        headerName: "年度/季度",
+        pinned: "left",
       },
     ];
     data?.forEach((item) => {
@@ -123,7 +115,9 @@ export default function ReinvestmentRate() {
       };
 
       RIR?.forEach((item) => {
-        dataSources[item.period] = numeral(item.value).format('0,0.000');
+        dataSources[item.period] = Number.isNaN(item.value)
+          ? "虧損"
+          : numeral(item.value).format("0,0.000");
       });
       rowData.push(dataSources);
     });
@@ -136,7 +130,7 @@ export default function ReinvestmentRate() {
     fetchSecurityBalanceSheetStatement<Array<IBalanceSheetStatement>>(
       stock.Symbol,
       PERIOD.QUARTER,
-      limit,
+      limit
     ).then((rst) => {
       if (rst) {
         setData(rst || []);
@@ -170,11 +164,11 @@ export default function ReinvestmentRate() {
         </Box>
       </Box>
 
-      <TagCard tabs={['詳細數據']}>
+      <TagCard tabs={["詳細數據"]}>
         <Box
           className="ag-theme-alpine"
           style={{
-            paddingBottom: '24px',
+            paddingBottom: "24px",
           }}
         >
           <AgGridReact

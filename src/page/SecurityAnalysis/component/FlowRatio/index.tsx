@@ -12,6 +12,7 @@ import { fetchCashFlowStatement } from "api/cashflow";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import { fetchFindMindAPI } from "api/common";
+import _ from "lodash";
 
 interface IGraphData {
   date: string;
@@ -69,10 +70,7 @@ export default function FlowRate() {
     data?.forEach((item) => {
       const dateFullObject = genFullDateObject(item.date);
       columnHeaders.push({
-        field:
-          reportType === PERIOD.QUARTER
-            ? dateFullObject.period
-            : dateFullObject.calendarYear,
+        field: reportType === PERIOD.QUARTER ? dateFullObject.period : dateFullObject.calendarYear,
       });
     });
 
@@ -89,9 +87,7 @@ export default function FlowRate() {
             +item[field as keyof IGraphData] * 100
           ).toFixed(2);
         } else {
-          dataSources[dateFullObject.period] = (
-            +item[field as keyof IGraphData] * 100
-          ).toFixed(2);
+          dataSources[dateFullObject.period] = (+item[field as keyof IGraphData] * 100).toFixed(2);
         }
       });
       rowData.push(dataSources);
@@ -132,38 +128,34 @@ export default function FlowRate() {
           CashFlowsFromOperatingActivities: item.value,
         }));
 
-      const flowDebt = rst[1]
-        ?.filter((item) => item.type === "CurrentLiabilities")
-        .map((item) => ({
-          date: item.date,
-          CurrentLiabilities: item.value,
-        }));
+      const balanceByDate = Object.fromEntries(
+        Object.entries(_.groupBy(rst[1] || {}, "date")).map(([date, values]) => [
+          date,
+          Object.fromEntries(values.map(({ type, value }) => [type, value])),
+        ])
+      );
 
-      if (cashFlow && flowDebt) {
+      if (cashFlow && rst[1]) {
         const graphData = cashFlow?.map((item, index) => ({
           date: item.date,
-          cashFlowToLongDebtRate: 0,
+          cashFlowToLongDebtRate:
+            item.CashFlowsFromOperatingActivities / balanceByDate[item.date]?.Liabilities,
           cashFlowtoDebtRate:
-            item.CashFlowsFromOperatingActivities /
-            flowDebt?.[index]?.CurrentLiabilities,
+            item.CashFlowsFromOperatingActivities / balanceByDate[item.date]?.CurrentLiabilities,
         }));
-        console.log("graphData:", graphData);
         updateGraph(graphData);
         setGraphData(graphData);
       }
     }
 
     // console.log("rst:", rst);
-  }, [stock, period, reportType]);
+  }, [stock, period]);
 
   useEffect(() => {
     fetchGraphData();
   }, [fetchGraphData]);
 
-  const [columnHeaders, rowData] = useMemo(
-    () => genGraphTableData(graphData),
-    [graphData]
-  );
+  const [columnHeaders, rowData] = useMemo(() => genGraphTableData(graphData), [graphData]);
   return (
     <Stack rowGap={1}>
       <Box bgcolor="#fff" p={3} borderRadius="8px">
