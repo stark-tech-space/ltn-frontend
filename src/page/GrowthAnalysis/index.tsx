@@ -6,11 +6,12 @@ import { PageLayout } from "../../component/Layout";
 import PageNavigation from "component/PageNavigation";
 import MonthlyRevenueGrowthRate from "./component/MonthlyRevenueGrowthRate";
 import RevenueGrowthRate from "./component/RevenueGrowthRate";
+import GrossProfitGrowthRate from "./component/GrossProfitGrowthRate";
 
 const CHILDREN_MAP: Record<GROWTH_PAGE_ENUM, React.ReactNode> = {
   [GROWTH_PAGE_ENUM.PAGE1]: <MonthlyRevenueGrowthRate />,
   [GROWTH_PAGE_ENUM.PAGE2]: <RevenueGrowthRate />,
-  [GROWTH_PAGE_ENUM.PAGE3]: <Developing />,
+  [GROWTH_PAGE_ENUM.PAGE3]: <GrossProfitGrowthRate />,
   [GROWTH_PAGE_ENUM.PAGE4]: <Developing />,
   [GROWTH_PAGE_ENUM.PAGE5]: <Developing />,
   [GROWTH_PAGE_ENUM.PAGE6]: <Developing />,
