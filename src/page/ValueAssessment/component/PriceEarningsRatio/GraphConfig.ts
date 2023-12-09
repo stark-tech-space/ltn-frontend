@@ -14,9 +14,10 @@ export const labelDataSets = {
     {
       type: "line" as const,
       label: "月均價",
-      backgroundColor: "rgba(237, 88, 157, 0.15)",
+      backgroundColor: "#EB5757",
       data: [],
-      borderColor: "rgba(237, 88, 157, 0.35)",
+      pointRadius: 0,
+      borderColor: "#EB5757",
       borderWidth: 1,
       yAxisID: "y",
       fill: false,

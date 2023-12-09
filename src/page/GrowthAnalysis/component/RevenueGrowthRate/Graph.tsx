@@ -11,6 +11,7 @@ import { useAvgPriceByMonth } from "Hooks/common";
 import moment from "moment";
 import TagCard from "component/tabCard";
 import { getDataLimit } from "until";
+import { minBy, maxBy } from "lodash";
 
 interface ISma {
   date: string;
@@ -280,6 +281,10 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
   }, [avgPrice]);
 
   const graphDataSets = useMemo(() => {
+    const minDateInData =
+      moment(minBy(graphData, "date")?.date, "YYYY-MM-DD").add(1, "month").format("YYYY-MM-DD") ||
+      "";
+    const avgPrice = smaData.filter((item) => item.date > minDateInData);
     return {
       datasets: [
         {
@@ -290,7 +295,7 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
           borderWidth: 2,
           fill: false,
           pointRadius: 0,
-          data: smaData.map((item) => ({ x: item.date, y: item.sma })),
+          data: avgPrice.map((item) => ({ x: item.date, y: item.sma })),
           yAxisID: "y",
         },
         {
@@ -347,6 +352,12 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
   }, [graphData]);
 
   const graphDataSets2 = useMemo(() => {
+    const minDateInData =
+      moment(minBy(graphData, "date")?.date, "YYYY-MM-DD")
+        .subtract(1, "month")
+        .format("YYYY-MM-DD") || "";
+
+    const avgPrice = smaData.filter((item) => item.date > minDateInData);
     return {
       datasets: [
         {
@@ -357,7 +368,7 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
           borderWidth: 2,
           fill: false,
           pointRadius: 0,
-          data: smaData.map((item) => ({ x: item.date, y: item.sma })),
+          data: avgPrice.map((item) => ({ x: item.date, y: item.sma })),
           yAxisID: "y",
         },
         {
