@@ -1,5 +1,3 @@
-const skipped = (ctx: any, value: any) => (ctx.p0.skip || ctx.p1.skip ? value : undefined);
-const down = (ctx: any, value: any) => (ctx.p0.parsed.y > ctx.p1.parsed.y ? value : undefined);
 export const labelDataSets = {
   labels: [],
   datasets: [
@@ -32,6 +30,7 @@ export const labelDataSets = {
         borderColor: (ctx: any) => undefined,
         borderDash: (ctx: any) => undefined,
       },
+      pointRadius: 0,
     },
   ],
 };

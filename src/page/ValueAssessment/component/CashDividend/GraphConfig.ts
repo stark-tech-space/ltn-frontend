@@ -10,6 +10,13 @@ export const labelDataSets = {
       borderWidth: 1,
       yAxisID: "y1",
       fill: false,
+      spanGaps: true,
+      segment: {
+        borderColor: (ctx: any) =>
+          ctx.p0.parsed.y === 0 || ctx.p1.parsed.y === 0 ? "transparent" : undefined,
+        // undefined,
+        borderDash: (ctx: any) => undefined,
+      },
     },
     {
       type: "line" as const,
@@ -20,6 +27,12 @@ export const labelDataSets = {
       borderWidth: 1,
       yAxisID: "y",
       fill: false,
+      spanGaps: true,
+      segment: {
+        borderColor: (ctx: any) => undefined,
+        borderDash: (ctx: any) => undefined,
+      },
+      pointRadius: 0,
     },
   ],
 };

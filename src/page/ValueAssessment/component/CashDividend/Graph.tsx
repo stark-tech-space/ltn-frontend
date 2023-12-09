@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { IDateField, PERIOD } from "types/common";
 import { Chart as ReactChart } from "react-chartjs-2";
 import { graphConfig, labelDataSets } from "./GraphConfig";
@@ -11,6 +11,9 @@ import { currentStock } from "recoil/selector";
 import PeriodController from "component/PeriodController";
 import type { Chart } from "chart.js";
 import { IValueAssessment } from "types/valueAssessment";
+import { useAvgPriceByMonth } from "Hooks/common";
+import { maxBy, minBy } from "lodash";
+import moment from "moment";
 
 interface IDividendYieldRatio extends IDateField {
   dividendYield: number;
@@ -28,15 +31,41 @@ export const GRAPH_FIELDS = [
   },
 ];
 
-export default function Graph({
-  getGraphData,
-}: {
-  getGraphData: (data: any[][]) => void;
-}) {
+const TABLE_FIELDS = [
+  {
+    field: "dividendYield",
+    headerName: "現金股利殖利率",
+  },
+];
+
+export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) => void }) {
   const chartRef = useRef<Chart>();
   const stock = useRecoilValue(currentStock);
   const [period, setPeriod] = useState(3);
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
+  const [data, setData] = useState<Array<IDividendYieldRatio>>([]);
+
+  const avgPrice = useAvgPriceByMonth(period);
+
+  const finalData = useMemo(() => {
+    const minDateInData = minBy(data, "date")?.date || "";
+    const maxDateInData = moment(maxBy(data, "date")?.date, "YYYY-MM-DD")
+      .add(1, "day")
+      .format("YYYY-MM-DD");
+    return data
+      .concat(
+        avgPrice
+          .filter((item) => item.date > minDateInData && item.date <= maxDateInData)
+          .map((item) => ({
+            date: item.date,
+            calendarYear: item.date.slice(0, 4),
+            period: "",
+            averagePriceEarningsRatio: item.sma,
+            dividendYield: NaN,
+          }))
+      )
+      .sort((a, b) => (a.date > b.date ? -1 : 1));
+  }, [data, avgPrice]);
 
   const updateGraph = (data: IDividendYieldRatio[]) => {
     if (chartRef.current) {
@@ -58,6 +87,9 @@ export default function Graph({
     if (data.length === 0) {
       return [[], []];
     }
+    const dataAvailable = data.filter((item) =>
+      TABLE_FIELDS.every(({ field }) => !Number.isNaN(item[field as keyof T]))
+    );
     const rowData: any[] = [];
     const columnHeaders: any[] = [
       {
@@ -67,26 +99,22 @@ export default function Graph({
       },
     ];
 
-    data?.forEach((item) => {
+    dataAvailable?.forEach((item) => {
       columnHeaders.push({
         field:
-          reportType === PERIOD.QUARTER
-            ? `${item.calendarYear}-${item.period}`
-            : item.calendarYear,
+          reportType === PERIOD.QUARTER ? `${item.calendarYear}-${item.period}` : item.calendarYear,
       });
     });
 
-    GRAPH_FIELDS.forEach(({ field, headerName }) => {
+    TABLE_FIELDS.forEach(({ field, headerName }) => {
       const dataSources: { [key: string]: any } = {
         title: headerName,
       };
-      data?.forEach((item) => {
+      dataAvailable?.forEach((item) => {
         if (reportType === PERIOD.ANNUAL) {
           dataSources[item.calendarYear] = (+item[field as keyof T]).toFixed(2);
         } else {
-          dataSources[`${item.calendarYear}-${item.period}`] = (+item[
-            field as keyof T
-          ]).toFixed(2);
+          dataSources[`${item.calendarYear}-${item.period}`] = (+item[field as keyof T]).toFixed(2);
         }
       });
       rowData.push(dataSources);
@@ -96,21 +124,16 @@ export default function Graph({
 
   const fetchGraphData = useCallback(async () => {
     const limit = getDataLimit(reportType, period);
-    const rst = await fetchProfitRatio<IValueAssessment[]>(
-      stock.Symbol,
-      reportType,
-      limit
-    );
+    const rst = await fetchProfitRatio<IValueAssessment[]>(stock.Symbol, reportType, limit);
     if (rst) {
       const data = rst.map((item) => ({
         date: item.date,
         period: item.period,
         calendarYear: item.calendarYear,
-        dividendYield: item.priceToBookRatio,
-        averagePriceEarningsRatio: 0,
+        dividendYield: item.dividendYield,
+        averagePriceEarningsRatio: NaN,
       }));
-      updateGraph(data);
-      getGraphData(genGraphTableData(data));
+      setData(data);
     }
   }, [stock, period, reportType]);
 
@@ -118,19 +141,20 @@ export default function Graph({
     fetchGraphData();
   }, [fetchGraphData]);
 
+  useEffect(() => {
+    updateGraph(finalData);
+    getGraphData(genGraphTableData(finalData));
+  }, [finalData]);
+
   return (
     <>
       <PeriodController
         onChangePeriod={setPeriod}
         onChangeReportType={setReportType}
+        showReportType={false}
       />
       <Box height={510} bgcolor="#fff" pb={3}>
-        <ReactChart
-          type="line"
-          data={labelDataSets}
-          options={graphConfig as any}
-          ref={chartRef}
-        />
+        <ReactChart type="line" data={labelDataSets} options={graphConfig as any} ref={chartRef} />
       </Box>
     </>
   );
