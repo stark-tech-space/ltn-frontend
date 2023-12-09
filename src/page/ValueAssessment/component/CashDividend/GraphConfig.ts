@@ -12,9 +12,7 @@ export const labelDataSets = {
       fill: false,
       spanGaps: true,
       segment: {
-        borderColor: (ctx: any) =>
-          ctx.p0.parsed.y === 0 || ctx.p1.parsed.y === 0 ? "transparent" : undefined,
-        // undefined,
+        borderColor: (ctx: any) => undefined,
         borderDash: (ctx: any) => undefined,
       },
     },
