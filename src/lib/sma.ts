@@ -54,16 +54,15 @@ export const getSmaByMonth = (data: IIndicatorItem[]) => {
 
   const list: any[] = [];
   Object.entries(groupByMonths).forEach(([year, monthData]) => {
-    Object.entries(monthData as { [key: string]: number[] }).forEach(
-      ([month, sma]) => {
-        list.push({
-          date: `${year}-${month}-01`,
-          sma: +(
-            sma.reduce((a: number, b: number) => a + b, 0) / sma.length
-          ).toFixed(2),
-        });
-      }
-    );
+    Object.entries(monthData as { [key: string]: number[] }).forEach(([month, sma]) => {
+      list.push({
+        date: moment(`${year}-${month}-01`, "YYYY-MM-DD")
+          .subtract(1, "day")
+          .startOf("month")
+          .format("YYYY-MM-DD"),
+        sma: +(sma.reduce((a: number, b: number) => a + b, 0) / sma.length).toFixed(2),
+      });
+    });
   });
 
   return list.sort(sortCallback);

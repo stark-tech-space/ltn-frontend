@@ -1,15 +1,13 @@
 import { Box } from "@mui/material";
 import React, { useMemo, useState } from "react";
-import {
-  VALUE_ASSESSMENT_CONVERTER,
-  VALUE_ASSESS_PAGE_ENUM,
-} from "types/valueAssessment";
+import { VALUE_ASSESSMENT_CONVERTER, VALUE_ASSESS_PAGE_ENUM } from "types/valueAssessment";
 import Developing from "component/Developing";
 import { PageLayout } from "../../component/Layout";
 import PageNavigation from "component/PageNavigation";
 import PriceEarningsRatio from "./component/PriceEarningsRatio";
 import PriceToBookRatio from "./component/ToBookRatio";
 import CashDividend from "./component/CashDividend";
+import AvgCashDividend from "./component/AvgCashDividend";
 
 const CHILDREN_MAP: Record<VALUE_ASSESS_PAGE_ENUM, React.ReactNode> = {
   [VALUE_ASSESS_PAGE_ENUM.PAGE1]: <PriceEarningsRatio />,
@@ -17,14 +15,12 @@ const CHILDREN_MAP: Record<VALUE_ASSESS_PAGE_ENUM, React.ReactNode> = {
   [VALUE_ASSESS_PAGE_ENUM.PAGE3]: <PriceToBookRatio />,
   [VALUE_ASSESS_PAGE_ENUM.PAGE4]: <Developing />,
   [VALUE_ASSESS_PAGE_ENUM.PAGE5]: <CashDividend />,
-  [VALUE_ASSESS_PAGE_ENUM.PAGE6]: <Developing />,
+  [VALUE_ASSESS_PAGE_ENUM.PAGE6]: <AvgCashDividend />,
   [VALUE_ASSESS_PAGE_ENUM.PAGE7]: <Developing />,
 };
 //
 function ValueAssessmentPage() {
-  const [activeTab, setActiveTab] = useState<VALUE_ASSESS_PAGE_ENUM>(
-    VALUE_ASSESS_PAGE_ENUM.PAGE1
-  );
+  const [activeTab, setActiveTab] = useState<VALUE_ASSESS_PAGE_ENUM>(VALUE_ASSESS_PAGE_ENUM.PAGE1);
   const Child = useMemo(() => CHILDREN_MAP[activeTab], [activeTab]);
   return (
     <Box>
