@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Stack, Typography, styled, Chip, Divider } from "@mui/material";
 import ArticleList from "./ArticleList";
 import {
@@ -13,7 +13,6 @@ import {
   fetchBalanceSheetStatement,
   fetchKeyMetrics,
 } from "api/news";
-import { STOCK_SYMBOL } from "constant";
 import { addPlaceHolder, formNumberToUnit } from "until";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
@@ -151,27 +150,27 @@ export const CompanyInformation = () => {
   const stock = useRecoilValue(currentStock);
 
   useEffect(() => {
-    // fetchSymbolInfo(stock.Symbol).then((rst) => {
-    //   if (rst && rst[0]) {
-    //     setCompanyState(rst[0]);
-    //   } else {
-    //     setCompanyState(undefined);
-    //   }
-    // });
-    // fetchBalanceSheetStatement(stock.Symbol).then((rst) => {
-    //   if (rst && rst[0]) {
-    //     setBalanceSheetStatement(rst[0]);
-    //   } else {
-    //     setBalanceSheetStatement(undefined);
-    //   }
-    // });
-    // fetchKeyMetrics(stock.Symbol).then((rst) => {
-    //   if (rst && rst[0]) {
-    //     setKeyMetrics(rst[0]);
-    //   } else {
-    //     setKeyMetrics(undefined);
-    //   }
-    // });
+    fetchSymbolInfo(stock.Symbol).then((rst) => {
+      if (rst && rst[0]) {
+        setCompanyState(rst[0]);
+      } else {
+        setCompanyState(undefined);
+      }
+    });
+    fetchBalanceSheetStatement(stock.Symbol).then((rst) => {
+      if (rst && rst[0]) {
+        setBalanceSheetStatement(rst[0]);
+      } else {
+        setBalanceSheetStatement(undefined);
+      }
+    });
+    fetchKeyMetrics(stock.Symbol).then((rst) => {
+      if (rst && rst[0]) {
+        setKeyMetrics(rst[0]);
+      } else {
+        setKeyMetrics(undefined);
+      }
+    });
   }, [stock.Symbol]);
 
   return (
