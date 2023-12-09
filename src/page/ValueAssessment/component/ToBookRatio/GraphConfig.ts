@@ -1,3 +1,5 @@
+const skipped = (ctx: any, value: any) => (ctx.p0.skip || ctx.p1.skip ? value : undefined);
+const down = (ctx: any, value: any) => (ctx.p0.parsed.y > ctx.p1.parsed.y ? value : undefined);
 export const labelDataSets = {
   labels: [],
   datasets: [
@@ -10,6 +12,11 @@ export const labelDataSets = {
       borderWidth: 1,
       yAxisID: "y1",
       fill: false,
+      spanGaps: true,
+      segment: {
+        borderColor: (ctx: any) => undefined,
+        borderDash: (ctx: any) => undefined,
+      },
     },
     {
       type: "line" as const,
@@ -20,6 +27,11 @@ export const labelDataSets = {
       borderWidth: 1,
       yAxisID: "y",
       fill: false,
+      spanGaps: true,
+      segment: {
+        borderColor: (ctx: any) => undefined,
+        borderDash: (ctx: any) => undefined,
+      },
     },
   ],
 };
