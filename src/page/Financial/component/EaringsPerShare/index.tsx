@@ -13,6 +13,7 @@ import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import PeriodController from "component/PeriodController";
 import { useAvgPriceByMonth } from "Hooks/common";
+import { IEaringPerShare } from "types/financial";
 
 function getAnnualData(rst: IEaringPerShare[], allPeriod: number) {
   const newRst = rst.map((item, index, arr) => {
@@ -28,14 +29,6 @@ function getAnnualData(rst: IEaringPerShare[], allPeriod: number) {
 
 interface ISma {
   date: string;
-  sma: number;
-}
-
-interface IEaringPerShare {
-  date: string;
-  netIncomePerShare: number;
-  period: string;
-  calendarYear: string;
   sma: number;
 }
 
