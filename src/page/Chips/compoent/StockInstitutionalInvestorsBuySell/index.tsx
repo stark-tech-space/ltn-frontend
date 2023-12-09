@@ -3,7 +3,8 @@ import { Box, Stack } from "@mui/material";
 import { useMemo, useState } from "react";
 import TagCard from "component/tabCard";
 import { AgGridReact } from "ag-grid-react";
-import Graph1 from "./graph1";
+import GraphForeignInvestorsSelf from "./GraphForeignInvestorsSelf";
+import GraphForeignInvestors from "./GraphForeignInvestors";
 
 export default function StockInstitutionalInvestorsBuySell() {
   const [tabIndex, setTabIndex] = useState(0);
@@ -19,9 +20,9 @@ export default function StockInstitutionalInvestorsBuySell() {
     <Stack rowGap={1}>
       <TagCard tabs={["三大買賣超", "外資及陸資買賣超"]} onChange={setTabIndex}>
         {tabIndex === 0 ? (
-          <Graph1 getGraphData={setGraphData1} />
+          <GraphForeignInvestorsSelf getGraphData={setGraphData1} />
         ) : (
-          <Graph1 getGraphData={setGraphData2} />
+          <GraphForeignInvestors getGraphData={setGraphData2} />
         )}
       </TagCard>
 

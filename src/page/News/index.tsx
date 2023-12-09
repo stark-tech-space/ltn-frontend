@@ -1,4 +1,4 @@
-import { Box, Stack } from "@mui/material";
+import { Box, Stack, useMediaQuery, useTheme } from "@mui/material";
 import { useState } from "react";
 import { PageLayout } from "../../component/Layout";
 import BlockQuota from "./component/BlockQuota";
@@ -11,6 +11,9 @@ import ArticleList from "./component/ArticleList";
 
 function RealTimeNewsPage() {
   const [tab, setTab] = useState(0);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   return (
     <Stack gap={1}>
       <Stack
@@ -27,9 +30,8 @@ function RealTimeNewsPage() {
               <StockChartAnalyze />
             </div>
           </TabCard>
-          <Box height="8px" />
-          <BlockQuota />
         </Box>
+        {isMobile && <BlockQuota />}
         <Box flex={1} mt={{ xs: 0, lg: "44px" }}>
           <StockInformation />
         </Box>
@@ -40,6 +42,7 @@ function RealTimeNewsPage() {
         justifyContent="space-between"
       >
         <Stack flex={{ xs: 1, lg: 2 }} gap={1}>
+          {!isMobile && <BlockQuota />}
           <BlockNewsList />
         </Stack>
         <Box flex={1} gap={1}>

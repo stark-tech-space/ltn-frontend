@@ -13,10 +13,14 @@ import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlin
 
 const BlockNews = () => {
   return (
-    <Box display="flex" columnGap="20px" py={2}>
+    <Box display="flex" columnGap={{ xs: 2, md: "20px" }} py={2}>
       <Avatar sx={{ width: "56px", height: "56px", flexShrink: 0 }} />
       <Stack flex={1}>
-        <Typography fontSize="20px" fontWeight={600} lineHeight="28px">
+        <Typography
+          fontSize={{ xs: "16px", md: "20px", lg: "20px" }}
+          fontWeight={600}
+          lineHeight={1.35}
+        >
           洞見分析標題洞見分析標題洞見分析標題洞見分析標題洞見分析標題
         </Typography>
         <Typography
@@ -67,11 +71,9 @@ const BlockNews = () => {
 export default function BlockNewsList() {
   return (
     <Stack
-      sx={{
-        p: 3,
-        bgcolor: "#fff",
-        borderRadius: "8px",
-      }}
+      bgcolor="#fff"
+      p={{ xs: 2, md: 3, lg: 3 }}
+      borderRadius={{ xs: 0, md: "8px", lg: "8px" }}
     >
       <BlockNews />
       <Divider />

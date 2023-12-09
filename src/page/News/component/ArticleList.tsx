@@ -1,4 +1,3 @@
-import React from "react";
 import { Box, Divider, Stack, Typography } from "@mui/material";
 
 const Article = () => {
@@ -18,7 +17,7 @@ const Article = () => {
           {`自由時報 ・ 今天, 13:02`}
         </Typography>
         <Typography
-          fontSize="18px"
+          fontSize={{ xs: "16px", md: "18px" }}
           fontWeight={600}
           color="#000"
           my="2px"
@@ -43,11 +42,9 @@ const Article = () => {
 export default function ArticleList() {
   return (
     <Box
-      sx={{
-        p: 3,
-        bgcolor: "#fff",
-        borderRadius: "8px",
-      }}
+      bgcolor="#fff"
+      p={{ xs: 2, md: 3, lg: 3 }}
+      borderRadius={{ xs: 0, md: "8px", lg: "8px" }}
     >
       <Article />
       <Divider />

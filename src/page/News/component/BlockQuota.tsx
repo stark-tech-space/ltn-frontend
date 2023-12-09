@@ -4,13 +4,20 @@ import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import { PERIOD } from "types/common";
 import { fetchCompanyRatios, fetchGrowthRates } from "api/common";
-import { COLOR_BG_CONVERTER, COLOR_TEXT_CONVERTER, COLOR_TYPE } from "types/global";
+import {
+  COLOR_BG_CONVERTER,
+  COLOR_TEXT_CONVERTER,
+  COLOR_TYPE,
+} from "types/global";
 import { IEaringPerShare } from "types/financial";
 
-function getAnnualNetIncomePerShareData(rst: IEaringPerShare[], field: keyof IEaringPerShare) {
+function getAnnualNetIncomePerShareData(
+  rst: IEaringPerShare[],
+  field: keyof IEaringPerShare
+) {
   const newNetIncomePerShare = rst.reduce(
     (sum, currentItem) => sum + (currentItem[field] as number),
-    0,
+    0
   );
   return newNetIncomePerShare;
 }
@@ -28,6 +35,7 @@ const BlockChild = ({
     <Box
       flex={1}
       p="12px"
+      minWidth={100}
       height={64}
       bgcolor={COLOR_BG_CONVERTER[color]}
       display="flex"
@@ -125,16 +133,23 @@ export default function BlockQuota() {
             if (item.field === "netIncomePerShare") {
               value = getAnnualNetIncomePerShareData(
                 rst1 as unknown as IEaringPerShare[],
-                "netIncomePerShare",
+                "netIncomePerShare"
               );
               item.value = value ? value.toFixed(3) : "0";
             } else if (item.field === "roe") {
-              value = getAnnualNetIncomePerShareData(rst1 as unknown as IEaringPerShare[], "roe");
+              value = getAnnualNetIncomePerShareData(
+                rst1 as unknown as IEaringPerShare[],
+                "roe"
+              );
               item.value = value ? (value * 100).toFixed(3) : "0";
             } else {
               item.value = value ? value.toFixed(3) : "0";
             }
-            item.color = value ? (value > 0 ? COLOR_TYPE.UP : COLOR_TYPE.DOWN) : COLOR_TYPE.DOWN;
+            item.color = value
+              ? value > 0
+                ? COLOR_TYPE.UP
+                : COLOR_TYPE.DOWN
+              : COLOR_TYPE.DOWN;
           });
         }
         if (rst2 && rst2[0]) {
@@ -142,7 +157,9 @@ export default function BlockQuota() {
           values[index].value = rst2[0]?.growthRevenue.toFixed(3);
           values[index].title = `${rst2[0]?.period}營收YOY`;
           values[index].color =
-            parseFloat(values[index].value) > 0 ? COLOR_TYPE.UP : COLOR_TYPE.DOWN;
+            parseFloat(values[index].value) > 0
+              ? COLOR_TYPE.UP
+              : COLOR_TYPE.DOWN;
         }
         return values;
       });
@@ -153,10 +170,15 @@ export default function BlockQuota() {
     <Stack
       flexDirection="row"
       alignItems="center"
-      p={3}
-      borderRadius="8px"
+      p={{ xs: 2, md: 3, lg: 3 }}
+      borderRadius={{ xs: 0, md: "8px", lg: "8px" }}
       bgcolor="#fff"
       columnGap={1}
+      sx={{
+        flexWrap: "nowrap",
+        scrollBehavior: "smooth",
+        overflow: "auto hidden",
+      }}
     >
       {blockList.map((item) => (
         <BlockChild key={item.field} {...item} />

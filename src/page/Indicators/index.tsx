@@ -1,9 +1,9 @@
 import { Box } from "@mui/material";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import Developing from "component/Developing";
-import { PageLayout } from "../../component/Layout";
 import PageNavigation from "component/PageNavigation";
 import { INDICATORS_CONVERTER, INDICATORS_PAGE_ENUM } from "types/indicators";
+import { useActiveTabElement } from "Hooks/common";
 
 const CHILDREN_MAP: Record<INDICATORS_PAGE_ENUM, React.ReactNode> = {
   [INDICATORS_PAGE_ENUM.PAGE1]: <Developing />,
@@ -18,11 +18,14 @@ const CHILDREN_MAP: Record<INDICATORS_PAGE_ENUM, React.ReactNode> = {
   [INDICATORS_PAGE_ENUM.PAGE10]: <Developing />,
 };
 
-function IndicatorsPage() {
+export default function IndicatorsPage() {
   const [activeTab, setActiveTab] = useState<INDICATORS_PAGE_ENUM>(
     INDICATORS_PAGE_ENUM.PAGE1
   );
-  const Child = useMemo(() => CHILDREN_MAP[activeTab], [activeTab]);
+  const Child = useActiveTabElement<INDICATORS_PAGE_ENUM>(
+    activeTab,
+    CHILDREN_MAP
+  );
   return (
     <Box>
       <PageNavigation
@@ -30,15 +33,7 @@ function IndicatorsPage() {
         menuConverter={INDICATORS_CONVERTER}
         onChange={(tab) => setActiveTab(tab as INDICATORS_PAGE_ENUM)}
       />
-      <Box mx={{ xs: 4, lg: 6 }}>{Child}</Box>
+      <Box mx={{ xs: 0, md: 3, lg: 6 }}>{Child}</Box>
     </Box>
-  );
-}
-
-export default function Page() {
-  return (
-    <PageLayout sx={{ mx: 0, py: 0 }}>
-      <IndicatorsPage />
-    </PageLayout>
   );
 }

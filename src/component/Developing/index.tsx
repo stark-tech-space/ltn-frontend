@@ -10,7 +10,7 @@ export default function Developing() {
         justifyContent="center"
         height="50vh"
         bgcolor="#fff"
-        borderRadius="8px"
+        borderRadius={{ xs: 0, md: "8px", lg: "8px" }}
       >
         開發中...
       </Stack>

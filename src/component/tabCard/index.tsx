@@ -1,5 +1,5 @@
-import { Box, Stack, styled, Button } from "@mui/material";
 import React, { ReactNode } from "react";
+import { Box, Stack, styled, Button } from "@mui/material";
 
 interface ITabCard {
   tabs: any[];
@@ -55,7 +55,11 @@ export default function TagCard({
         px={{ xs: 2, lg: 3 }}
         pt={{ xs: 2, lg: 3 }}
         bgcolor="#fff"
-        borderRadius="0 8px 8px 8px"
+        borderRadius={{
+          xs: "0 8px 0 0",
+          md: "0 8px 8px 8px",
+          lg: "0 8px 8px 8px",
+        }}
       >
         {children}
       </Box>

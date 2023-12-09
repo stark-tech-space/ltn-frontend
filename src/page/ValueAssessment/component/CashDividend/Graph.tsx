@@ -36,12 +36,18 @@ const TABLE_FIELDS = [
   },
 ];
 
-export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) => void }) {
+export default function Graph({
+  getGraphData,
+}: {
+  getGraphData: (data: any[][]) => void;
+}) {
   const chartRef = useRef<Chart>();
   const stock = useRecoilValue(currentStock);
   const [period, setPeriod] = useState(3);
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
-  const [dividendPerShare, setDividendPerShare] = useState<Array<IDividendPerShareHistorical>>([]);
+  const [dividendPerShare, setDividendPerShare] = useState<
+    Array<IDividendPerShareHistorical>
+  >([]);
 
   const avgPrice = useAvgPriceByMonth(period);
 
@@ -56,9 +62,14 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
         .format("YYYY-MM-31");
 
       const dataAvailable = dividendPerShare.filter(
-        (item) => item.date >= availableTimeRangeStart && item.date <= availableTimeRangeEnd
+        (item) =>
+          item.date >= availableTimeRangeStart &&
+          item.date <= availableTimeRangeEnd
       );
-      const dividendSum = dataAvailable.reduce((prev, cur) => prev + (cur.dividend || NaN), 0);
+      const dividendSum = dataAvailable.reduce(
+        (prev, cur) => prev + (cur.dividend || NaN),
+        0
+      );
 
       return {
         date: item.date,
@@ -105,7 +116,9 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
     dataAvailable?.forEach((item) => {
       columnHeaders.push({
         field:
-          reportType === PERIOD.QUARTER ? `${item.calendarYear}-${item.period}` : item.calendarYear,
+          reportType === PERIOD.QUARTER
+            ? `${item.calendarYear}-${item.period}`
+            : item.calendarYear,
       });
     });
 
@@ -117,7 +130,9 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
         if (reportType === PERIOD.ANNUAL) {
           dataSources[item.calendarYear] = (+item[field as keyof T]).toFixed(2);
         } else {
-          dataSources[`${item.calendarYear}-${item.period}`] = (+item[field as keyof T]).toFixed(2);
+          dataSources[`${item.calendarYear}-${item.period}`] = (+item[
+            field as keyof T
+          ]).toFixed(2);
         }
       });
       rowData.push(dataSources);
@@ -126,16 +141,18 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
   };
 
   useEffect(() => {
-    const periodTime = `${parseInt(moment().format("YYYY")) - period - 1}-00-00`;
-    fetchDividendHistorical<{ historical: Array<IDividendPerShareHistorical> }>(stock.Symbol).then(
-      (res) => {
-        setDividendPerShare(
-          res?.historical
-            .filter((item) => item.date > periodTime)
-            .sort((a, b) => (a?.date > b?.date ? -1 : 1)) || []
-        );
-      }
-    );
+    const periodTime = `${
+      parseInt(moment().format("YYYY")) - period - 1
+    }-00-00`;
+    fetchDividendHistorical<{ historical: Array<IDividendPerShareHistorical> }>(
+      stock.Symbol
+    ).then((res) => {
+      setDividendPerShare(
+        res?.historical
+          .filter((item) => item.date > periodTime)
+          .sort((a, b) => (a?.date > b?.date ? -1 : 1)) || []
+      );
+    });
   }, [stock.Symbol, period]);
 
   useEffect(() => {
@@ -151,7 +168,12 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
         showReportType={false}
       />
       <Box height={510} bgcolor="#fff" pb={3}>
-        <ReactChart type="line" data={labelDataSets} options={graphConfig as any} ref={chartRef} />
+        <ReactChart
+          type="line"
+          data={labelDataSets}
+          options={graphConfig as any}
+          ref={chartRef}
+        />
       </Box>
     </>
   );

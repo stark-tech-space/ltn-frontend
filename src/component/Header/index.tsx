@@ -2,23 +2,19 @@ import {
   Box,
   Button,
   Divider,
-  IconButton,
-  OutlinedInput,
   Stack,
-  TextField,
   styled,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import React from "react";
 import { Link } from "react-router-dom";
 import logoAssets from "../../assets/logo.svg";
-import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import TopStockBar from "../StockBar";
 import NavTabs from "../Menu";
 import SearchStockTextField from "component/SearchStockTextField";
-import SegmentIcon from "@mui/icons-material/Segment";
+import MenuDrawer from "component/MenuDrawer/";
+import MobileNavigation from "component/MobileNavigation";
 
 const StyledLogo = styled(Link)(() => ({
   display: "inline-block",
@@ -38,9 +34,6 @@ export default function AppHeader() {
         alignItems="center"
         justifyContent="space-between"
         sx={{
-          height: 96,
-          px: 6,
-          flexShrink: 0,
           bgcolor: "#fff",
           [theme.breakpoints.up("md")]: {
             px: 4,
@@ -67,20 +60,7 @@ export default function AppHeader() {
           />
           <SearchStockTextField />
         </Stack>
-        <IconButton
-          sx={{
-            p: 0,
-            [theme.breakpoints.up("md")]: {
-              display: "none",
-            },
-            [theme.breakpoints.down("md")]: {
-              display: "inline-flex",
-              ml: 1,
-            },
-          }}
-        >
-          <SegmentIcon htmlColor="#000000E5" fontSize="large" />
-        </IconButton>
+        <MenuDrawer />
         <Stack
           flexDirection="row"
           alignItems="center"
@@ -103,11 +83,17 @@ export default function AppHeader() {
         alignItems="center"
         justifyContent="space-between"
         height="44px"
-        py="10px"
         bgcolor="#fff"
-        px={{
-          xs: 4,
-          lg: 6,
+        sx={{
+          [theme.breakpoints.up("md")]: {
+            px: 4,
+            py: "px",
+          },
+          [theme.breakpoints.down("md")]: {
+            p: 2,
+            py: "px",
+            height: "auto",
+          },
         }}
       >
         <TopStockBar />
@@ -130,6 +116,7 @@ export default function AppHeader() {
         </Button>
       </Stack>
       <NavTabs />
+     
     </Box>
   );
 }

@@ -1,5 +1,12 @@
 import { FC, useState } from "react";
-import { Stack, styled, Link, Box } from "@mui/material";
+import {
+  Stack,
+  styled,
+  Link,
+  Box,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 
 interface PageMenuProps<T> {
   menuConverter: Record<string, string>;
@@ -24,7 +31,14 @@ const PageNavigation: FC<PageMenuProps<string>> = ({
   onChange,
   ...props
 }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const [activeTab, setActiveTab] = useState<string>(defaultActiveTab);
+
+  if (isMobile) {
+    return null;
+  }
 
   return (
     <Box

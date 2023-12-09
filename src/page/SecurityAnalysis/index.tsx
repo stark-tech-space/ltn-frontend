@@ -1,14 +1,14 @@
-import { Box } from '@mui/material';
-import React, { useMemo, useState } from 'react';
-import { SECURITY_PAGE_CONVERTER, SECURITY_PAGE_ENUM } from 'types/security';
-import Developing from 'component/Developing';
-import StructureRatio from './component/StructureRatio';
-import QuickAndCurrentRatio from './component/QuickAndCurrentRatio';
-import TimesInterestEarned from './component/TimesInterestEarned';
-import PageNavigation from 'component/PageNavigation';
-import FlowRate from './component/FlowRatio';
-import OperatingNetIncomeRate from './component/OperatingNetIncomeRate';
-import ReinvestmentRate from './component/ReinvestmentRate';
+import { Box } from "@mui/material";
+import React, { useState } from "react";
+import { SECURITY_PAGE_CONVERTER, SECURITY_PAGE_ENUM } from "types/security";
+import StructureRatio from "./component/StructureRatio";
+import QuickAndCurrentRatio from "./component/QuickAndCurrentRatio";
+import TimesInterestEarned from "./component/TimesInterestEarned";
+import PageNavigation from "component/PageNavigation";
+import FlowRate from "./component/FlowRatio";
+import OperatingNetIncomeRate from "./component/OperatingNetIncomeRate";
+import ReinvestmentRate from "./component/ReinvestmentRate";
+import { useActiveTabElement } from "Hooks/common";
 
 const CHILDREN_MAP: Record<SECURITY_PAGE_ENUM, React.ReactNode> = {
   [SECURITY_PAGE_ENUM.PAGE1]: <StructureRatio />,
@@ -20,9 +20,15 @@ const CHILDREN_MAP: Record<SECURITY_PAGE_ENUM, React.ReactNode> = {
 };
 
 export default function SecurityAnalysisPage() {
-  const [activeTab, setActiveTab] = useState<SECURITY_PAGE_ENUM>(SECURITY_PAGE_ENUM.PAGE1);
+  const [activeTab, setActiveTab] = useState<SECURITY_PAGE_ENUM>(
+    SECURITY_PAGE_ENUM.PAGE1
+  );
 
-  const Child = useMemo(() => CHILDREN_MAP[activeTab], [activeTab]);
+  const Child = useActiveTabElement<SECURITY_PAGE_ENUM>(
+    activeTab,
+    CHILDREN_MAP
+  );
+
   return (
     <Box>
       <PageNavigation
@@ -30,7 +36,7 @@ export default function SecurityAnalysisPage() {
         menuConverter={SECURITY_PAGE_CONVERTER}
         onChange={(tab) => setActiveTab(tab as SECURITY_PAGE_ENUM)}
       />
-      <Box mx={{ xs: 2, md: 4, lg: 6 }}>{Child}</Box>
+      <Box mx={{ xs: 0, md: 3, lg: 6 }}>{Child}</Box>
     </Box>
   );
 }

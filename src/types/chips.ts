@@ -1,5 +1,3 @@
-import { IDateField } from "./common";
-
 export enum CHIPS_PAGE_ENUM {
   PAGE1 = "PAGE1",
   PAGE2 = "PAGE2",

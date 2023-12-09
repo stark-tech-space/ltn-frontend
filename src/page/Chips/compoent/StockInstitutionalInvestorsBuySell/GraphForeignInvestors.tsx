@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Box, Button } from "@mui/material";
 import { Chart as ReactChart } from "react-chartjs-2";
 import type { Chart } from "chart.js";
-import { labelDataSets_01, graphConfig_01 } from "./GraphConfig";
+import { graphConfig, labelDataSets_02 } from "./GraphConfig";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import { PERIOD_TYPE } from "types/common";
@@ -27,16 +27,16 @@ interface IBuySellItem {
 
 const GRAPH_FIELDS = [
   {
+    field: "Foreign_Investor",
+    headerName: "外資及陸資(不含外資自營商)",
+  },
+  {
+    field: "Foreign_Dealer_Self",
+    headerName: "外資自營商",
+  },
+  {
     field: "Foreign_Investor_Foreign_Dealer_Self",
     headerName: "外資及陸資",
-  },
-  {
-    field: "Investment_Trust",
-    headerName: "投信",
-  },
-  {
-    field: "Dealer_self_Dealer_Hedging",
-    headerName: "自營商",
   },
 ];
 
@@ -47,7 +47,7 @@ const PERIOD_YEAR = [
   { label: "近5年", value: 5, type: PERIOD_TYPE.YEAR },
 ];
 
-export default function Graph1({
+export default function GraphForeignInvestors({
   getGraphData,
 }: {
   getGraphData: (data: any) => void;
@@ -78,6 +78,7 @@ export default function Graph1({
           alignToPixels: true,
           offset: false,
           type: "time",
+
           time: {
             unit: isMonthScale ? "day" : "year",
             tooltipFormat: isMonthScale ? "YYYY-MM-DD" : "YYYY-MM",
@@ -183,12 +184,12 @@ export default function Graph1({
       Object.entries(monthData as IGraphData).forEach(([month, item]) => {
         const monthByTotal = {
           date: `${year}-${month}`,
+          Foreign_Investor: calc(item, "Foreign_Investor"),
+          Foreign_Dealer_Self: calc(item, "Foreign_Dealer_Self"),
           Foreign_Investor_Foreign_Dealer_Self: calc(
             item,
             "Foreign_Investor_Foreign_Dealer_Self"
           ),
-          Investment_Trust: calc(item, "Investment_Trust"),
-          Dealer_self_Dealer_Hedging: calc(item, "Dealer_self_Dealer_Hedging"),
         };
         list.push(monthByTotal);
       });
@@ -215,22 +216,19 @@ export default function Graph1({
     });
 
     /**
+     *外陸資買賣超股數(不含外資自營商)
+     * Foreign_Investor
+     *
+     * 外資自營商買賣超股數
+     * Foreign_Dealer_Self
+     *
      * 外陸資=外陸資買賣超股數(不含外資自營商) + 外資自營商買賣超股數
      * Foreign_Investor + Foreign_Dealer_Self
-     *
-     * 投信=投信買賣超股數
-     * Investment_Trust
-     *
-     * 自營商=自營商買賣超股數(自行買賣)+自營商買賣超股數(避險)
-     * Dealer_self + Dealer_Hedging
      * */
 
     const fieldsList: { [key: string]: IBuySellItem[] } = {
       Foreign_Investor: [],
       Foreign_Dealer_Self: [],
-      Investment_Trust: [],
-      Dealer_self: [],
-      Dealer_Hedging: [],
     };
 
     if (rst) {
@@ -246,12 +244,15 @@ export default function Graph1({
         date: item.date,
         calendarYear: fullDate.calendarYear,
         month: fullDate.month,
+        //外陸資買賣超股數(不含外資自營商)
+        Foreign_Investor: item.sell,
+
+        // 外資自營商買賣超股數
+        Foreign_Dealer_Self: fieldsList["Foreign_Dealer_Self"][index].sell,
+
+        // 外陸資=外陸資買賣超股數(不含外資自營商) + 外資自營商買賣超股數
         Foreign_Investor_Foreign_Dealer_Self:
           item.sell + fieldsList["Foreign_Dealer_Self"][index].sell,
-        Investment_Trust: fieldsList["Investment_Trust"][index].sell,
-        Dealer_self_Dealer_Hedging:
-          fieldsList["Dealer_self"][index].sell +
-          fieldsList["Dealer_Hedging"][index].sell,
       };
     });
     if (period.type === PERIOD_TYPE.MONTH) {
@@ -291,8 +292,8 @@ export default function Graph1({
       <Box height={510} pb={3}>
         <ReactChart
           type="bar"
-          data={labelDataSets_01}
-          options={graphConfig_01 as any}
+          data={labelDataSets_02}
+          options={graphConfig as any}
           ref={chartRef}
         />
       </Box>

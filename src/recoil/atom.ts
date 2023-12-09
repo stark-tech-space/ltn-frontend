@@ -35,3 +35,19 @@ export const stockPerQuarterCountState = atom({
     period: string;
   }[],
 });
+
+export const currentPageRouteState = atom({
+  key: "current-page-route",
+  default: null as {
+    path: string;
+    subPath: string;
+    routeName: string;
+    routeSubName: string;
+  } | null,
+  effects_UNSTABLE: [localStorageEffect("ltn-page-route-key")],
+});
+
+export const openMobileNavigationDrawerState = atom({
+  key: "open-mobile-navigation-drawer",
+  default: false,
+});

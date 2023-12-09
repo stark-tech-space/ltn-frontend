@@ -1,8 +1,6 @@
 import { Box } from "@mui/material";
-import React, { useMemo, useState } from "react";
-import { PageLayout } from "../../component/Layout";
+import React, { useState } from "react";
 import { PROFIT_PAGE_CONVERTER, PROFIT_PAGE_ENUM } from "types/profitability";
-
 import ProfitRatio from "./component/ProfitRatio";
 import OperatingRatio from "./component/OperatingRatio";
 import OutSideProfitRatio from "./component/OutsideProfitRatio";
@@ -12,6 +10,7 @@ import WeeklyTurnoverAbility from "./component/WeeklyTurnoverAbility";
 import OperatingDays from "./component/OperatingDays";
 import CashDividendRatio from "./component/CashDividendRatio";
 import PageNavigation from "component/PageNavigation";
+import { useActiveTabElement } from "Hooks/common";
 
 const CHILDREN_MAP: Record<PROFIT_PAGE_ENUM, React.ReactNode> = {
   [PROFIT_PAGE_ENUM.PAGE1]: <ProfitRatio />,
@@ -24,12 +23,11 @@ const CHILDREN_MAP: Record<PROFIT_PAGE_ENUM, React.ReactNode> = {
   [PROFIT_PAGE_ENUM.PAGE8]: <CashDividendRatio />,
 };
 
-function ProfitabilityPage() {
+export default function ProfitabilityPage() {
   const [activeTab, setActiveTab] = useState<PROFIT_PAGE_ENUM>(
     PROFIT_PAGE_ENUM.PAGE1
   );
-  const Child = useMemo(() => CHILDREN_MAP[activeTab], [activeTab]);
-
+  const Child = useActiveTabElement<PROFIT_PAGE_ENUM>(activeTab, CHILDREN_MAP);
   return (
     <Box>
       <PageNavigation
@@ -37,15 +35,7 @@ function ProfitabilityPage() {
         menuConverter={PROFIT_PAGE_CONVERTER}
         onChange={(tab) => setActiveTab(tab as PROFIT_PAGE_ENUM)}
       />
-      <Box mx={{ xs: 4, lg: 6 }}>{Child}</Box>
+      <Box mx={{ xs: 0, md: 3, lg: 6 }}>{Child}</Box>
     </Box>
-  );
-}
-
-export default function Page() {
-  return (
-    <PageLayout sx={{ mx: 0, py: 0 }}>
-      <ProfitabilityPage />
-    </PageLayout>
   );
 }

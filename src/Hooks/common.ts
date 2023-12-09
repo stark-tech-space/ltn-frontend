@@ -1,13 +1,14 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { debounce } from "@mui/material";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import { debounce, useMediaQuery } from "@mui/material";
 import { fetchIndicators } from "api/common";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import { useMatch } from "react-router-dom";
-import { stockPerQuarterCountState } from "recoil/atom";
+import { currentPageRouteState, stockPerQuarterCountState } from "recoil/atom";
 import { genFullDateObject, getBeforeYears } from "until";
 import { IIndicatorItem } from "types/common";
 import { getSmaByMonth } from "lib/sma";
+import { useTheme } from "@mui/material";
 
 export const useWindowResize = (node: HTMLDivElement, chart: any) => {
   const handleResize = debounce(() => {
@@ -64,4 +65,16 @@ export const useAvgPriceByMonth = (period: number) => {
   }, [stock.Symbol, period]);
 
   return useMemo(() => sma, [sma]);
+};
+
+export const useActiveTabElement = <T>(tab: T, ElementMap: Record<any, ReactNode>) => {
+  const theme = useTheme();
+
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const currentPageRoute = useRecoilValue(currentPageRouteState);
+
+  return useMemo(() => {
+    const renderTab = isMobile ? currentPageRoute?.subPath : tab;
+    return ElementMap[renderTab as T];
+  }, [isMobile, currentPageRoute?.subPath, tab, ElementMap]);
 };
