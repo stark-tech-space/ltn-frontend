@@ -99,3 +99,16 @@ export interface IIndicatorItem {
   close: number;
   volume: number;
 }
+
+export interface IStockPrice {
+  Trading_Volume: number;
+  Trading_money: number;
+  Trading_turnover: number;
+  close: number;
+  date: string;
+  max: number;
+  min: number;
+  open: number;
+  spread: number;
+  stock_id: string;
+}

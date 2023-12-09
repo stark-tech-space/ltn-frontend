@@ -1,19 +1,17 @@
 import { Box } from "@mui/material";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { IDateField, PERIOD } from "types/common";
 import { Chart as ReactChart } from "react-chartjs-2";
 import { graphConfig, labelDataSets } from "./GraphConfig";
-import { getDataLimit } from "until";
-import { fetchProfitRatio } from "api/profitrato";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 
 import PeriodController from "component/PeriodController";
 import type { Chart } from "chart.js";
-import { IValueAssessment } from "types/valueAssessment";
 import { useAvgPriceByMonth } from "Hooks/common";
-import { maxBy, minBy } from "lodash";
 import moment from "moment";
+import { fetchDividendHistorical } from "api/value";
+import { IDividendPerShareHistorical } from "types/value";
 
 interface IDividendYieldRatio extends IDateField {
   dividendYield: number;
@@ -43,29 +41,34 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
   const stock = useRecoilValue(currentStock);
   const [period, setPeriod] = useState(3);
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
-  const [data, setData] = useState<Array<IDividendYieldRatio>>([]);
+  const [dividendPerShare, setDividendPerShare] = useState<Array<IDividendPerShareHistorical>>([]);
 
   const avgPrice = useAvgPriceByMonth(period);
 
-  const finalData = useMemo(() => {
-    const minDateInData = minBy(data, "date")?.date || "";
-    const maxDateInData = moment(maxBy(data, "date")?.date, "YYYY-MM-DD")
-      .add(1, "day")
-      .format("YYYY-MM-DD");
-    return data
-      .concat(
-        avgPrice
-          .filter((item) => item.date > minDateInData && item.date <= maxDateInData)
-          .map((item) => ({
-            date: item.date,
-            calendarYear: item.date.slice(0, 4),
-            period: "",
-            averagePriceEarningsRatio: item.sma,
-            dividendYield: NaN,
-          }))
-      )
-      .sort((a, b) => (a.date > b.date ? -1 : 1));
-  }, [data, avgPrice]);
+  const finalData: Array<IDividendYieldRatio> = useMemo(() => {
+    return avgPrice.map((item) => {
+      const period = item.date.slice(5, 7);
+      const availableTimeRangeStart = moment(item.date, "YYYY-MM-DD")
+        .subtract(1, "year")
+        .format("YYYY-MM-DD");
+      const availableTimeRangeEnd = moment(item.date, "YYYY-MM-DD")
+        .subtract(1, "day")
+        .format("YYYY-MM-31");
+
+      const dataAvailable = dividendPerShare.filter(
+        (item) => item.date >= availableTimeRangeStart && item.date <= availableTimeRangeEnd
+      );
+      const dividendSum = dataAvailable.reduce((prev, cur) => prev + (cur.dividend || NaN), 0);
+
+      return {
+        date: item.date,
+        calendarYear: item.date.slice(0, 4),
+        period: period,
+        averagePriceEarningsRatio: item.sma,
+        dividendYield: (dividendSum * 100) / item.sma,
+      };
+    });
+  }, [avgPrice, dividendPerShare]);
 
   const updateGraph = (data: IDividendYieldRatio[]) => {
     if (chartRef.current) {
@@ -122,24 +125,18 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
     return [columnHeaders, rowData];
   };
 
-  const fetchGraphData = useCallback(async () => {
-    const limit = getDataLimit(reportType, period);
-    const rst = await fetchProfitRatio<IValueAssessment[]>(stock.Symbol, reportType, limit);
-    if (rst) {
-      const data = rst.map((item) => ({
-        date: item.date,
-        period: item.period,
-        calendarYear: item.calendarYear,
-        dividendYield: item.dividendYield,
-        averagePriceEarningsRatio: NaN,
-      }));
-      setData(data);
-    }
-  }, [stock, period, reportType]);
-
   useEffect(() => {
-    fetchGraphData();
-  }, [fetchGraphData]);
+    const periodTime = `${parseInt(moment().format("YYYY")) - period - 1}-00-00`;
+    fetchDividendHistorical<{ historical: Array<IDividendPerShareHistorical> }>(stock.Symbol).then(
+      (res) => {
+        setDividendPerShare(
+          res?.historical
+            .filter((item) => item.date > periodTime)
+            .sort((a, b) => (a?.date > b?.date ? -1 : 1)) || []
+        );
+      }
+    );
+  }, [stock.Symbol, period]);
 
   useEffect(() => {
     updateGraph(finalData);
