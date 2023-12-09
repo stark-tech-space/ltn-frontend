@@ -1,18 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Box, Stack, Typography, styled, Chip, Divider } from "@mui/material";
 import ArticleList from "./ArticleList";
-import {
-  ICompanyState,
-  IQuote,
-  IBalanceSheetStatement,
-  IKeyMetrics,
-} from "types/news";
-import {
-  fetchQuote,
-  fetchSymbolInfo,
-  fetchBalanceSheetStatement,
-  fetchKeyMetrics,
-} from "api/news";
+import { ICompanyState, IQuote, IBalanceSheetStatement, IKeyMetrics } from "types/news";
+import { fetchQuote, fetchSymbolInfo, fetchBalanceSheetStatement, fetchKeyMetrics } from "api/news";
 import { STOCK_SYMBOL } from "constant";
 import { addPlaceHolder, formNumberToUnit } from "until";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -29,14 +19,12 @@ const StyledLabel = styled(Typography)(({ theme, color }) => ({
   lineHeight: "24px",
 }));
 
-const StyledValue = styled(Typography)(
-  ({ color = "#D92D20" }: { color?: string }) => ({
-    fontSize: "16px",
-    fontWeight: 400,
-    lineHeight: "24px",
-    color,
-  })
-);
+const StyledValue = styled(Typography)(({ color = "#D92D20" }: { color?: string }) => ({
+  fontSize: "16px",
+  fontWeight: 400,
+  lineHeight: "24px",
+  color,
+}));
 
 export const StockInformation = () => {
   const [quote, setQuote] = useState<IQuote>({} as IQuote);
@@ -95,31 +83,27 @@ export const StockInformation = () => {
       </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>成交量</StyledLabel>
-        <StyledValue color="#000000">
-          {formNumberToUnit(quote.volume, "K", 3)}
-        </StyledValue>
+        <StyledValue color="#000000">{formNumberToUnit(quote.volume, "K", 3)}</StyledValue>
       </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>前日收盤價</StyledLabel>
-        <StyledValue color="#000000">
-          {addPlaceHolder(quote.previousClose)}
-        </StyledValue>
+        <StyledValue color="#000000">{addPlaceHolder(quote.previousClose)}</StyledValue>
       </Box>
       <Divider sx={{ bgcolor: "#D0D5DD" }} />
       <Box display="flex" alignItems="center" justifyContent="space-between">
-        <StyledLabel>EPS (FWD)</StyledLabel>
+        <StyledLabel>EPS</StyledLabel>
         <StyledValue color="#000000">{addPlaceHolder(quote?.eps)}</StyledValue>
       </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between">
-        <StyledLabel>PE (FWD)</StyledLabel>
+        <StyledLabel>PE</StyledLabel>
         <StyledValue color="#000000">{addPlaceHolder(quote?.pe)}</StyledValue>
       </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between">
-        <StyledLabel>股息率 (FWD)</StyledLabel>
+        <StyledLabel>股息率</StyledLabel>
         <StyledValue color="#000000">--</StyledValue>
       </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between">
-        <StyledLabel>盈餘殖利率 (FWD)</StyledLabel>
+        <StyledLabel>盈餘殖利率</StyledLabel>
         <StyledValue color="#000000">
           {addPlaceHolder(others?.earningsYield?.toFixed(2))}
         </StyledValue>
@@ -130,9 +114,7 @@ export const StockInformation = () => {
       </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>市值</StyledLabel>
-        <StyledValue color="#000000">
-          {formNumberToUnit(quote.marketCap, "T", 12)}
-        </StyledValue>
+        <StyledValue color="#000000">{formNumberToUnit(quote.marketCap, "T", 12)}</StyledValue>
       </Box>
     </Stack>
   );
@@ -140,8 +122,7 @@ export const StockInformation = () => {
 
 export const CompanyInformation = () => {
   const [companyState, setCompanyState] = useState<ICompanyState>();
-  const [balanceSheetStatement, setBalanceSheetStatement] =
-    useState<IBalanceSheetStatement>();
+  const [balanceSheetStatement, setBalanceSheetStatement] = useState<IBalanceSheetStatement>();
   const [keyMetrics, setKeyMetrics] = useState<IKeyMetrics>();
   const stock = useRecoilValue(currentStock);
 
@@ -173,21 +154,15 @@ export const CompanyInformation = () => {
     <Stack borderRadius="8px" bgcolor="#fff" p={3} rowGap="12px">
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>交易所</StyledLabel>
-        <StyledValue color="#000000">
-          {addPlaceHolder(companyState?.exchangeShortName)}
-        </StyledValue>
+        <StyledValue color="#000000">{addPlaceHolder(companyState?.exchangeShortName)}</StyledValue>
       </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>產業類別</StyledLabel>
-        <StyledValue color="#000000">
-          {addPlaceHolder(companyState?.industry)}
-        </StyledValue>
+        <StyledValue color="#000000">{addPlaceHolder(companyState?.industry)}</StyledValue>
       </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>市值 (百萬)</StyledLabel>
-        <StyledValue color="#000000">
-          {formNumberToUnit(companyState?.mktCap, "M", 6)}
-        </StyledValue>
+        <StyledValue color="#000000">{formNumberToUnit(companyState?.mktCap, "M", 6)}</StyledValue>
       </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>總債務 (百萬)</StyledLabel>
@@ -198,11 +173,7 @@ export const CompanyInformation = () => {
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>現金和投資 (百萬)</StyledLabel>
         <StyledValue color="#000000">
-          {formNumberToUnit(
-            balanceSheetStatement?.cashAndShortTermInvestments,
-            "M",
-            6
-          )}
+          {formNumberToUnit(balanceSheetStatement?.cashAndShortTermInvestments, "M", 6)}
         </StyledValue>
       </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between">

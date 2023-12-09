@@ -131,6 +131,7 @@ export interface IIncomeStatements {
 
 export interface IEaringPerShare {
   date: string;
+  roe: number;
   netIncomePerShare: number;
   period: string;
   calendarYear: string;
