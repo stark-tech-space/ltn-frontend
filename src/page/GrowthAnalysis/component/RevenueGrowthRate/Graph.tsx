@@ -394,7 +394,7 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
           <PeriodController onChangePeriod={setPeriod} onChangeReportType={setReportType} />
           {reportType === PERIOD.QUARTER && (
             <Box height={510} bgcolor="#fff" pb={3}>
-              <ReactChart type="line" data={graphDataSets} options={graphConfig as any} />)
+              <ReactChart type="line" data={graphDataSets} options={graphConfig as any} />
             </Box>
           )}
 
