@@ -59,7 +59,13 @@ export default function MenuDrawer() {
         // onOpen={toggleDrawer(true)}
         onClose={toggleDrawer(false)}
       >
-        <Stack width={280} role="presentation" py={2}>
+        <Stack
+          width={{ xs: "70vw", md: "70vw" }}
+          role="presentation"
+          py={2}
+          pl={0}
+          boxSizing="border-box"
+        >
           <StyledLogo to="/" />
           <Stack
             alignItems="center"
@@ -75,7 +81,7 @@ export default function MenuDrawer() {
               },
             }}
           >
-            <Box width={248} pr={2}>
+            <Box width="100%" pr={2} boxSizing="border-box">
               <SearchStockTextField />
             </Box>
             <Button sx={{ color: "#828282" }}>註冊</Button>

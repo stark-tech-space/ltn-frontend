@@ -124,6 +124,7 @@ const StyledPopper = styled(Popper)({
 });
 
 export default function SearchStockTextField() {
+  const theme = useTheme();
   const setStockValue = useSetRecoilState(stockKeyState);
   const resetStockValue = useResetRecoilState(stockKeyState);
 
@@ -138,9 +139,17 @@ export default function SearchStockTextField() {
       fullWidth
       disableListWrap
       size="small"
+      sx={{
+        height: "44px",
+        [theme.breakpoints.up("md")]: {
+          maxWidth: 340,
+        },
+        [theme.breakpoints.down("md")]: {
+          maxWidth: "100%",
+        },
+      }}
       onChange={(e: any, value) => {
         if (!value) {
-          console.log("value");
           resetStockValue();
         } else {
           setStockValue(value);
@@ -153,7 +162,18 @@ export default function SearchStockTextField() {
         return `${option.No}.TW-${option.Name}`;
       }}
       renderInput={(params) => (
-        <TextField variant="outlined" {...params} placeholder="找哪張股票" />
+        <TextField
+          {...params}
+          variant="outlined"
+          placeholder="找哪張股票"
+          sx={{
+            height: "44px",
+            "& .MuiOutlinedInput-root": {
+              height: "100%",
+              borderRadius: "8px",
+            },
+          }}
+        />
       )}
       renderOption={(props, option, state) =>
         [props, option, state.index] as React.ReactNode

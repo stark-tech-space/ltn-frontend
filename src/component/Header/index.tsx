@@ -14,7 +14,6 @@ import TopStockBar from "../StockBar";
 import NavTabs from "../Menu";
 import SearchStockTextField from "component/SearchStockTextField";
 import MenuDrawer from "component/MenuDrawer/";
-import MobileNavigation from "component/MobileNavigation";
 
 const StyledLogo = styled(Link)(() => ({
   display: "inline-block",
@@ -27,6 +26,7 @@ const StyledLogo = styled(Link)(() => ({
 export default function AppHeader() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   return (
     <Box>
       <Stack
@@ -36,6 +36,7 @@ export default function AppHeader() {
         sx={{
           bgcolor: "#fff",
           [theme.breakpoints.up("md")]: {
+            py: 3,
             px: 4,
           },
           [theme.breakpoints.down("md")]: {
@@ -87,11 +88,11 @@ export default function AppHeader() {
         sx={{
           [theme.breakpoints.up("md")]: {
             px: 4,
-            py: "px",
+            pb: "12px",
           },
           [theme.breakpoints.down("md")]: {
-            p: 2,
-            py: "px",
+            px: 2,
+            pb: 1,
             height: "auto",
           },
         }}
@@ -116,7 +117,6 @@ export default function AppHeader() {
         </Button>
       </Stack>
       <NavTabs />
-     
     </Box>
   );
 }
