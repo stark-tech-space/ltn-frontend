@@ -55,8 +55,8 @@ export default function MobileDrawerNavigation() {
       setOpen(false);
     } else {
       setSelectedPath(route.path);
-      setPageRoute(null);
     }
+    setPageRoute(null);
   };
 
   const handleClickChildRoute = (subPath: string, routeSubName: string) => {
@@ -149,10 +149,6 @@ export default function MobileDrawerNavigation() {
             {Object.entries(
               (selectedRoute?.children as { [page: string]: string }) || []
             ).map(([key, value]) => {
-              if (key === currentPageRoute?.subPath) {
-                console.log(key, value);
-              }
-
               return (
                 <React.Fragment key={key}>
                   <Button

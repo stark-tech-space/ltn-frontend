@@ -93,3 +93,18 @@ export const genFullDateObject = (time: string) => {
 export const sortCallback = (t1: { date: string }, t2: { date: string }) => {
   return moment(t1.date).unix() - moment(t2.date).unix();
 };
+
+export const quarterToMonth = (quarter: string) => {
+  if (quarter === "Q1") {
+    return `03`;
+  }
+  if (quarter === "Q2") {
+    return `06`;
+  }
+  if (quarter === "Q3") {
+    return `09`;
+  }
+  if (quarter === "Q4") {
+    return `12`;
+  }
+};

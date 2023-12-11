@@ -18,8 +18,11 @@ const ClickTabButton = styled(Button)(
     fontSize: "16px",
     fontWeight: 400,
     borderRadius: "8px 8px 0 0",
+
     [theme.breakpoints.down("md")]: {
-      borderRadius: "4px 4px 0 0",
+      borderRadius: 0,
+      borderRight: "1px solid #fff",
+      minWidth: "fit-content",
     },
   })
 );
@@ -45,6 +48,14 @@ export default function TagCard({
         flexDirection="row"
         width="auto"
         display={visible ? "flex" : "none"}
+        sx={{
+          [theme.breakpoints.down("md")]: {
+            flexWrap: "nowrap",
+            scrollBehavior: "smooth",
+            overflowX: "auto",
+            overflowY: "hidden",
+          },
+        }}
       >
         {tabs.map((tab, index) => (
           <ClickTabButton

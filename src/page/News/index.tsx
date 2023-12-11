@@ -1,16 +1,13 @@
 import { Box, Stack, useMediaQuery, useTheme } from "@mui/material";
-import { useState } from "react";
 import { PageLayout } from "../../component/Layout";
 import BlockQuota from "./component/BlockQuota";
 import ReadTimePriceChart from "./component/ReadTime";
 import { CompanyInformation, StockInformation } from "./component/RightSummary";
 import BlockNewsList from "./component/BlockNewsList";
 import TabCard from "component/tabCard";
-import StockChartAnalyze from "./component/StockChartAnalyze";
 import ArticleList from "./component/ArticleList";
 
 function RealTimeNewsPage() {
-  const [tab, setTab] = useState(0);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -22,13 +19,8 @@ function RealTimeNewsPage() {
         justifyContent="space-between"
       >
         <Box flex={{ xs: 1, lg: 2 }} gap={1}>
-          <TabCard tabs={["走勢圖", "技術分析"]} onChange={setTab}>
-            <div style={{ display: tab === 0 ? "block" : "none" }}>
-              <ReadTimePriceChart />
-            </div>
-            <div style={{ display: tab === 1 ? "block" : "none" }}>
-              <StockChartAnalyze />
-            </div>
+          <TabCard tabs={["走勢圖"]}>
+            <ReadTimePriceChart />
           </TabCard>
         </Box>
         {isMobile && <BlockQuota />}

@@ -1,7 +1,6 @@
 import { Box, Chip, Stack, Typography, useTheme } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
-
 import { IRealTimeQuote } from "types/common";
 import { fetchQuote } from "api/common";
 import { addPlaceHolder, sleep, toFixed } from "until";
@@ -34,12 +33,12 @@ export default function TopStockBar() {
         setQuote(rst[0]);
       }
     };
-    const timer = setInterval(async () => {
-      pollFetch();
-    }, 1 * 60 * 1000);
+    // const timer = setInterval(async () => {
+    //   pollFetch();
+    // }, 1 * 60 * 1000);
     pollFetch();
     return () => {
-      clearInterval(timer);
+      // clearInterval(timer);
     };
   }, [stock.Symbol]);
 
