@@ -8,7 +8,7 @@ import ltnApi from "./http/ltnApi";
 export const fetchIncomeStatement = async (
   symbol: string,
   period: PERIOD,
-  limit: number = 40
+  limit: number = 40,
 ): Promise<IIncomeStatements[] | undefined> => {
   try {
     const rst = await fmpApi.get(`/income-statement/${symbol}`, {
@@ -52,5 +52,23 @@ export async function fetchEbooks<T>(params: {
     return rst.data;
   } catch (error) {
     console.error(`fetchEbooks error: ${error}`);
+  }
+}
+
+// 負債和股東權益
+export async function fetchLiabilitiesAndEquity<T>(params: {
+  securityCode?: string;
+  year?: number;
+  quarter?: string;
+  page?: number;
+  size?: number;
+}): Promise<T | undefined> {
+  try {
+    const rst = await ltnApi.get(`/financial/dan-yi-gong-si-an-li`, {
+      params,
+    });
+    return rst.data;
+  } catch (error) {
+    console.error(`fetchLiabilitiesAndEquity error: ${error}`);
   }
 }

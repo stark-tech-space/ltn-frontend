@@ -22,7 +22,6 @@ export const labelDataSets_01 = {
     },
     {
       label: "淨值",
-
       data: [],
       borderColor: "#B02C20",
       backgroundColor: "#B02C20",

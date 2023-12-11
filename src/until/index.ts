@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 import moment from "moment";
-import { IFinMindDataItem, PERIOD } from "types/common";
+import { IFinMindDataItem, ILTNDataItem, PERIOD } from "types/common";
 
 export const sleep = (time = 120) => {
   return new Promise((resolve) => {
@@ -34,7 +34,7 @@ export const addPlaceHolder = (value: any, symbol: string = "") => {
 export const formNumberToUnit = (
   number?: number,
   unit: string = "K",
-  pow = 3
+  pow = 3,
 ) => {
   if (!number) {
     return 0;
@@ -76,6 +76,19 @@ export const findMindDataToFmpData = (data: IFinMindDataItem) => {
     calendarYear: moment(data.date).format("YYYY"),
     [data.type]: data.value,
     period: moment(data.date).format("MM"),
+  };
+};
+
+export const ltnApiDataToFmpData = (data: ILTNDataItem) => {
+  const date = moment(data.date, "YYYY年M月D日");
+  return {
+    code: data.code,
+    date: date.format("YYYY-MM-DD"),
+    calendarYear: date.year(),
+    period: date.month() + 1,
+    quarter: date.quarter(),
+    name: data.name,
+    value: parseFloat(data.value.replace(/,/g, "")),
   };
 };
 

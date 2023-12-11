@@ -75,6 +75,13 @@ export interface IFinMindDataItem {
   origin_name: string;
 }
 
+export interface ILTNDataItem {
+  code: string;
+  date: string;
+  name: string;
+  value: string;
+}
+
 export interface IDateField {
   // 日期
   date: string;

@@ -14,24 +14,21 @@ export default function DebtHolders() {
 
   const [columnHeaders, rowData] = useMemo(
     () => [graphTable1, graphTable2, graphTable3][tabIndex],
-    [tabIndex, graphTable1, graphTable2, graphTable3]
+    [tabIndex, graphTable1, graphTable2, graphTable3],
   );
 
   return (
     <Stack rowGap={1}>
-      <TagCard
-        tabs={["負債和股東權益", "負債", "股東權益"]}
-        onChange={setTabIndex}
-      >
+      <TagCard tabs={["負債和股東權益", "負債", "股東權益"]} onChange={setTabIndex}>
         <Box bgcolor="#fff">
           <div style={{ display: tabIndex === 0 ? "block" : "none" }}>
             <GraphDebtHolder getGraphData={setGraphTable1} />
           </div>
           <div style={{ display: tabIndex === 1 ? "block" : "none" }}>
-            <GraphDebtHolder getGraphData={setGraphTable1} />
+            <GraphDebtHolder getGraphData={setGraphTable2} />
           </div>
           <div style={{ display: tabIndex === 2 ? "block" : "none" }}>
-            <GraphDebtHolder getGraphData={setGraphTable1} />
+            <GraphDebtHolder getGraphData={setGraphTable3} />
           </div>
         </Box>
       </TagCard>
