@@ -1,10 +1,16 @@
 import { Stack, Box } from "@mui/material";
 import { useEffect, useMemo, useRef, useState } from "react";
 import TagCard from "../../../../component/tabCard";
+import PeriodController from "component/PeriodController";
+import UnAvailable from "component/UnAvailable";
 
+import moment from "moment";
+import { keyBy } from "lodash";
 import { Chart as ReactChart } from "react-chartjs-2";
+import { Chart } from "chart.js";
 import { AgGridReact } from "ag-grid-react";
 import numeral from "numeral";
+import { TURNOVER_DATASETS, TURNOVER_GRAPH_OPTIONS } from "./GrapConfig";
 
 import { IProfitRatio } from "types/profitability";
 import { IDateField, PERIOD } from "types/common";
@@ -13,12 +19,7 @@ import { getDataLimit, caseDateToYYYYMMDD } from "until";
 import { currentStock } from "recoil/selector";
 import { useRecoilValue } from "recoil";
 import { fetchProfitRatio } from "api/profitrato";
-import { TURNOVER_DATASETS, TURNOVER_GRAPH_OPTIONS } from "./GrapConfig";
-import { Chart } from "chart.js";
 import { fetchDanYiGongSiAnLi } from "api/financial";
-import PeriodController from "component/PeriodController";
-import moment from "moment";
-import { keyBy } from "lodash";
 
 const TABLE_FIELDS: Record<
   string,
@@ -95,6 +96,7 @@ export default function WeeklyTurnoverAbility() {
   const [caseData, setCaseData] = useState<Array<IWeeklyTurnoverCaseData>>([]);
   const [period, setPeriod] = useState(3);
   const [reportType, setReportType] = useState<PERIOD>(PERIOD.QUARTER);
+  const [isUnAvailable, setIsUnAvailable] = useState<boolean>(false);
 
   const turnoverData: Array<ITurnOverData> = useMemo(() => {
     if (tabIndex === 0) {
@@ -192,11 +194,19 @@ export default function WeeklyTurnoverAbility() {
   };
 
   useEffect(() => {
+    setIsUnAvailable(false);
+  }, [stock.No]);
+
+  useEffect(() => {
     const limit = getDataLimit(reportType, period);
     fetchProfitRatio<IProfitRatio[]>(stock.Symbol, PERIOD.QUARTER, limit).then((res) => {
       setData(res || []);
+      setIsUnAvailable(
+        (prev) =>
+          prev || (!!res?.length && res.every(({ inventoryTurnover }) => !inventoryTurnover))
+      );
     });
-  }, [stock, reportType, period]);
+  }, [stock, reportType, period, setIsUnAvailable]);
 
   useEffect(() => {
     const year = moment().subtract(period, "year").format("YYYY");
@@ -261,6 +271,9 @@ export default function WeeklyTurnoverAbility() {
                 )
                 ?.value.replaceAll(",", "") || ""
             );
+            const currentAssets = parseInt(
+              balanceData.find(({ code, name }) => code === "11XX")?.value.replaceAll(",", "") || ""
+            );
 
             return {
               calendarYear: year,
@@ -272,6 +285,7 @@ export default function WeeklyTurnoverAbility() {
               accountsReceivable,
               totalAssets: parseInt(totalAssetsData?.value.replaceAll(",", "") || ""),
               fixedAssets: fixedAssets,
+              currentAssets,
             };
           }) || [];
         const listDateMap = keyBy(list, "periodString");
@@ -304,9 +318,15 @@ export default function WeeklyTurnoverAbility() {
         });
 
         setCaseData(newList.sort((a, b) => (a > b ? -1 : 1)));
+
+        setIsUnAvailable(
+          (prev) =>
+            prev ||
+            (!!newList.length && newList.every(({ currentAssets }) => Number.isNaN(currentAssets)))
+        );
       }
     );
-  }, [stock.No, period]);
+  }, [stock.No, period, setIsUnAvailable]);
 
   useEffect(() => {
     handleUpdateGraph(turnoverData);
@@ -351,6 +371,10 @@ export default function WeeklyTurnoverAbility() {
       }),
     [turnoverData, reportType, tabIndex]
   );
+
+  if (isUnAvailable) {
+    return <UnAvailable />;
+  }
 
   return (
     <Stack rowGap={1}>
