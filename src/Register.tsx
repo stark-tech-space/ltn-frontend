@@ -12,6 +12,7 @@ import {
   TimeScale,
   TimeSeriesScale,
   ArcElement,
+  PieController,
 } from "chart.js";
 import "chartjs-adapter-moment";
 
@@ -29,7 +30,8 @@ export default function Register() {
     BarController,
     TimeScale,
     TimeSeriesScale,
-    ArcElement
+    ArcElement,
+    PieController
   );
   // }, []);
 
