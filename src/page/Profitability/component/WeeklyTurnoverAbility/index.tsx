@@ -98,6 +98,7 @@ export default function WeeklyTurnoverAbility() {
   const [reportType, setReportType] = useState<PERIOD>(PERIOD.QUARTER);
   const [isUnAvailable, setIsUnAvailable] = useState<boolean>(false);
 
+  // 計算顯示的資料
   const turnoverData: Array<ITurnOverData> = useMemo(() => {
     if (tabIndex === 0) {
       return data.map((item) => ({
@@ -139,6 +140,7 @@ export default function WeeklyTurnoverAbility() {
 
     if (reportType === PERIOD.ANNUAL) {
       const now = moment();
+      // 年營收
       const yearRevenue = caseData.reduce<Record<string, number>>((prev, cur) => {
         if (!prev[cur.calendarYear]) {
           const q1 = groupByDate[`${cur.calendarYear}-Q1`];
@@ -210,7 +212,7 @@ export default function WeeklyTurnoverAbility() {
 
   useEffect(() => {
     const year = moment().subtract(period, "year").format("YYYY");
-    fetchDanYiGongSiAnLi({ securityCode: stock.No, yearRange: year, size: period * 4 }).then(
+    fetchDanYiGongSiAnLi({ securityCode: stock.No, yearRange: year, size: (period + 1) * 4 }).then(
       (res) => {
         const list =
           res?.list.map(({ tables, year, quarter }) => {
@@ -271,6 +273,7 @@ export default function WeeklyTurnoverAbility() {
                 )
                 ?.value.replaceAll(",", "") || ""
             );
+            //  流動資產合計
             const currentAssets = parseInt(
               balanceData.find(({ code, name }) => code === "11XX")?.value.replaceAll(",", "") || ""
             );
@@ -290,6 +293,7 @@ export default function WeeklyTurnoverAbility() {
           }) || [];
         const listDateMap = keyBy(list, "periodString");
 
+        // Q4是年報，把年報的數字換回Q4季報
         const newList = list.map(({ revenue, period, calendarYear, yearRevenue, ...data }) => {
           if (period === "Q4" && Number.isNaN(revenue) && Number.isSafeInteger(yearRevenue)) {
             const q1 = listDateMap[`${calendarYear}-Q1`];
@@ -319,6 +323,7 @@ export default function WeeklyTurnoverAbility() {
 
         setCaseData(newList.sort((a, b) => (a > b ? -1 : 1)));
 
+        // 沒有流動資產合計的股票就不適用這個指標
         setIsUnAvailable(
           (prev) =>
             prev ||
