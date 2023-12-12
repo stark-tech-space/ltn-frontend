@@ -1,10 +1,10 @@
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Box, IconButton, Stack } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
 import ltnApi from "api/http/ltnApi";
 import PeriodController from "component/PeriodController";
 import TagCard from "component/tabCard";
 import numeral from "numeral";
-import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import PieChartIcon from "@mui/icons-material/PieChart";
@@ -27,7 +27,7 @@ import moment from "moment";
  *  长期投资
  *  固定资产
  *  总资产
- * 2、圆饼图参数
+ * 2、圆饼图参数和table数据
  *  现金及约当现金
  *  短期投资
  *  应收账款及票据
@@ -128,9 +128,9 @@ const TARGET_FIELDS = [
     code: ["1100", "11000"],
     drawerLineChart: false,
     calc: (data: ITableItem[]) => {
-      const targets1100 = data.filter((item) => item.code === "1100");
+      const target1100 = data.filter((item) => item.code === "1100");
       const target11000 = data.filter((item) => item.code === "11000");
-      const value = targets1100[0]?.value || target11000[1]?.value;
+      const value = target1100[0]?.value || target11000[1]?.value;
       return (numeral(value).value() || 0) * UNIT;
     },
   },
@@ -291,8 +291,6 @@ export default function CompanyAssets() {
       chartPieRef.current.update();
     }
   };
-
-  console.log("period:", period);
 
   useEffect(() => {
     if (!stock.No) {

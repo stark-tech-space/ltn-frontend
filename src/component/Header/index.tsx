@@ -105,7 +105,12 @@ export default function AppHeader() {
             color: "#fff",
             borderRadius: "8px",
             [theme.breakpoints.down("md")]: {
-              display: "none",
+              // display: "none",
+              position: "fixed",
+              right: "16px",
+              bottom: "30px",
+              zIndex: 100,
+              boxShadow: "rgba(0, 0, 0, 0.35) 0 5px 15px",
             },
             ":hover": {
               background: "#405DF9",
