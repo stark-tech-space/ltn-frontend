@@ -29,14 +29,14 @@ export interface IStockObject {
 
 // 查询财报的时间段：年度、季度
 export enum PERIOD {
-  ANNUAL = "annual",
-  QUARTER = "quarter",
+  ANNUAL = 'annual',
+  QUARTER = 'quarter',
 }
 
 export enum PERIOD_TYPE {
-  YEAR = "year",
-  MONTH = "month",
-  QUARTER = "quarter",
+  YEAR = 'year',
+  MONTH = 'month',
+  QUARTER = 'quarter',
 }
 
 export interface IFinancialStatementRatio {
@@ -57,9 +57,9 @@ export interface IFinancialStatementRatio {
 export const PERIOD_YEAR = [
   // { label: "近1月", value: 1, type: PERIOD_TYPE.MONTH },
   // { label: "近1年", value: 1, type: PERIOD_TYPE.YEAR },
-  { label: "近3年", value: 3, type: PERIOD_TYPE.YEAR },
-  { label: "近5年", value: 5, type: PERIOD_TYPE.YEAR },
-  { label: "近8年", value: 8, type: PERIOD_TYPE.YEAR },
+  { label: '近3年', value: 3, type: PERIOD_TYPE.YEAR },
+  { label: '近5年', value: 5, type: PERIOD_TYPE.YEAR },
+  { label: '近8年', value: 8, type: PERIOD_TYPE.YEAR },
 ];
 
 export interface IFinMindApiResponse {
@@ -111,4 +111,11 @@ export interface IStockPrice {
   open: number;
   spread: number;
   stock_id: string;
+}
+
+export interface ILtnApiCommonData {
+  total: number;
+  totalPage: number;
+  currentPage: number;
+  size: number;
 }

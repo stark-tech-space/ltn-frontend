@@ -10,6 +10,7 @@ import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import { IOperatingItem } from "types/profitability";
 import PeriodController from "component/PeriodController";
+import UnAvailable from "component/UnAvailable";
 
 interface IGraphData extends IOperatingItem {
   receivablesTurnover: number;
@@ -41,6 +42,7 @@ export default function GraphMultiRatio({
   const stock = useRecoilValue(currentStock);
   const [period, setPeriod] = useState(3);
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
+  const [isUnAvailable, setIsUnAvailable] = useState<boolean>(false);
 
   const updateGraph = (data: IGraphData[]) => {
     if (chartRef.current) {
@@ -74,9 +76,7 @@ export default function GraphMultiRatio({
     data?.forEach((item) => {
       columnHeaders.push({
         field:
-          reportType === PERIOD.QUARTER
-            ? `${item.calendarYear}-${item.period}`
-            : item.calendarYear,
+          reportType === PERIOD.QUARTER ? `${item.calendarYear}-${item.period}` : item.calendarYear,
       });
     });
 
@@ -86,9 +86,7 @@ export default function GraphMultiRatio({
       };
       data?.forEach((item) => {
         if (reportType === PERIOD.ANNUAL) {
-          dataSources[item.calendarYear] = (+item[
-            field as keyof IGraphData
-          ]).toFixed(2);
+          dataSources[item.calendarYear] = (+item[field as keyof IGraphData]).toFixed(2);
         } else {
           dataSources[`${item.calendarYear}-${item.period}`] = (+item[
             field as keyof IGraphData
@@ -101,12 +99,13 @@ export default function GraphMultiRatio({
   };
 
   const fetchGraphData = useCallback(async () => {
+    setIsUnAvailable(false);
     const limit = getDataLimit(reportType, period);
-    const rst = await fetchProfitRatio<IOperatingItem[]>(
-      stock.Symbol,
-      reportType,
-      limit
-    );
+    const rst = await fetchProfitRatio<IOperatingItem[]>(stock.Symbol, reportType, limit);
+
+    if (rst && rst.length && rst.every((item) => !item.inventoryTurnover)) {
+      setIsUnAvailable(true);
+    }
 
     const calc = (x: number) => {
       if (!x) {
@@ -140,19 +139,15 @@ export default function GraphMultiRatio({
     fetchGraphData();
   }, [fetchGraphData]);
 
+  if (isUnAvailable) {
+    return <UnAvailable />;
+  }
+
   return (
     <>
-      <PeriodController
-        onChangePeriod={setPeriod}
-        onChangeReportType={setReportType}
-      />
+      <PeriodController onChangePeriod={setPeriod} onChangeReportType={setReportType} />
       <Box height={510} bgcolor="#fff" pb={3}>
-        <ReactChart
-          type="line"
-          data={labelDataSets}
-          options={graphConfig as any}
-          ref={chartRef}
-        />
+        <ReactChart type="line" data={labelDataSets} options={graphConfig as any} ref={chartRef} />
       </Box>
     </>
   );
