@@ -29,7 +29,8 @@ export default function DebtHolders() {
             columnDefs={graphTable[0] as any}
             defaultColDef={{
               resizable: false,
-              initialWidth: 200,
+              minWidth: 200,
+              flex: 1,
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}

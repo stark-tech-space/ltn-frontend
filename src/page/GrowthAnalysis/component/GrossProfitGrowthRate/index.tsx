@@ -22,10 +22,10 @@ export default function GrossProfitGrowthRate() {
             columnDefs={columnHeaders as any}
             defaultColDef={{
               resizable: false,
-              initialWidth: 200,
+              minWidth: 200,
               wrapHeaderText: true,
               autoHeaderHeight: true,
-              // flex: 1,
+              flex: 1,
             }}
             domLayout="autoHeight"
           />

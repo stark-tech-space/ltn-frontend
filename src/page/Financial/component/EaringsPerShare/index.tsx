@@ -14,6 +14,8 @@ import { currentStock } from "recoil/selector";
 import PeriodController from "component/PeriodController";
 import { useAvgPriceByMonth } from "Hooks/common";
 import { IEaringPerShare } from "types/financial";
+import { maxBy, minBy } from "lodash";
+import moment from "moment";
 
 function getAnnualData(rst: IEaringPerShare[], allPeriod: number) {
   const newRst = rst.map((item, index, arr) => {
@@ -105,6 +107,15 @@ export default function EarningsPerShare() {
   }, [graphData, tabIndex, allPeriod]);
 
   const graphDataSets = useMemo(() => {
+    const minDateInData = minBy(netIncomePerShareDataSets, "date")?.date || "";
+    const maxDateInData = moment(maxBy(netIncomePerShareDataSets, "date")?.date, "YYYY-MM-DD")
+      .add(1, "day")
+      .format("YYYY-MM-DD");
+
+    const avgPrice = smaData.filter(
+      (item) => item.date > minDateInData && item.date <= maxDateInData,
+    );
+
     return {
       datasets: [
         {
@@ -114,7 +125,7 @@ export default function EarningsPerShare() {
           backgroundColor: "#EB5757",
           borderWidth: 2,
           fill: false,
-          data: smaData.map((item) => ({ x: item.date, y: item.sma })),
+          data: avgPrice.map((item) => ({ x: item.date, y: item.sma })),
           yAxisID: "y1",
         },
         {
@@ -142,11 +153,7 @@ export default function EarningsPerShare() {
 
   return (
     <Stack rowGap={1}>
-      <TagCard
-        tabs={["單季EPS", "近4季累積EPS"]}
-        onChange={setTabIndex}
-        visible={reportType !== PERIOD.ANNUAL}
-      >
+      <TagCard tabs={["單季EPS", "近4季累積EPS"]} onChange={setTabIndex}>
         <PeriodController onChangePeriod={setPeriod} onChangeReportType={setReportType} />
         <Box height={510} bgcolor="#fff" pb={3}>
           {tabIndex === 0 && <Chart type="bar" data={graphDataSets} options={OPTIONS as any} />}
@@ -165,7 +172,8 @@ export default function EarningsPerShare() {
             columnDefs={columnHeaders as any}
             defaultColDef={{
               resizable: true,
-              initialWidth: 200,
+              minWidth: 200,
+              flex: 1,
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}
