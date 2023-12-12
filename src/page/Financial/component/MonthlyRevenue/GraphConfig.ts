@@ -61,6 +61,11 @@ export const OPTIONS_01 = {
       position: "bottom",
     },
   },
+  elements: {
+    line: {
+      tension: 0.4,
+    },
+  },
   scales: {
     x: {
       alignToPixels: true,
@@ -119,6 +124,11 @@ export const OPTIONS_02 = {
   plugins: {
     legend: {
       position: "bottom",
+    },
+  },
+  elements: {
+    line: {
+      tension: 0.4,
     },
   },
   scales: {

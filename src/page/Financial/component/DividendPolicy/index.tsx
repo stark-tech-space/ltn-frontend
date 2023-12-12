@@ -36,6 +36,7 @@ export default function DividendPolicy() {
         field: "AnnouncementDate",
         headerName: "公告日",
         pinned: "left",
+        width: 100,
       },
       {
         field: "CashEarningsDistribution",
@@ -91,6 +92,7 @@ export default function DividendPolicy() {
           defaultColDef={{
             resizable: true,
             flex: 1,
+            minWidth: 200,
             wrapHeaderText: true,
             autoHeaderHeight: true,
           }}

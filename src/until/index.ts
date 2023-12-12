@@ -108,3 +108,17 @@ export const caseDateToYYYYMMDD = (dateString: string) => {
     isSingleQuarter,
   };
 };
+export const quarterToMonth = (quarter: string) => {
+  if (quarter === 'Q1') {
+    return `03`;
+  }
+  if (quarter === 'Q2') {
+    return `06`;
+  }
+  if (quarter === 'Q3') {
+    return `09`;
+  }
+  if (quarter === 'Q4') {
+    return `12`;
+  }
+};

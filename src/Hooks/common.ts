@@ -3,7 +3,6 @@ import { debounce, useMediaQuery } from "@mui/material";
 import { fetchIndicators } from "api/common";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
-import { useMatch } from "react-router-dom";
 import { currentPageRouteState, stockPerQuarterCountState } from "recoil/atom";
 import { genFullDateObject, getBeforeYears } from "until";
 import { IIndicatorItem } from "types/common";
@@ -67,9 +66,11 @@ export const useAvgPriceByMonth = (period: number) => {
   return useMemo(() => sma, [sma]);
 };
 
-export const useActiveTabElement = <T>(tab: T, ElementMap: Record<any, ReactNode>) => {
+export const useActiveTabElement = <T>(
+  tab: T,
+  ElementMap: Record<any, ReactNode>
+) => {
   const theme = useTheme();
-
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const currentPageRoute = useRecoilValue(currentPageRouteState);
 
