@@ -1,5 +1,9 @@
 import { PERIOD } from "types/common";
-import { IIncomeStatements, IMonthlyRevenue } from "types/financial";
+import {
+  IIncomeStatements,
+  IMonthlyRevenue,
+  IStockTableRes,
+} from "types/financial";
 import fmpApi from "./http/fmpApi";
 import finMindApi from "./http/finmindApi";
 import ltnApi from "./http/ltnApi";
@@ -47,6 +51,25 @@ export async function fetchEbooks<T>(params: {
 }): Promise<T | undefined> {
   try {
     const rst = await ltnApi.get(`/financial/reports`, {
+      params,
+    });
+    return rst.data;
+  } catch (error) {
+    console.error(`fetchEbooks error: ${error}`);
+  }
+}
+
+// 單一公司案例
+export async function fetchDanYiGongSiAnLi(params: {
+  securityCode?: string;
+  size?: number;
+  yearRange?: string;
+  year?: number;
+  page?: number;
+  quarter?: string;
+}): Promise<IStockTableRes | undefined> {
+  try {
+    const rst = await ltnApi.get(`/financial/dan-yi-gong-si-an-li`, {
       params,
     });
     return rst.data;

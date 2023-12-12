@@ -19,6 +19,7 @@ export default function PeriodController({
 
   return (
     <Stack
+      className="period-controller"
       direction="row"
       alignItems="center"
       justifyContent="space-between"

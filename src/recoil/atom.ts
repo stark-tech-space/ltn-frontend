@@ -3,16 +3,16 @@ import { DefaultValue, atom } from "recoil";
 const localStorageEffect =
   (key: string) =>
   ({ setSelf, onSet }: any) => {
-    const savedValue = localStorage.getItem(key);
+    const savedValue = sessionStorage.getItem(key);
     if (savedValue != null) {
       setSelf(JSON.parse(savedValue));
     }
 
     onSet((newValue: any) => {
       if (newValue instanceof DefaultValue) {
-        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
       } else {
-        localStorage.setItem(key, JSON.stringify(newValue));
+        sessionStorage.setItem(key, JSON.stringify(newValue));
       }
     });
   };

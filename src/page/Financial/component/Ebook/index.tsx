@@ -78,17 +78,23 @@ export default function EBooks() {
       {
         field: "title",
         headerName: "年度",
-        width: 160,
+        width: 100,
+        minWidth: 100,
+        maxWidth: 100,
         pinned: "left",
       },
       {
         field: "quarter",
         headerName: "季度報告",
+        minWidth: 200,
+        flex: 1,
         cellRenderer: CellQuarterReport,
       },
       {
         field: "annual",
         headerName: "年度報告",
+        minWidth: 200,
+        flex: 1,
         cellRenderer: CellAnnualReport,
       },
     ],
@@ -104,7 +110,11 @@ export default function EBooks() {
   }, [eBooks]);
 
   return (
-    <Stack borderRadius="8px" bgcolor="#fff" p={3}>
+    <Stack
+      borderRadius={{ xs: 0, md: "8px", ld: "8px" }}
+      bgcolor="#fff"
+      p={{ xs: 2, md: 3, lg: 3 }}
+    >
       <Box className="ag-theme-alpine" sx={{ minHeight: 150 }}>
         <AgGridReact
           rowData={rowData}
@@ -114,8 +124,6 @@ export default function EBooks() {
           getRowHeight={getRowHeight as any}
           defaultColDef={{
             resizable: true,
-            flex: 1,
-            minWidth: 100,
             wrapHeaderText: true,
             autoHeaderHeight: true,
           }}

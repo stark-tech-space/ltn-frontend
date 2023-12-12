@@ -39,9 +39,9 @@ export const formNumberToUnit = (
   if (!number) {
     return 0;
   }
-  const formattedResult = new BigNumber(number)
-    .dividedBy(new BigNumber(10).pow(pow))
-    .toFixed(3);
+  const formattedResult = new BigNumber(number).dividedBy(
+    new BigNumber(10).pow(pow),
+  ).toFixed(3);
   return `${formattedResult}${unit}`;
 };
 
@@ -105,4 +105,41 @@ export const genFullDateObject = (time: string) => {
 
 export const sortCallback = (t1: { date: string }, t2: { date: string }) => {
   return moment(t1.date).unix() - moment(t2.date).unix();
+};
+
+// 2023年7月1日、2023年7月1日至9月30日
+export const caseDateToYYYYMMDD = (dateString: string) => {
+  const [start, end] = dateString.split("至");
+  const startMoment = moment(start.replaceAll(/年|月|日/g, "-"), "YYYY-M-D");
+  let endMoment = null;
+  if (end) {
+    const endString = end.replaceAll(/年|月|日/g, "-");
+    endMoment = moment(
+      `${endString.length > 6 ? "" : startMoment.format("YYYY-")}${endString}`,
+      "YYYY-M-D",
+    );
+  }
+  let isSingleQuarter = endMoment
+    ? Math.abs(startMoment.diff(endMoment, "day")) < 94
+    : true;
+
+  return {
+    start: startMoment.format("YYYY-MM-DD"),
+    end: endMoment?.format("YYYY-MM-DD") || null,
+    isSingleQuarter,
+  };
+};
+export const quarterToMonth = (quarter: string) => {
+  if (quarter === "Q1") {
+    return `03`;
+  }
+  if (quarter === "Q2") {
+    return `06`;
+  }
+  if (quarter === "Q3") {
+    return `09`;
+  }
+  if (quarter === "Q4") {
+    return `12`;
+  }
 };

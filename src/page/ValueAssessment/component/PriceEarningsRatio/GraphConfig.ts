@@ -33,6 +33,11 @@ export const graphConfig = {
       position: "bottom",
     },
   },
+  elements: {
+    line: {
+      tension: 0.4,
+    },
+  },
   scales: {
     x: {
       alignToPixels: true,
