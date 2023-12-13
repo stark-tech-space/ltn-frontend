@@ -12,6 +12,7 @@ import moment from "moment";
 import TagCard from "component/tabCard";
 import { getDataLimit } from "until";
 import { minBy, maxBy } from "lodash";
+import numeral from "numeral";
 
 interface ISma {
   date: string;
@@ -221,24 +222,26 @@ export default function Graph({
         title: title,
       };
       data?.forEach((item) => {
-        dataSources[`${item.calendarYear}-Q${item.quarter}`] =
+        dataSources[`${item.calendarYear}-Q${item.quarter}`] = numeral(
           type === 1
             ? //@ts-ignore
-              +(item.revenue_year_difference * 100).toFixed(2)
+              +(item.revenue_year_difference * 100)
             : //@ts-ignore
-              +(item.revenue_month_difference * 100).toFixed(2);
+              +(item.revenue_month_difference * 100)
+        ).format("0,0.00");
       });
 
       const dataSources2: { [key: string]: any } = {
         title: subTitle,
       };
       data?.forEach((item) => {
-        dataSources2[`${item.calendarYear}-Q${item.quarter}`] =
+        dataSources2[`${item.calendarYear}-Q${item.quarter}`] = numeral(
           type === 1
             ? //@ts-ignore
-              +(item.revenue_four_year_difference * 100).toFixed(2)
+              +(item.revenue_four_year_difference * 100)
             : //@ts-ignore
-              +(item.revenue_four_month_difference * 100).toFixed(2);
+              +(item.revenue_four_month_difference * 100)
+        ).format("0,0.00");
       });
       rowData.push(dataSources);
       rowData.push(dataSources2);
@@ -317,7 +320,10 @@ export default function Graph({
           backgroundColor: "rgb(196,66,66)",
           borderWidth: 2,
           fill: false,
-          data: avgPrice.map((item) => ({ x: item.date, y: item.sma })),
+          data: avgPrice.map((item) => ({
+            x: item.date,
+            y: numeral(item.sma).format("0,0.00"),
+          })),
           yAxisID: "y",
         },
         {
@@ -328,12 +334,13 @@ export default function Graph({
             x: moment(`${item.revenue_year}-${item.revenue_month}`, "YYYY-MM")
               .startOf("quarter")
               .format("YYYY-MM-DD"),
-            y:
+            y: numeral(
               type === 1
                 ? //@ts-ignore
-                  +(item.revenue_year_difference * 100).toFixed(2)
+                  +(item.revenue_year_difference * 100)
                 : //@ts-ignore
-                  +(item.revenue_month_difference * 100).toFixed(2),
+                  +(item.revenue_month_difference * 100)
+            ).format("0,0.00"),
           })),
           borderColor: "rgb(229, 166, 0)",
           borderWidth: 2,
@@ -348,12 +355,13 @@ export default function Graph({
             x: moment(`${item.revenue_year}-${item.revenue_month}`, "YYYY-MM")
               .startOf("quarter")
               .format("YYYY-MM-DD"),
-            y:
+            y: numeral(
               type === 1
                 ? //@ts-ignore
-                  +(item.revenue_four_year_difference * 100).toFixed(2)
+                  +(item.revenue_four_year_difference * 100)
                 : //@ts-ignore
-                  +(item.revenue_four_month_difference * 100).toFixed(2),
+                  +(item.revenue_four_month_difference * 100)
+            ).format("0,0.00"),
           })),
           borderColor: "rgb(7, 123, 242)",
           borderWidth: 2,
@@ -393,7 +401,10 @@ export default function Graph({
           backgroundColor: "rgb(196,66,66)",
           borderWidth: 2,
           fill: false,
-          data: avgPrice.map((item) => ({ x: item.date, y: item.sma })),
+          data: avgPrice.map((item) => ({
+            x: item.date,
+            y: numeral(item.sma).format("0,0.00"),
+          })),
           yAxisID: "y",
         },
         {
@@ -403,7 +414,7 @@ export default function Graph({
           data: AllYearData.map((item) => ({
             x: item.revenue_year + "",
             // @ts-ignore
-            y: +(item.revenue_year_pre * 100).toFixed(2),
+            y: numeral(+(item.revenue_year_pre * 100)).format("0,0.00"),
           })),
           borderColor: "rgb(7, 123, 242)",
           borderWidth: 2,

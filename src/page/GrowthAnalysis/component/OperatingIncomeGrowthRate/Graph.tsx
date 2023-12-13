@@ -12,6 +12,7 @@ import moment from "moment";
 import TagCard from "component/tabCard";
 import { findMindDataToFmpData, getBeforeYears, getDataLimit } from "until";
 import { minBy, maxBy, max } from "lodash";
+import numeral from "numeral";
 
 interface ISma {
   date: string;
@@ -195,24 +196,26 @@ export default function Graph({
         title: title,
       };
       data?.forEach((item) => {
-        dataSources[`${item.calendarYear}-${item.quarter}`] =
+        dataSources[`${item.calendarYear}-${item.quarter}`] = numeral(
           type === 1
             ? //@ts-ignore
-              +(item.revenue_year_difference * 100).toFixed(2)
+              +(item.revenue_year_difference * 100)
             : //@ts-ignore
-              +(item.revenue_month_difference * 100).toFixed(2);
+              +(item.revenue_month_difference * 100)
+        ).format("0,0.00");
       });
 
       const dataSources2: { [key: string]: any } = {
         title: subTitle,
       };
       data?.forEach((item) => {
-        dataSources2[`${item.calendarYear}-${item.quarter}`] =
+        dataSources2[`${item.calendarYear}-${item.quarter}`] = numeral(
           type === 1
             ? //@ts-ignore
-              +(item.revenue_four_year_difference * 100).toFixed(2)
+              +(item.revenue_four_year_difference * 100)
             : //@ts-ignore
-              +(item.revenue_four_month_difference * 100).toFixed(2);
+              +(item.revenue_four_month_difference * 100)
+        ).format("0,0.00");
       });
       rowData.push(dataSources);
       rowData.push(dataSources2);
@@ -228,7 +231,7 @@ export default function Graph({
       AllYearData?.forEach((item) => {
         dataSources[`${item.calendarYear}`] = +(
           //@ts-ignore
-          (item.revenue_year_pre * 100).toFixed(2)
+          numeral(item.revenue_year_pre * 100).format("0,0.00")
         );
       });
       rowData.push(dataSources);
@@ -293,7 +296,10 @@ export default function Graph({
           backgroundColor: "rgb(196,66,66)",
           borderWidth: 2,
           fill: false,
-          data: avgPrice.map((item) => ({ x: item.date, y: item.sma })),
+          data: avgPrice.map((item) => ({
+            x: item.date,
+            y: numeral(item.sma).format("0,0.00"),
+          })),
           yAxisID: "y",
         },
         {
@@ -302,12 +308,13 @@ export default function Graph({
           backgroundColor: "rgb(229, 166, 0)",
           data: graphData.map((item) => ({
             x: item.calendarYear + "-" + item.period,
-            y:
+            y: numeral(
               type === 1
                 ? //@ts-ignore
-                  +(item.revenue_year_difference * 100).toFixed(2)
+                  +(item.revenue_year_difference * 100)
                 : //@ts-ignore
-                  +(item.revenue_month_difference * 100).toFixed(2),
+                  +(item.revenue_month_difference * 100)
+            ).format("0,0.00"),
           })),
           borderColor: "rgb(229, 166, 0)",
           borderWidth: 2,
@@ -320,12 +327,13 @@ export default function Graph({
           backgroundColor: "rgb(7, 123, 242)",
           data: graphData.map((item) => ({
             x: item.calendarYear + "-" + item.period,
-            y:
+            y: numeral(
               type === 1
                 ? //@ts-ignore
-                  +(item.revenue_four_year_difference * 100).toFixed(2)
+                  +(item.revenue_four_year_difference * 100)
                 : //@ts-ignore
-                  +(item.revenue_four_month_difference * 100).toFixed(2),
+                  +(item.revenue_four_month_difference * 100)
+            ).format("0,0.00"),
           })),
           borderColor: "rgb(7, 123, 242)",
           borderWidth: 2,
@@ -359,7 +367,10 @@ export default function Graph({
           backgroundColor: "rgb(196,66,66)",
           borderWidth: 2,
           fill: false,
-          data: smaData.map((item) => ({ x: item.date, y: item.sma })),
+          data: smaData.map((item) => ({
+            x: item.date,
+            y: numeral(item.sma).format("0,0.00"),
+          })),
           yAxisID: "y",
         },
         {
@@ -369,7 +380,7 @@ export default function Graph({
           data: AllYearData.map((item) => ({
             x: item.calendarYear + "",
             // @ts-ignore
-            y: +(item.revenue_year_pre * 100).toFixed(2),
+            y: numeral(+(item.revenue_year_pre * 100)).format("0,0.00"),
           })),
           borderColor: "rgb(7, 123, 242)",
           borderWidth: 2,

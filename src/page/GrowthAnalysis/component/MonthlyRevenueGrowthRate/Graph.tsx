@@ -11,6 +11,7 @@ import { useAvgPriceByMonth, useGetStockCountByMonth } from "Hooks/common";
 import moment from "moment";
 import TagCard from "component/tabCard";
 import { minBy, maxBy } from "lodash";
+import numeral from "numeral";
 
 interface ISma {
   date: string;
@@ -142,11 +143,11 @@ export default function Graph({
       title: title,
     };
     data?.forEach((item) => {
-      dataSources[`${item.calendarYear}-${item.period}`] = (
+      dataSources[`${item.calendarYear}-${item.period}`] = numeral(
         +(type !== 3
           ? item.revenue_year_difference
           : item.revenue_month_difference) * 100
-      ).toFixed(2);
+      ).format("0,0.00");
     });
     rowData.push(dataSources);
     return [columnHeaders, rowData];
@@ -205,7 +206,10 @@ export default function Graph({
           backgroundColor: "rgb(196,66,66)",
           borderWidth: 2,
           fill: false,
-          data: avgPrice.map((item) => ({ x: item.date, y: item.sma })),
+          data: avgPrice.map((item) => ({
+            x: item.date,
+            y: numeral(item.sma).format("0,0.00"),
+          })),
           yAxisID: "y",
           tension: 0.4,
         },
@@ -215,11 +219,11 @@ export default function Graph({
           backgroundColor: "rgb(229, 166, 0)",
           data: graphData.map((item) => ({
             x: item.date + "",
-            y: +(
+            y: numeral(
               (type !== 3
                 ? item.revenue_year_difference
                 : item.revenue_month_difference) * 100
-            ).toFixed(2),
+            ).format("0,0.00"),
           })),
           borderColor: "rgb(229, 166, 0)",
           borderWidth: 2,

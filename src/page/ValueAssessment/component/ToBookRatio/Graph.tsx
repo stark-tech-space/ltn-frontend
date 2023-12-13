@@ -15,6 +15,7 @@ import type { Chart } from "chart.js";
 import { IValueAssessment } from "types/valueAssessment";
 
 import { useAvgPriceByMonth } from "Hooks/common";
+import numeral from "numeral";
 
 interface IPriceToBookRatio extends IDateField {
   priceToBookRatio: number;
@@ -121,11 +122,13 @@ export default function Graph({
       };
       dataAvailable?.forEach((item) => {
         if (reportType === PERIOD.ANNUAL) {
-          dataSources[item.calendarYear] = (+item[field as keyof T]).toFixed(2);
+          dataSources[item.calendarYear] = numeral(
+            item[field as keyof T]
+          ).format("0,0.00");
         } else {
-          dataSources[`${item.calendarYear}-${item.period}`] = (+item[
-            field as keyof T
-          ]).toFixed(2);
+          dataSources[`${item.calendarYear}-${item.period}`] = numeral(
+            item[field as keyof T]
+          ).format("0,0.00");
         }
       });
       rowData.push(dataSources);

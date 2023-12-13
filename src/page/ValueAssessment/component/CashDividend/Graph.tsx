@@ -12,6 +12,7 @@ import { useAvgPriceByMonth } from "Hooks/common";
 import moment from "moment";
 import { fetchDividendHistorical } from "api/value";
 import { IDividendPerShareHistorical } from "types/value";
+import numeral from "numeral";
 
 interface IDividendYieldRatio extends IDateField {
   dividendYield: number;
@@ -128,11 +129,13 @@ export default function Graph({
       };
       dataAvailable?.forEach((item) => {
         if (reportType === PERIOD.ANNUAL) {
-          dataSources[item.calendarYear] = (+item[field as keyof T]).toFixed(2);
+          dataSources[item.calendarYear] = numeral(
+            item[field as keyof T]
+          ).format("0,0.00");
         } else {
-          dataSources[`${item.calendarYear}-${item.period}`] = (+item[
-            field as keyof T
-          ]).toFixed(2);
+          dataSources[`${item.calendarYear}-${item.period}`] = numeral(
+            item[field as keyof T]
+          ).format("0,0.00");
         }
       });
       rowData.push(dataSources);
