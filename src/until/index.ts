@@ -131,15 +131,15 @@ export const caseDateToYYYYMMDD = (dateString: string) => {
 };
 export const quarterToMonth = (quarter: string) => {
   if (quarter === "Q1") {
-    return `03`;
+    return `01`;
   }
   if (quarter === "Q2") {
-    return `06`;
+    return `04`;
   }
   if (quarter === "Q3") {
-    return `09`;
+    return `07`;
   }
   if (quarter === "Q4") {
-    return `12`;
+    return `10`;
   }
 };

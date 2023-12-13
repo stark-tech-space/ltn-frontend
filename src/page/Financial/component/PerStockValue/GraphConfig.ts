@@ -1,5 +1,4 @@
 export const labelDataSets = {
-  labels: [],
   datasets: [
     {
       type: "bar" as const,
