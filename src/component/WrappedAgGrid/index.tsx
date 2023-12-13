@@ -25,7 +25,7 @@ export default function WrappedAgGrid({
   useEffect(() => {
     try {
       if (gridRef.current && gridRef.current.api && sortedColDef?.length) {
-        const last = sortedColDef[sortedColDef.length - 1];
+        const last = sortedColDef[sortedColDef.length - 2];
         gridRef.current.api.ensureColumnVisible(last.field, "end");
       }
     } catch (error) {
