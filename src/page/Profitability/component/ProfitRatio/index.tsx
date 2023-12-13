@@ -1,9 +1,9 @@
 import { Stack, Box } from "@mui/material";
 import { useMemo, useState } from "react";
 import TagCard from "../../../../component/tabCard";
-import { AgGridReact } from "ag-grid-react";
 import GraphMultiRatio from "./GraphMultiRatio";
 import GraphSingleRatio from "./GraphSingleRatio";
+import WrappedAgGrid from "component/WrappedAgGrid";
 
 export default function EarningsPerShare() {
   const [tabIndex, setTabIndex] = useState(0);
@@ -33,7 +33,7 @@ export default function EarningsPerShare() {
             paddingBottom: "24px",
           }}
         >
-          <AgGridReact
+          <WrappedAgGrid
             rowData={rowData}
             columnDefs={columnHeaders as any}
             defaultColDef={{
@@ -42,7 +42,7 @@ export default function EarningsPerShare() {
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}
-            domLayout="autoHeight"
+            // domLayout="autoHeight"
           />
         </Box>
       </TagCard>

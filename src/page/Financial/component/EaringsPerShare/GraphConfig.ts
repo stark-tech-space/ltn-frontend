@@ -1,9 +1,22 @@
+import moment from "moment";
+
 export const OPTIONS = {
   maintainAspectRatio: false,
   responsive: true,
   plugins: {
     legend: {
       position: "bottom",
+    },
+    tooltip: {
+      callbacks: {
+        title: function (context: any) {
+          if (context[0]?.dataset?.yAxisID === "y") {
+            return moment(context[0].raw.x, "YYYY-MM-DD")
+              .format("YYYYY-[Q]Q");
+          }
+          return context[0]?.label;
+        },
+      },
     },
   },
   elements: {
