@@ -1,8 +1,8 @@
 import { Stack, Box } from "@mui/material";
 import { useState } from "react";
-import { AgGridReact } from "ag-grid-react";
 import Graph from "./Graph";
 import TagCard from "../../../../component/tabCard";
+import WrappedAgGrid from "component/WrappedAgGrid";
 
 export default function PriceToBookRatio() {
   const [graphData, setGraphData] = useState<any[][]>([]);
@@ -20,7 +20,7 @@ export default function PriceToBookRatio() {
             paddingBottom: "24px",
           }}
         >
-          <AgGridReact
+          <WrappedAgGrid
             rowData={rowData}
             columnDefs={columnHeaders as any}
             defaultColDef={{
@@ -29,7 +29,6 @@ export default function PriceToBookRatio() {
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}
-            domLayout="autoHeight"
           />
         </Box>
       </TagCard>

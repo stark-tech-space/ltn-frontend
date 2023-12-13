@@ -14,6 +14,7 @@ import { IValueAssessment } from "types/valueAssessment";
 import { useAvgPriceByMonth } from "Hooks/common";
 import { minBy, maxBy } from "lodash";
 import moment from "moment";
+import numeral from "numeral";
 
 interface IPriceEarningsFields extends IDateField {
   priceEarningsRatio: number;
@@ -106,13 +107,13 @@ export default function Graph({
         };
         data?.forEach((item) => {
           if (reportType === PERIOD.ANNUAL) {
-            dataSources[item.calendarYear] = (+item[field as keyof T]).toFixed(
-              2
-            );
+            dataSources[item.calendarYear] = numeral(
+              item[field as keyof T]
+            ).format("0,0.00");
           } else {
-            dataSources[`${item.calendarYear}-${item.period}`] = (+item[
-              field as keyof T
-            ]).toFixed(2);
+            dataSources[`${item.calendarYear}-${item.period}`] = numeral(
+              item[field as keyof T]
+            ).format("0,0.00");
           }
         });
         rowData.push(dataSources);
@@ -144,12 +145,7 @@ export default function Graph({
   }, [stock, period, reportType]);
 
   useEffect(() => {
-    const minDateInData = moment(
-      minBy(graphData, "date")?.date || "",
-      "YYYY-MM-DD"
-    )
-      .startOf("quarter")
-      .format("YYYY-MM-DD");
+    const minDateInData = minBy(graphData, "date")?.date || "";
     const maxDateInData = moment(maxBy(graphData, "date")?.date, "YYYY-MM-DD")
       .add(1, "day")
       .format("YYYY-MM-DD");

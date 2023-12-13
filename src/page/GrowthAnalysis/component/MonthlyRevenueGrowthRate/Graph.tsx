@@ -11,6 +11,7 @@ import { useAvgPriceByMonth, useGetStockCountByMonth } from "Hooks/common";
 import moment from "moment";
 import TagCard from "component/tabCard";
 import { minBy, maxBy } from "lodash";
+import numeral from "numeral";
 
 interface ISma {
   date: string;
@@ -39,28 +40,37 @@ const genStartDate = (years: number) => {
   return moment().subtract(years, "years").startOf("year").format("YYYY-MM-DD");
 };
 
-function generateGraphData(data: IMonthlyRevenueGrowth[], getStockCountByDate: any) {
-  const dataByYear = data.reduce((acc: { [key: number]: IMonthlyRevenueGrowth[] }, cur) => {
-    const year = cur.revenue_year;
-    if (!acc[year]) {
-      acc[year] = [];
-    }
-    acc[year].push(cur);
-    return acc;
-  }, {});
+function generateGraphData(
+  data: IMonthlyRevenueGrowth[],
+  getStockCountByDate: any
+) {
+  const dataByYear = data.reduce(
+    (acc: { [key: number]: IMonthlyRevenueGrowth[] }, cur) => {
+      const year = cur.revenue_year;
+      if (!acc[year]) {
+        acc[year] = [];
+      }
+      acc[year].push(cur);
+      return acc;
+    },
+    {}
+  );
 
   const result = [];
 
   for (const year in dataByYear) {
-    const sortedData = dataByYear[year].sort((a, b) => a.revenue_month - b.revenue_month);
+    const sortedData = dataByYear[year].sort(
+      (a, b) => a.revenue_month - b.revenue_month
+    );
     for (let i = 0; i < sortedData.length; i++) {
       // @ts-ignore
       const prevYearData = dataByYear[year - 1]?.find(
-        (item) => item.revenue_month === sortedData[i].revenue_month,
+        (item) => item.revenue_month === sortedData[i].revenue_month
       );
       const preMonthData =
         // @ts-ignore
-        sortedData[i - 1] || dataByYear[year - 1]?.find((item) => item.revenue_month === 12);
+        sortedData[i - 1] ||
+        dataByYear[Number(year) - 1]?.find((item) => item.revenue_month === 12);
 
       if (prevYearData) {
         const avgStockCount: any = getStockCountByDate(sortedData[i].date);
@@ -68,14 +78,18 @@ function generateGraphData(data: IMonthlyRevenueGrowth[], getStockCountByDate: a
         result.push({
           ...sortedData[i],
           revenue_year_difference:
-            (sortedData[i].revenue - prevYearData.revenue) / prevYearData.revenue,
+            (sortedData[i].revenue - prevYearData.revenue) /
+            prevYearData.revenue,
           revenue_year_per_difference:
-            (sortedData[i].revenue / (avgStockCount ? avgStockCount.StockCount : 1) -
-              prevYearData.revenue / (perAvgStockCount ? perAvgStockCount.StockCount : 1)) /
+            (sortedData[i].revenue /
+              (avgStockCount ? avgStockCount.StockCount : 1) -
+              prevYearData.revenue /
+                (perAvgStockCount ? perAvgStockCount.StockCount : 1)) /
             prevYearData.revenue /
             (perAvgStockCount ? perAvgStockCount.StockCount : 1),
           revenue_month_difference:
-            (sortedData[i].revenue - preMonthData.revenue) / preMonthData.revenue,
+            (sortedData[i].revenue - preMonthData.revenue) /
+            preMonthData.revenue,
         });
       }
     }
@@ -83,7 +97,11 @@ function generateGraphData(data: IMonthlyRevenueGrowth[], getStockCountByDate: a
   return result;
 }
 
-export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) => void }) {
+export default function Graph({
+  getGraphData,
+}: {
+  getGraphData: (data: any[][]) => void;
+}) {
   const stock = useRecoilValue(currentStock);
   const [period, setPeriod] = useState(3);
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
@@ -115,7 +133,9 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
     data?.forEach((item) => {
       columnHeaders.push({
         field:
-          reportType === PERIOD.QUARTER ? `${item.calendarYear}-${item.period}` : item.calendarYear,
+          reportType === PERIOD.QUARTER
+            ? `${item.calendarYear}-${item.period}`
+            : item.calendarYear,
       });
     });
 
@@ -123,9 +143,11 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
       title: title,
     };
     data?.forEach((item) => {
-      dataSources[`${item.calendarYear}-${item.period}`] = (
-        +(type !== 3 ? item.revenue_year_difference : item.revenue_month_difference) * 100
-      ).toFixed(2);
+      dataSources[`${item.calendarYear}-${item.period}`] = numeral(
+        +(type !== 3
+          ? item.revenue_year_difference
+          : item.revenue_month_difference) * 100
+      ).format("0,0.00");
     });
     rowData.push(dataSources);
     return [columnHeaders, rowData];
@@ -138,11 +160,15 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
       dataset: "TaiwanStockMonthRevenue",
     });
 
-    const data = rst.map((item: any) => ({
-      ...item,
-      calendarYear: moment(item.date).format("YYYY"),
-      period: moment(item.date).format("MM"),
-    }));
+    const data = rst.map((item: any) => {
+      const dateMoment = moment(item.date).subtract(1, "month");
+      return {
+        ...item,
+        date: dateMoment.format("YYYY-MM-DD"),
+        calendarYear: dateMoment.format("YYYY"),
+        period: dateMoment.format("MM"),
+      };
+    });
     if (data) {
       const newData = generateGraphData(data, getStockCountByDate);
       setGraphData(newData);
@@ -169,35 +195,41 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
       .format("YYYY-MM-DD");
 
     const avgPrice = smaData.filter(
-      (item) => item.date > minDateInData && item.date <= maxDateInData,
+      (item) => item.date > minDateInData && item.date <= maxDateInData
     );
     return {
       datasets: [
         {
           type: "line" as const,
           label: "月均價",
-          borderColor: "#EB5757",
-          backgroundColor: "#EB5757",
+          borderColor: "rgb(196,66,66)",
+          backgroundColor: "rgb(196,66,66)",
           borderWidth: 2,
           fill: false,
-          pointRadius: 0,
-          data: avgPrice.map((item) => ({ x: item.date, y: item.sma })),
+          data: avgPrice.map((item) => ({
+            x: item.date,
+            y: numeral(item.sma).format("0,0.00"),
+          })),
           yAxisID: "y",
+          tension: 0.4,
         },
         {
           type: "line" as const,
           label: title,
-          backgroundColor: "rgb(0, 99, 232)",
+          backgroundColor: "rgb(229, 166, 0)",
           data: graphData.map((item) => ({
             x: item.date + "",
-            y: +(
-              (type !== 3 ? item.revenue_year_difference : item.revenue_month_difference) * 100
-            ).toFixed(2),
+            y: numeral(
+              (type !== 3
+                ? item.revenue_year_difference
+                : item.revenue_month_difference) * 100
+            ).format("0,0.00"),
           })),
-          borderColor: "rgb(0, 99, 232)",
-          borderWidth: 1,
+          borderColor: "rgb(229, 166, 0)",
+          borderWidth: 2,
           yAxisID: "y1",
           fill: false,
+          tension: 0,
         },
       ],
     };
@@ -222,7 +254,11 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
             showReportType={false}
           />
           <Box height={510} bgcolor="#fff" pb={3}>
-            <ReactChart type="line" data={graphDataSets} options={graphConfig as any} />
+            <ReactChart
+              type="line"
+              data={graphDataSets}
+              options={graphConfig as any}
+            />
           </Box>
         </Box>
       </TagCard>

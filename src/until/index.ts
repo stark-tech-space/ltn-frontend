@@ -34,14 +34,14 @@ export const addPlaceHolder = (value: any, symbol: string = "") => {
 export const formNumberToUnit = (
   number?: number,
   unit: string = "K",
-  pow = 3,
+  pow = 3
 ) => {
   if (!number) {
     return 0;
   }
-  const formattedResult = new BigNumber(number).dividedBy(
-    new BigNumber(10).pow(pow),
-  ).toFixed(3);
+  const formattedResult = new BigNumber(number)
+    .dividedBy(new BigNumber(10).pow(pow))
+    .toFixed(3);
   return `${formattedResult}${unit}`;
 };
 
@@ -116,7 +116,7 @@ export const caseDateToYYYYMMDD = (dateString: string) => {
     const endString = end.replaceAll(/年|月|日/g, "-");
     endMoment = moment(
       `${endString.length > 6 ? "" : startMoment.format("YYYY-")}${endString}`,
-      "YYYY-M-D",
+      "YYYY-M-D"
     );
   }
   let isSingleQuarter = endMoment
