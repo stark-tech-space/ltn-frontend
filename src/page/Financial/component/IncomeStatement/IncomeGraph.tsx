@@ -31,7 +31,11 @@ const genStartDate = (years: number) => {
   return moment().subtract(years, "years").startOf("year").format("YYYY-MM-DD");
 };
 
-export default function IncomeGraph({ getGraphData }: { getGraphData: (data: any) => void }) {
+export default function IncomeGraph({
+  getGraphData,
+}: {
+  getGraphData: (data: any) => void;
+}) {
   const stock = useRecoilValue(currentStock);
   const [period, setPeriod] = useState(3);
   const [graphData, setGraphData] = useState<IIncomeGraph>();
@@ -45,15 +49,27 @@ export default function IncomeGraph({ getGraphData }: { getGraphData: (data: any
 
     if (rst?.status === 200) {
       const revenueData = rst.data.filter((item) => item.type === "Revenue");
-      const grossProfitData = rst.data.filter((item) => item.type === "GrossProfit");
-      const operatingExpenses = rst.data.filter((item) => item.type === "OperatingExpenses");
-      const costOfGoodsSold = rst.data.filter((item) => item.type === "CostOfGoodsSold");
-      const operatingIncome = rst.data.filter((item) => item.type === "OperatingIncome");
-      const preTaxIncome = rst.data.filter((item) => item.type === "PreTaxIncome");
-      const equityAttributableToOwnersOfParent = rst.data.filter(
-        (item) => item.type === "EquityAttributableToOwnersOfParent",
+      const grossProfitData = rst.data.filter(
+        (item) => item.type === "GrossProfit"
       );
-      const incomeAfterTaxes = rst.data.filter((item) => item.type === "IncomeAfterTaxes");
+      const operatingExpenses = rst.data.filter(
+        (item) => item.type === "OperatingExpenses"
+      );
+      const costOfGoodsSold = rst.data.filter(
+        (item) => item.type === "CostOfGoodsSold"
+      );
+      const operatingIncome = rst.data.filter(
+        (item) => item.type === "OperatingIncome"
+      );
+      const preTaxIncome = rst.data.filter(
+        (item) => item.type === "PreTaxIncome"
+      );
+      const equityAttributableToOwnersOfParent = rst.data.filter(
+        (item) => item.type === "EquityAttributableToOwnersOfParent"
+      );
+      const incomeAfterTaxes = rst.data.filter(
+        (item) => item.type === "IncomeAfterTaxes"
+      );
       const date = revenueData.map((item) => item.date);
       let sellingAndMarketingExpenses: any[] = [];
       let generalAndAdministrativeExpenses: any[] = [];
@@ -75,9 +91,15 @@ export default function IncomeGraph({ getGraphData }: { getGraphData: (data: any
         date.forEach((item, index) => {
           data.forEach((item2, index2) => {
             if (item2.date === item) {
-              sellingAndMarketingExpenses.push(item2.sellingAndMarketingExpenses);
-              generalAndAdministrativeExpenses.push(item2.generalAndAdministrativeExpenses);
-              researchAndDevelopmentExpenses.push(item2.researchAndDevelopmentExpenses);
+              sellingAndMarketingExpenses.push(
+                item2.sellingAndMarketingExpenses
+              );
+              generalAndAdministrativeExpenses.push(
+                item2.generalAndAdministrativeExpenses
+              );
+              researchAndDevelopmentExpenses.push(
+                item2.researchAndDevelopmentExpenses
+              );
             }
           });
         });
@@ -92,9 +114,8 @@ export default function IncomeGraph({ getGraphData }: { getGraphData: (data: any
         operatingIncome: operatingIncome.map((item) => item.value),
         preTaxIncome: preTaxIncome.map((item) => item.value),
         afterTaxIncome: incomeAfterTaxes.map((item) => item.value),
-        equityAttributableToOwnersOfParent: equityAttributableToOwnersOfParent.map(
-          (item) => item.value,
-        ),
+        equityAttributableToOwnersOfParent:
+          equityAttributableToOwnersOfParent.map((item) => item.value),
         sellingAndMarketingExpenses,
         generalAndAdministrativeExpenses,
         researchAndDevelopmentExpenses,
@@ -116,7 +137,7 @@ export default function IncomeGraph({ getGraphData }: { getGraphData: (data: any
   const graphDataSet = useMemo(() => {
     return {
       labels: graphData?.revenue.map((item) =>
-        moment(item.date, "YYYY-MM-DD").startOf("quarter").format("YYYY-MM-DD"),
+        moment(item.date, "YYYY-MM-DD").startOf("quarter").format("YYYY-MM-DD")
       ),
       datasets: [
         {
@@ -173,7 +194,9 @@ export default function IncomeGraph({ getGraphData }: { getGraphData: (data: any
           type: "line" as const,
           label: "母公司主業利益",
           backgroundColor: "#026bc3",
-          data: graphData?.equityAttributableToOwnersOfParent.map((item) => item.value / 1000),
+          data: graphData?.equityAttributableToOwnersOfParent.map(
+            (item) => item.value / 1000
+          ),
           borderColor: "#026bc3",
           borderWidth: 2,
           yAxisID: "y",

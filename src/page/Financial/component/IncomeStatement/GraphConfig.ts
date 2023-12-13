@@ -2,9 +2,6 @@ export const OPTIONS = {
   maintainAspectRatio: false,
   responsive: true,
   locale: "zh-TW",
-  interaction: {
-    intersect: false,
-  },
   plugins: {
     legend: {
       position: "bottom",
@@ -21,9 +18,6 @@ export const OPTIONS = {
       },
     },
     y: {
-      type: "linear",
-      display: true,
-      position: "left",
       title: {
         display: true,
         text: "千元",
