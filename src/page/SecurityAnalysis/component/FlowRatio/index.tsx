@@ -13,6 +13,8 @@ import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import { fetchFindMindAPI } from "api/common";
 import _ from "lodash";
+import WrappedAgGrid from "component/WrappedAgGrid";
+import moment from "moment";
 
 interface IGraphData {
   date: string;
@@ -70,7 +72,10 @@ export default function FlowRate() {
     data?.forEach((item) => {
       const dateFullObject = genFullDateObject(item.date);
       columnHeaders.push({
-        field: reportType === PERIOD.QUARTER ? dateFullObject.period : dateFullObject.calendarYear,
+        field:
+          reportType === PERIOD.QUARTER
+            ? dateFullObject.period
+            : dateFullObject.calendarYear,
       });
     });
 
@@ -87,7 +92,9 @@ export default function FlowRate() {
             +item[field as keyof IGraphData] * 100
           ).toFixed(2);
         } else {
-          dataSources[dateFullObject.period] = (+item[field as keyof IGraphData] * 100).toFixed(2);
+          dataSources[dateFullObject.period] = (
+            +item[field as keyof IGraphData] * 100
+          ).toFixed(2);
         }
       });
       rowData.push(dataSources);
@@ -129,19 +136,25 @@ export default function FlowRate() {
         }));
 
       const balanceByDate = Object.fromEntries(
-        Object.entries(_.groupBy(rst[1] || {}, "date")).map(([date, values]) => [
-          date,
-          Object.fromEntries(values.map(({ type, value }) => [type, value])),
-        ])
+        Object.entries(_.groupBy(rst[1] || {}, "date")).map(
+          ([date, values]) => [
+            date,
+            Object.fromEntries(values.map(({ type, value }) => [type, value])),
+          ]
+        )
       );
 
       if (cashFlow && rst[1]) {
         const graphData = cashFlow?.map((item, index) => ({
-          date: item.date,
           cashFlowToLongDebtRate:
-            item.CashFlowsFromOperatingActivities / balanceByDate[item.date]?.Liabilities,
+            item.CashFlowsFromOperatingActivities /
+            balanceByDate[item.date]?.Liabilities,
           cashFlowtoDebtRate:
-            item.CashFlowsFromOperatingActivities / balanceByDate[item.date]?.CurrentLiabilities,
+            item.CashFlowsFromOperatingActivities /
+            balanceByDate[item.date]?.CurrentLiabilities,
+          date: moment(item.date, "YYYY-MM-DD")
+            .startOf("quarter")
+            .format("YYYY-MM-DD"),
         }));
         updateGraph(graphData);
         setGraphData(graphData);
@@ -155,7 +168,10 @@ export default function FlowRate() {
     fetchGraphData();
   }, [fetchGraphData]);
 
-  const [columnHeaders, rowData] = useMemo(() => genGraphTableData(graphData), [graphData]);
+  const [columnHeaders, rowData] = useMemo(
+    () => genGraphTableData(graphData),
+    [graphData]
+  );
   return (
     <Stack rowGap={1}>
       <Box bgcolor="#fff" p={3} borderRadius="8px">
@@ -180,7 +196,7 @@ export default function FlowRate() {
             paddingBottom: "24px",
           }}
         >
-          <AgGridReact
+          <WrappedAgGrid
             rowData={rowData}
             columnDefs={columnHeaders}
             defaultColDef={{
@@ -189,7 +205,6 @@ export default function FlowRate() {
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}
-            domLayout="autoHeight"
           />
         </Box>
       </TagCard>
