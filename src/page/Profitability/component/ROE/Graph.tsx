@@ -10,6 +10,7 @@ import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import { IProfitRatio } from "types/profitability";
 import PeriodController from "component/PeriodController";
+import moment from "moment";
 
 export const GRAPH_FIELDS = [
   {
@@ -98,8 +99,14 @@ export default function Graph({
       limit
     );
     if (rst) {
-      updateGraph(rst);
-      getGraphData(genGraphTableData(rst));
+      const data = rst.map((item) => ({
+        ...item,
+        date: moment(item.date, "YYYY-MM-DD")
+          .startOf("quarter")
+          .format("YYYY-MM-DD"),
+      }));
+      updateGraph(data);
+      getGraphData(genGraphTableData(data));
     }
   }, [stock, period, reportType, getGraphData]);
 
