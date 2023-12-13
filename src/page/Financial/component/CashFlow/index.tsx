@@ -14,6 +14,8 @@ import { PER_SHARE_OPTIONS, PER_SHARE_GRAPH_DATA } from "./GraphConfigPerShare";
 import { Chart as ReactChart } from "react-chartjs-2";
 import { ICashFLowItem } from "types/cashflow";
 import numeral from "numeral";
+import moment from "moment";
+import { useTable } from "Hooks/useTable";
 
 const GRAPH_FIELDS = [
   {
@@ -75,10 +77,7 @@ export default function CashFlow() {
   const stockCountByPeriod = useMemo(() => {
     if (reportType === PERIOD.QUARTER) {
       return Object.fromEntries(
-        stockCountByQuarterArray.map(({ date, StockCount }) => [
-          date,
-          StockCount,
-        ])
+        stockCountByQuarterArray.map(({ date, StockCount }) => [date, StockCount]),
       );
     }
 
@@ -93,7 +92,7 @@ export default function CashFlow() {
           }
           return prev;
         },
-        {}
+        {},
       );
     }
 
@@ -103,9 +102,15 @@ export default function CashFlow() {
   const fetchGraphData = useCallback(async () => {
     const limit = getDataLimit(reportType, period);
     const rst = await fetchCashFlowStatement(stock.Symbol, reportType, limit);
+
     if (rst) {
-      setGraphData(rst);
-      updateGraph(rst);
+      const data = rst.map((item) => ({
+        ...item,
+        date: moment(item.date, "YYYY-MM-DD").startOf("quarter").format("YYYY-MM-DD"),
+      }));
+
+      setGraphData(data.reverse());
+      updateGraph(data);
     }
   }, [stock, period, reportType]);
 
@@ -129,7 +134,7 @@ export default function CashFlow() {
       GRAPH_FIELDS.forEach(async ({ field }, index) => {
         if (chartRef.current) {
           chartRef.current.data.datasets[index].data = data.map(
-            (item) => +item[field as keyof ICashFLowItem] / 1000
+            (item) => +item[field as keyof ICashFLowItem] / 1000,
           );
         }
       });
@@ -143,15 +148,12 @@ export default function CashFlow() {
           if (reportType === PERIOD.ANNUAL) {
             perShareChartRef.current.data.datasets[index].data = data.map(
               (item) =>
-                +item[field as keyof ICashFLowItem] /
-                (stockCountByPeriod[item.calendarYear] || 0)
+                +item[field as keyof ICashFLowItem] / (stockCountByPeriod[item.calendarYear] || 0),
             );
           }
           if (reportType === PERIOD.QUARTER) {
             perShareChartRef.current.data.datasets[index].data = data.map(
-              (item) =>
-                +item[field as keyof ICashFLowItem] /
-                (stockCountByPeriod[item.date] || 0)
+              (item) => +item[field as keyof ICashFLowItem] / (stockCountByPeriod[item.date] || 0),
             );
           }
         }
@@ -172,9 +174,7 @@ export default function CashFlow() {
     graphData?.forEach((item) => {
       columns.push({
         field:
-          reportType === PERIOD.QUARTER
-            ? `${item.calendarYear}-${item.period}`
-            : item.calendarYear,
+          reportType === PERIOD.QUARTER ? `${item.calendarYear}-${item.period}` : item.calendarYear,
       });
     });
     return columns;
@@ -190,12 +190,12 @@ export default function CashFlow() {
 
         graphData?.forEach((item) => {
           if (reportType === PERIOD.ANNUAL) {
-            dataSources[item.calendarYear] = numeral(
-              item[field as keyof ICashFLowItem]
-            ).format("0,0");
+            dataSources[item.calendarYear] = numeral(item[field as keyof ICashFLowItem]).format(
+              "0,0",
+            );
           } else {
             dataSources[`${item.calendarYear}-${item.period}`] = numeral(
-              item[field as keyof ICashFLowItem]
+              item[field as keyof ICashFLowItem],
             ).format("0,0");
           }
         });
@@ -212,13 +212,11 @@ export default function CashFlow() {
         graphData?.forEach((item) => {
           if (reportType === PERIOD.ANNUAL) {
             dataSources[item.calendarYear] = numeral(
-              Number(item[field as keyof ICashFLowItem]) /
-                stockCountByPeriod[item.calendarYear]
+              Number(item[field as keyof ICashFLowItem]) / stockCountByPeriod[item.calendarYear],
             ).format("0,0");
           } else {
             dataSources[`${item.calendarYear}-${item.period}`] = numeral(
-              Number(item[field as keyof ICashFLowItem]) /
-                (stockCountByPeriod[item.date] || 0)
+              Number(item[field as keyof ICashFLowItem]) / (stockCountByPeriod[item.date] || 0),
             ).format("0,0.000");
           }
         });
@@ -227,6 +225,11 @@ export default function CashFlow() {
     }
     return rowData;
   }, [graphData, reportType, tab, stockCountByPeriod]);
+
+  const gridRef = useRef<AgGridReact>(null);
+  const [gridReady, setGridReady] = useState(false);
+
+  useTable(gridRef, columnHeaders, gridReady);
 
   return (
     <Stack rowGap={1}>
@@ -258,12 +261,7 @@ export default function CashFlow() {
         </Stack>
         <Box height={510} bgcolor="#fff" pb={3}>
           {tab === 0 && (
-            <ReactChart
-              type="line"
-              data={GRAPH_DATA}
-              options={OPTIONS as any}
-              ref={chartRef}
-            />
+            <ReactChart type="line" data={GRAPH_DATA} options={OPTIONS as any} ref={chartRef} />
           )}
           {tab === 1 && (
             <ReactChart
@@ -283,6 +281,8 @@ export default function CashFlow() {
           }}
         >
           <AgGridReact
+            ref={gridRef}
+            onGridReady={() => setGridReady(true)}
             rowData={tableRowData}
             columnDefs={columnHeaders as any}
             domLayout="autoHeight"
