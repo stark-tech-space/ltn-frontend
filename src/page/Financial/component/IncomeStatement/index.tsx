@@ -1,12 +1,16 @@
-import { Stack, Box } from '@mui/material';
-import TagCard from '../../../../component/tabCard';
-import IncomeGraph from './IncomeGraph';
-import { useMemo, useState } from 'react';
-import { AgGridReact } from 'ag-grid-react';
-import numeral from 'numeral';
+import { Stack, Box } from "@mui/material";
+import TagCard from "../../../../component/tabCard";
+import IncomeGraph from "./IncomeGraph";
+import { useMemo, useRef, useState } from "react";
+import { AgGridReact } from "ag-grid-react";
+import numeral from "numeral";
+import { useTable } from "Hooks/useTable";
 
 export default function IncomeStatement() {
   const [graphData, setGraphData] = useState<any>({});
+  const [gridReady, setGridReady] = useState(false);
+
+  const gridRef = useRef<AgGridReact>(null);
 
   const defaultColDef = useMemo(() => {
     return {
@@ -30,50 +34,50 @@ export default function IncomeStatement() {
     const dataSources10: { [key: string]: any } = {};
 
     graphData.revenue?.forEach((item: any, index: number) => {
-      dataSources1['title'] = '營收';
-      dataSources1[graphData.date[index]] = numeral(item).format('0,0');
+      dataSources1["title"] = "營收";
+      dataSources1[graphData.date[index]] = numeral(item).format("0,0");
     });
 
     graphData.grossProfit?.forEach((item: any, index: number) => {
-      dataSources2['title'] = '毛利';
-      dataSources2[graphData.date[index]] = numeral(item).format('0,0');
+      dataSources2["title"] = "毛利";
+      dataSources2[graphData.date[index]] = numeral(item).format("0,0");
     });
     graphData.sellingAndMarketingExpenses?.forEach((item: any, index: number) => {
-      dataSources4['title'] = '銷售費用';
-      dataSources4[graphData.date[index]] = numeral(item).format('0,0');
+      dataSources4["title"] = "銷售費用";
+      dataSources4[graphData.date[index]] = numeral(item).format("0,0");
     });
     graphData.generalAndAdministrativeExpenses?.forEach((item: any, index: number) => {
-      dataSources9['title'] = '管理費用';
-      dataSources9[graphData.date[index]] = numeral(item).format('0,0');
+      dataSources9["title"] = "管理費用";
+      dataSources9[graphData.date[index]] = numeral(item).format("0,0");
     });
     graphData.researchAndDevelopmentExpenses?.forEach((item: any, index: number) => {
-      dataSources10['title'] = '研發費用';
-      dataSources10[graphData.date[index]] = numeral(item).format('0,0');
+      dataSources10["title"] = "研發費用";
+      dataSources10[graphData.date[index]] = numeral(item).format("0,0");
     });
 
     graphData.operatingExpenses?.forEach((item: any, index: number) => {
-      dataSources3['title'] = '營業費用';
-      dataSources3[graphData.date[index]] = numeral(item).format('0,0');
+      dataSources3["title"] = "營業費用";
+      dataSources3[graphData.date[index]] = numeral(item).format("0,0");
     });
 
     graphData.operatingIncome?.forEach((item: any, index: number) => {
-      dataSources5['title'] = '營業利益';
-      dataSources5[graphData.date[index]] = numeral(item).format('0,0');
+      dataSources5["title"] = "營業利益";
+      dataSources5[graphData.date[index]] = numeral(item).format("0,0");
     });
 
     graphData.preTaxIncome?.forEach((item: any, index: number) => {
-      dataSources6['title'] = '稅前淨利';
-      dataSources6[graphData.date[index]] = numeral(item).format('0,0');
+      dataSources6["title"] = "稅前淨利";
+      dataSources6[graphData.date[index]] = numeral(item).format("0,0");
     });
 
     graphData.afterTaxIncome?.forEach((item: any, index: number) => {
-      dataSources7['title'] = '稅後淨利';
-      dataSources7[graphData.date[index]] = numeral(item).format('0,0');
+      dataSources7["title"] = "稅後淨利";
+      dataSources7[graphData.date[index]] = numeral(item).format("0,0");
     });
 
     graphData.equityAttributableToOwnersOfParent?.forEach((item: any, index: number) => {
-      dataSources8['title'] = '母公司主業利益';
-      dataSources8[graphData.date[index]] = numeral(item).format('0,0');
+      dataSources8["title"] = "母公司主業利益";
+      dataSources8[graphData.date[index]] = numeral(item).format("0,0");
     });
 
     return [
@@ -95,26 +99,30 @@ export default function IncomeStatement() {
       field: item,
     }));
     columns?.unshift({
-      field: 'title',
-      headerName: '年度/季度',
-      pinned: 'left',
+      field: "title",
+      headerName: "年度/季度",
+      pinned: "left",
     });
     return columns;
   }, [graphData]);
+
+  useTable(gridRef, columnHeaders, gridReady);
 
   return (
     <Stack rowGap={1}>
       <Box bgcolor="#fff" borderRadius="8px" p={{ xs: 2, md: 3 }}>
         <IncomeGraph getGraphData={setGraphData} />
       </Box>
-      <TagCard tabs={['詳細數據']}>
+      <TagCard tabs={["詳細數據"]}>
         <Box
           className="ag-theme-alpine"
           style={{
-            paddingBottom: '24px',
+            paddingBottom: "24px",
           }}
         >
           <AgGridReact
+            ref={gridRef}
+            onGridReady={() => setGridReady(true)}
             rowData={tableRowData}
             columnDefs={columnHeaders as any}
             defaultColDef={defaultColDef}

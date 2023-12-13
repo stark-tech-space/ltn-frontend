@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Box, Button, ButtonGroup, Stack } from "@mui/material";
 import { Chart } from "react-chartjs-2";
 import { faker } from "@faker-js/faker";
@@ -25,9 +19,7 @@ export default function EpsGraph({
   const stock = useRecoilValue(currentStock);
   const [period, setPeriod] = useState(3);
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
-  const [graphData, setGraphData] = useState<
-    { date: string; netIncomePerShare: number }[]
-  >([]);
+  const [graphData, setGraphData] = useState<{ date: string; netIncomePerShare: number }[]>([]);
 
   const fetchGraphData = useCallback(async () => {
     const limit = getDataLimit(reportType, period);
@@ -53,9 +45,7 @@ export default function EpsGraph({
           borderColor: "#EB5757",
           borderWidth: 2,
           fill: false,
-          data: new Array(graphData.length)
-            .fill(0)
-            .map((item) => +faker.finance.amount(300, 600)),
+          data: new Array(graphData.length).fill(0).map((item) => +faker.finance.amount(300, 600)),
           yAxisID: "y1",
         },
         {

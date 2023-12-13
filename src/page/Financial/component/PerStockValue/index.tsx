@@ -12,6 +12,8 @@ import { Chart as ReactChart } from "react-chartjs-2";
 import PeriodController from "component/PeriodController";
 import TagCard from "../../../../component/tabCard";
 import { useAvgPriceByMonth } from "Hooks/common";
+import moment from "moment";
+import { useTable } from "Hooks/useTable";
 
 export default function PerStockShare() {
   const chartRef = useRef<Chart>();
@@ -19,21 +21,22 @@ export default function PerStockShare() {
   const [period, setPeriod] = useState(3);
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
 
-  const [columnHeaders, setColumnHeaders] = useState<
-    { field: string; headerName: string }[]
-  >([]);
+  const [columnHeaders, setColumnHeaders] = useState<{ field: string; headerName: string }[]>([]);
   const [rowData, setRowData] = useState<{ [key: string]: any }[]>([]);
 
   const avgPrice = useAvgPriceByMonth(period - 1);
 
+  const gridRef = useRef<AgGridReact>(null);
+  const [gridReady, setGridReady] = useState(false);
+
+  useTable(gridRef, columnHeaders, gridReady);
+
   const fetchGraphData = useCallback(async () => {
     const limit = getDataLimit(reportType, period);
     const rst = await fetchCompanyRatios(stock.Symbol, reportType, limit);
-
     if (rst) {
-      const labels: string[] = [];
-      const chartData: number[] = [];
-
+      const data = rst?.reverse();
+      const chartData: Array<{ x: string; y: number }> = [];
       const columnHeaders: {
         field: string;
         headerName?: string;
@@ -50,14 +53,16 @@ export default function PerStockShare() {
         pinned: "left",
       };
 
-      rst.forEach((item, index) => {
+      data.forEach((item, index) => {
         const field =
           reportType === PERIOD.ANNUAL
             ? item.calendarYear.toString()
             : `${item.calendarYear}-${item.period}`;
 
-        labels.push(item.date.toString());
-        chartData.push(item.bookValuePerShare);
+        chartData.push({
+          x: moment(item.date, "YYYY-MM-DD").startOf("quarter").format("YYYY-MM-DD"),
+          y: item.bookValuePerShare,
+        });
         columnHeaders.push({ field });
         rowData[field] = item.bookValuePerShare.toFixed(2);
       });
@@ -66,7 +71,7 @@ export default function PerStockShare() {
       setRowData([rowData]);
 
       if (chartRef.current) {
-        chartRef.current.data.labels = labels;
+        // @ts-ignore
         chartRef.current.data.datasets[0].data = chartData;
         chartRef.current.update();
       }
@@ -79,7 +84,11 @@ export default function PerStockShare() {
 
   useEffect(() => {
     if (chartRef.current && avgPrice.length > 0) {
-      chartRef.current.data.datasets[1].data = avgPrice.map((item) => item.sma);
+      //@ts-ignore
+      chartRef.current.data.datasets[1].data = avgPrice.map((item) => ({
+        x: item.date,
+        y: item.sma,
+      }));
       chartRef.current.update();
     }
   }, [avgPrice]);
@@ -90,14 +99,10 @@ export default function PerStockShare() {
         <PeriodController
           onChangePeriod={setPeriod}
           onChangeReportType={setReportType}
+          showReportType={false}
         />
         <Box height={510} bgcolor="#fff" pb={3}>
-          <ReactChart
-            type="bar"
-            data={labelDataSets}
-            options={OPTIONS as any}
-            ref={chartRef}
-          />
+          <ReactChart type="bar" data={labelDataSets} options={OPTIONS as any} ref={chartRef} />
         </Box>
       </Box>
       <TagCard tabs={["詳細數據"]}>
@@ -108,6 +113,8 @@ export default function PerStockShare() {
           }}
         >
           <AgGridReact
+            ref={gridRef}
+            onGridReady={() => setGridReady(true)}
             rowData={rowData}
             columnDefs={columnHeaders as any}
             defaultColDef={{

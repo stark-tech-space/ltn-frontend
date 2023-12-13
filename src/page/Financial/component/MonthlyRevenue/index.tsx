@@ -4,11 +4,13 @@ import TagCard from "../../../../component/tabCard";
 import MonthlyIncomeChart from "./MonthlyGraph";
 import PerStockIncomeChart from "./PerIncomeGraph";
 import { AgGridReact } from "ag-grid-react";
+import { useTable } from "Hooks/useTable";
 
 export default function EarningsPerShare() {
   const [tabIndex, setTabIndex] = useState(0);
   const [graphData1, setGraphData1] = useState<any[][]>([]);
   const [graphData2, setGraphData2] = useState<any[][]>([]);
+  const [gridReady, setGridReady] = useState(false);
 
   const gridref = useRef<AgGridReact>(null);
 
@@ -16,12 +18,7 @@ export default function EarningsPerShare() {
     return tabIndex === 0 ? graphData1 : graphData2;
   }, [tabIndex, graphData1, graphData2]);
 
-  useEffect(() => {
-    if (gridref.current && columnHeaders?.length) {
-      const lastRowIndex = columnHeaders[columnHeaders.length - 1];
-      gridref.current.api.ensureColumnVisible(lastRowIndex.field, "end");
-    }
-  }, [columnHeaders]);
+  useTable(gridref, columnHeaders, gridReady);
 
   return (
     <Stack rowGap={1}>
@@ -48,6 +45,7 @@ export default function EarningsPerShare() {
           <AgGridReact
             rowData={rowData || []}
             ref={gridref}
+            onGridReady={() => setGridReady(true)}
             columnDefs={(columnHeaders as any) || []}
             defaultColDef={{
               resizable: false,

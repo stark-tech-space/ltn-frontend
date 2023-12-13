@@ -2,6 +2,9 @@ export const OPTIONS = {
   maintainAspectRatio: false,
   responsive: true,
   locale: "zh-TW",
+  interaction: {
+    intersect: false,
+  },
   plugins: {
     legend: {
       position: "bottom",

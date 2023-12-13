@@ -1,5 +1,5 @@
 import { Stack, Box } from "@mui/material";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import TagCard from "../../../../component/tabCard";
 
 import { AgGridReact } from "ag-grid-react";
@@ -16,6 +16,7 @@ import { useAvgPriceByMonth } from "Hooks/common";
 import { IEaringPerShare } from "types/financial";
 import { maxBy, minBy } from "lodash";
 import moment from "moment";
+import { useTable } from "Hooks/useTable";
 
 function getAnnualData(rst: IEaringPerShare[], allPeriod: number) {
   const newRst = rst.map((item, index, arr) => {
@@ -26,7 +27,7 @@ function getAnnualData(rst: IEaringPerShare[], allPeriod: number) {
     );
     return { ...item, netIncomePerShare: newNetIncomePerShare };
   });
-  return newRst.slice(0, allPeriod);
+  return newRst.reverse().slice(0, allPeriod);
 }
 
 interface ISma {
@@ -50,6 +51,7 @@ export default function EarningsPerShare() {
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
   const [graphData, setGraphData] = useState<IEaringPerShare[]>([]);
   const [smaData, setSmaData] = useState<ISma[]>([]);
+  const [gridReady, setGridReady] = useState(false);
 
   const avgPrice = useAvgPriceByMonth(period);
 
@@ -60,7 +62,11 @@ export default function EarningsPerShare() {
   const fetchGraphData = useCallback(async () => {
     const limit = getDataLimit(reportType, period, tabIndex === 0 ? 0 : 3);
     const rst = await fetchKeyMetrics(stock.Symbol, reportType, limit);
-    rst && setGraphData(rst as any);
+    const data = rst?.map((item) => ({
+      ...item,
+      date: moment(item.date, "YYYY-MM-DD").startOf("quarter").format("YYYY-MM-DD"),
+    }));
+    data && setGraphData(data.reverse() as any);
   }, [period, reportType, stock, tabIndex]);
 
   useEffect(() => {
@@ -83,6 +89,10 @@ export default function EarningsPerShare() {
     });
     return columns;
   }, [graphData, reportType]);
+
+  const gridRef = useRef<AgGridReact>(null);
+
+  useTable(gridRef, columnHeaders, gridReady);
 
   const tableRowData = useMemo(() => {
     const dataSources: { [key: string]: any } = {
@@ -131,12 +141,12 @@ export default function EarningsPerShare() {
         {
           type: "bar" as const,
           label: title,
-          backgroundColor: "rgba(237, 88, 157, 0.15)",
+          backgroundColor: "#f6e1b1",
+          borderColor: "#e8af00",
           data: netIncomePerShareDataSets.map((item) => ({
             x: item.date,
             y: +item.netIncomePerShare.toFixed(2),
           })),
-          borderColor: "rgba(237, 88, 157, 0.35)",
           borderWidth: 1,
           yAxisID: "y",
           fill: false,
@@ -154,7 +164,11 @@ export default function EarningsPerShare() {
   return (
     <Stack rowGap={1}>
       <TagCard tabs={["單季EPS", "近4季累積EPS"]} onChange={setTabIndex}>
-        <PeriodController onChangePeriod={setPeriod} onChangeReportType={setReportType} />
+        <PeriodController
+          onChangePeriod={setPeriod}
+          onChangeReportType={setReportType}
+          showReportType={false}
+        />
         <Box height={510} bgcolor="#fff" pb={3}>
           {tabIndex === 0 && <Chart type="bar" data={graphDataSets} options={OPTIONS as any} />}
           {tabIndex === 1 && <Chart type="bar" data={graphDataSets} options={OPTIONS as any} />}
@@ -168,6 +182,8 @@ export default function EarningsPerShare() {
           }}
         >
           <AgGridReact
+            ref={gridRef}
+            onGridReady={() => setGridReady(true)}
             rowData={tableRowData as any}
             columnDefs={columnHeaders as any}
             defaultColDef={{
