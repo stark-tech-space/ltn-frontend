@@ -144,12 +144,7 @@ export default function Graph({
   }, [stock, period, reportType]);
 
   useEffect(() => {
-    const minDateInData = moment(
-      minBy(graphData, "date")?.date || "",
-      "YYYY-MM-DD"
-    )
-      .startOf("quarter")
-      .format("YYYY-MM-DD");
+    const minDateInData = minBy(graphData, "date")?.date || "";
     const maxDateInData = moment(maxBy(graphData, "date")?.date, "YYYY-MM-DD")
       .add(1, "day")
       .format("YYYY-MM-DD");

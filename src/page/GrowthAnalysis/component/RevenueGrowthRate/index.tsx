@@ -1,12 +1,13 @@
 import { Stack, Box } from "@mui/material";
 import { useState } from "react";
 import TagCard from "../../../../component/tabCard";
-import { AgGridReact } from "ag-grid-react";
 import Graph from "./Graph";
+import WrappedAgGrid from "component/WrappedAgGrid";
 
 export default function RevenueGrowthRate() {
   const [graphData, setGraphData] = useState<any[][]>([]);
   const [columnHeaders, rowData] = graphData;
+
   return (
     <Stack rowGap={1}>
       <Graph getGraphData={setGraphData} />
@@ -17,7 +18,7 @@ export default function RevenueGrowthRate() {
             paddingBottom: "24px",
           }}
         >
-          <AgGridReact
+          <WrappedAgGrid
             rowData={rowData}
             columnDefs={columnHeaders as any}
             defaultColDef={{
@@ -27,7 +28,6 @@ export default function RevenueGrowthRate() {
               autoHeaderHeight: true,
               flex: 1,
             }}
-            domLayout="autoHeight"
           />
         </Box>
       </TagCard>

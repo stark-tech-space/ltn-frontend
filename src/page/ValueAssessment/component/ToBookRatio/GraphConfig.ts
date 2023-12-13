@@ -1,13 +1,15 @@
+import moment from "moment";
+
 export const labelDataSets = {
   labels: [],
   datasets: [
     {
       type: "line" as const,
-      label: "本益比",
+      label: "股價淨值比",
       data: [],
-      borderColor: "rgb(232,175,0)",
-      backgroundColor: "rgb(232,175,0)",
-      borderWidth: 1,
+      borderColor: "rgb(229,166,0)",
+      backgroundColor: "rgb(229,166,0)",
+      borderWidth: 2,
       yAxisID: "y1",
       fill: false,
       spanGaps: true,
@@ -15,14 +17,15 @@ export const labelDataSets = {
         borderColor: (ctx: any) => undefined,
         borderDash: (ctx: any) => undefined,
       },
+      tension: 0,
     },
     {
       type: "line" as const,
       label: "月均價",
-      backgroundColor: "rgba(237, 88, 157, 0.15)",
+      backgroundColor: "rgb(196,66,66)",
       data: [],
-      borderColor: "rgba(237, 88, 157, 0.35)",
-      borderWidth: 1,
+      borderColor: "rgb(196,66,66)",
+      borderWidth: 2,
       yAxisID: "y",
       fill: false,
       spanGaps: true,
@@ -30,7 +33,7 @@ export const labelDataSets = {
         borderColor: (ctx: any) => undefined,
         borderDash: (ctx: any) => undefined,
       },
-      pointRadius: 0,
+      tension: 0.4,
     },
   ],
 };
@@ -41,6 +44,19 @@ export const graphConfig = {
   plugins: {
     legend: {
       position: "bottom",
+    },
+    tooltip: {
+      callbacks: {
+        title: function (context: any) {
+          if (context[0]?.dataset?.yAxisID === "y1") {
+            return moment(context[0].label, "YYYY/MM")
+              .format("YYYY-Q")
+              .split("-")
+              .join("-Q");
+          }
+          return context[0]?.label || "";
+        },
+      },
     },
   },
   scales: {

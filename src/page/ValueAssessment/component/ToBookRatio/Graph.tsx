@@ -39,7 +39,11 @@ const TABLE_FIELDS = [
   },
 ];
 
-export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) => void }) {
+export default function Graph({
+  getGraphData,
+}: {
+  getGraphData: (data: any[][]) => void;
+}) {
   const chartRef = useRef<Chart>();
   const stock = useRecoilValue(currentStock);
   const [period, setPeriod] = useState(3);
@@ -56,7 +60,9 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
     return data
       .concat(
         avgPrice
-          .filter((item) => item.date > minDateInData && item.date <= maxDateInData)
+          .filter(
+            (item) => item.date >= minDateInData && item.date <= maxDateInData
+          )
           .map((item) => ({
             date: item.date,
             calendarYear: item.date.slice(0, 4),
@@ -103,7 +109,9 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
     dataAvailable?.forEach((item) => {
       columnHeaders.push({
         field:
-          reportType === PERIOD.QUARTER ? `${item.calendarYear}-${item.period}` : item.calendarYear,
+          reportType === PERIOD.QUARTER
+            ? `${item.calendarYear}-${item.period}`
+            : item.calendarYear,
       });
     });
 
@@ -115,7 +123,9 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
         if (reportType === PERIOD.ANNUAL) {
           dataSources[item.calendarYear] = (+item[field as keyof T]).toFixed(2);
         } else {
-          dataSources[`${item.calendarYear}-${item.period}`] = (+item[field as keyof T]).toFixed(2);
+          dataSources[`${item.calendarYear}-${item.period}`] = (+item[
+            field as keyof T
+          ]).toFixed(2);
         }
       });
       rowData.push(dataSources);
@@ -125,10 +135,14 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
 
   const fetchGraphData = useCallback(async () => {
     const limit = getDataLimit(reportType, period);
-    const rst = await fetchProfitRatio<IValueAssessment[]>(stock.Symbol, reportType, limit);
+    const rst = await fetchProfitRatio<IValueAssessment[]>(
+      stock.Symbol,
+      reportType,
+      limit
+    );
     if (rst) {
       const data = rst.map((item) => ({
-        date: item.date,
+        date: moment(item.date).startOf("quarter").format("YYYY-MM-DD"),
         period: item.period,
         calendarYear: item.calendarYear,
         priceToBookRatio: item.priceToBookRatio,
@@ -149,9 +163,17 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
 
   return (
     <>
-      <PeriodController onChangePeriod={setPeriod} onChangeReportType={setReportType} />
+      <PeriodController
+        onChangePeriod={setPeriod}
+        onChangeReportType={setReportType}
+      />
       <Box height={510} bgcolor="#fff" pb={3}>
-        <ReactChart type="line" data={labelDataSets} options={graphConfig as any} ref={chartRef} />
+        <ReactChart
+          type="line"
+          data={labelDataSets}
+          options={graphConfig as any}
+          ref={chartRef}
+        />
       </Box>
     </>
   );

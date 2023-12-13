@@ -49,7 +49,7 @@ function getAllFourData(
   data: IMonthlyRevenueGrowth[],
   preYearData: IMonthlyRevenueGrowth[],
   index: number,
-  quarter: number,
+  quarter: number
 ) {
   const allData = preYearData.concat(data);
   const allIndex = index + preYearData.length;
@@ -63,14 +63,17 @@ function getAllFourData(
 
 function generateGraphData(newData: IMonthlyRevenueGrowth[], limit: number) {
   const data = newData.reverse();
-  const dataByYear = data.reduce((acc: { [key: string]: IMonthlyRevenueGrowth[] }, cur) => {
-    const year = cur.calendarYear;
-    if (!acc[year]) {
-      acc[year] = [];
-    }
-    acc[year].push(cur);
-    return acc;
-  }, {});
+  const dataByYear = data.reduce(
+    (acc: { [key: string]: IMonthlyRevenueGrowth[] }, cur) => {
+      const year = cur.calendarYear;
+      if (!acc[year]) {
+        acc[year] = [];
+      }
+      acc[year].push(cur);
+      return acc;
+    },
+    {}
+  );
 
   const result = [];
 
@@ -79,18 +82,19 @@ function generateGraphData(newData: IMonthlyRevenueGrowth[], limit: number) {
     for (let i = 0; i < sortedData.length; i++) {
       // @ts-ignore
       const prevYearData = dataByYear[year - 1]?.find(
-        (item) => item.period === sortedData[i].period,
+        (item) => item.period === sortedData[i].period
       );
       const preMonthData =
         // @ts-ignore
-        sortedData[i - 1] || dataByYear[year - 1]?.find((item) => item.quarter === 4);
+        sortedData[i - 1] ||
+        dataByYear[Number(year) - 1]?.find((item) => item.quarter === 4);
 
       const fourAllData = getAllFourData(
         sortedData,
         // @ts-ignore
         dataByYear[year - 1] || [],
         i,
-        sortedData[i].quarter,
+        sortedData[i].quarter
       );
 
       const preFourYearAllData = getAllFourData(
@@ -99,7 +103,7 @@ function generateGraphData(newData: IMonthlyRevenueGrowth[], limit: number) {
         // @ts-ignore
         dataByYear[year - 2] || [],
         i,
-        sortedData[i].quarter,
+        sortedData[i].quarter
       );
 
       const preFourQuarterAllData = getAllFourData(
@@ -107,7 +111,7 @@ function generateGraphData(newData: IMonthlyRevenueGrowth[], limit: number) {
         // @ts-ignore
         dataByYear[year - 1] || [],
         i - 1,
-        sortedData[i - 1]?.quarter || 4,
+        sortedData[i - 1]?.quarter || 4
       );
 
       const allYearData = sortedData.reduce((acc: number, cur) => {
@@ -116,10 +120,13 @@ function generateGraphData(newData: IMonthlyRevenueGrowth[], limit: number) {
       }, 0);
 
       // @ts-ignore
-      const allYearPreData = (dataByYear[year - 1] || []).reduce((acc: number, cur) => {
-        acc += cur.netIncomePerShare;
-        return acc;
-      }, 0);
+      const allYearPreData = (dataByYear[year - 1] || []).reduce(
+        (acc: number, cur) => {
+          acc += cur.netIncomePerShare;
+          return acc;
+        },
+        0
+      );
 
       if (prevYearData) {
         result.push({
@@ -130,7 +137,8 @@ function generateGraphData(newData: IMonthlyRevenueGrowth[], limit: number) {
           revenue_month_difference:
             (sortedData[i].netIncomePerShare - preMonthData.netIncomePerShare) /
             preMonthData.netIncomePerShare,
-          revenue_four_year_difference: (fourAllData - preFourYearAllData) / preFourYearAllData,
+          revenue_four_year_difference:
+            (fourAllData - preFourYearAllData) / preFourYearAllData,
           revenue_four_month_difference:
             (fourAllData - preFourQuarterAllData) / preFourQuarterAllData,
           revenue_year_pre: (allYearData - allYearPreData) / allYearPreData,
@@ -144,7 +152,11 @@ function generateGraphData(newData: IMonthlyRevenueGrowth[], limit: number) {
   return res;
 }
 
-export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) => void }) {
+export default function Graph({
+  getGraphData,
+}: {
+  getGraphData: (data: any[][]) => void;
+}) {
   const stock = useRecoilValue(currentStock);
   const [period, setPeriod] = useState(3);
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
@@ -232,10 +244,11 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
     const data = await fetchKeyMetrics(stock.Symbol, PERIOD.QUARTER, limit);
     if (data) {
       const realData = (data as IMonthlyRevenueGrowth[]).filter(
-        (item: any) => item.netIncomePerShare && item.netIncomePerShare !== 0,
+        (item: any) => item.netIncomePerShare && item.netIncomePerShare !== 0
       );
 
       realData.forEach((item) => {
+        item.date = moment(item.date).startOf("quarter").format("YYYY-MM-DD");
         item.quarter = +moment(item.date).format("Q");
       });
 
@@ -261,7 +274,7 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
       .format("YYYY-MM-DD");
 
     const avgPrice = smaData.filter(
-      (item) => item.date > minDateInData && item.date <= maxDateInData,
+      (item) => item.date >= minDateInData && item.date <= maxDateInData
     );
 
     return {
@@ -269,18 +282,17 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
         {
           type: "line" as const,
           label: "月均價",
-          borderColor: "#EB5757",
-          backgroundColor: "#EB5757",
+          borderColor: "rgb(196,66,66)",
+          backgroundColor: "rgb(196,66,66)",
           borderWidth: 2,
           fill: false,
-          pointRadius: 0,
           data: avgPrice.map((item) => ({ x: item.date, y: item.sma })),
           yAxisID: "y",
         },
         {
           type: "line" as const,
           label: title,
-          backgroundColor: "#ffe75a",
+          backgroundColor: "rgb(229, 166, 0)",
           data: graphData.map((item) => ({
             x: item.date,
             y:
@@ -290,15 +302,15 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
                 : //@ts-ignore
                   +(item.revenue_month_difference * 100).toFixed(2),
           })),
-          borderColor: "#ffe75a",
-          borderWidth: 1,
+          borderColor: "rgb(229, 166, 0)",
+          borderWidth: 2,
           yAxisID: "y1",
           fill: false,
         },
         {
           type: "line" as const,
           label: subTitle,
-          backgroundColor: "rgb(0, 99, 232)",
+          backgroundColor: "rgb(7, 123, 242)",
           data: graphData.map((item) => ({
             x: item.date,
             y:
@@ -308,8 +320,8 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
                 : //@ts-ignore
                   +(item.revenue_four_month_difference * 100).toFixed(2),
           })),
-          borderColor: "rgb(0, 99, 232)",
-          borderWidth: 1,
+          borderColor: "rgb(7, 123, 242)",
+          borderWidth: 2,
           yAxisID: "y1",
           fill: false,
         },
@@ -336,25 +348,24 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
         {
           type: "line" as const,
           label: "月均價",
-          borderColor: "#EB5757",
-          backgroundColor: "#EB5757",
+          borderColor: "rgb(196,66,66)",
+          backgroundColor: "rgb(196,66,66)",
           borderWidth: 2,
           fill: false,
-          pointRadius: 0,
           data: smaData.map((item) => ({ x: item.date, y: item.sma })),
           yAxisID: "y",
         },
         {
           type: "line" as const,
           label: "EPS年增率",
-          backgroundColor: "rgb(0, 99, 232)",
+          backgroundColor: "rgb(7, 123, 242)",
           data: AllYearData.map((item) => ({
             x: item.calendarYear + "",
             // @ts-ignore
             y: +(item.revenue_year_pre * 100).toFixed(2),
           })),
-          borderColor: "rgb(0, 99, 232)",
-          borderWidth: 1,
+          borderColor: "rgb(7, 123, 242)",
+          borderWidth: 2,
           yAxisID: "y1",
           fill: false,
         },
@@ -375,16 +386,27 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
         }}
       >
         <Box bgcolor="#fff">
-          <PeriodController onChangePeriod={setPeriod} onChangeReportType={setReportType} />
+          <PeriodController
+            onChangePeriod={setPeriod}
+            onChangeReportType={setReportType}
+          />
           {reportType === PERIOD.QUARTER && (
             <Box height={510} bgcolor="#fff" pb={3}>
-              <ReactChart type="line" data={graphDataSets} options={graphConfig as any} />
+              <ReactChart
+                type="line"
+                data={graphDataSets}
+                options={graphConfig as any}
+              />
             </Box>
           )}
 
           {reportType === PERIOD.ANNUAL && (
             <Box height={510} bgcolor="#fff" pb={3}>
-              <ReactChart type="line" data={graphDataSets2} options={graphConfig as any} />
+              <ReactChart
+                type="line"
+                data={graphDataSets2}
+                options={graphConfig as any}
+              />
             </Box>
           )}
         </Box>
