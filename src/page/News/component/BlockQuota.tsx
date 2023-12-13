@@ -4,20 +4,13 @@ import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import { PERIOD } from "types/common";
 import { fetchCompanyRatios, fetchGrowthRates } from "api/common";
-import {
-  COLOR_BG_CONVERTER,
-  COLOR_TEXT_CONVERTER,
-  COLOR_TYPE,
-} from "types/global";
+import { COLOR_BG_CONVERTER, COLOR_TEXT_CONVERTER, COLOR_TYPE } from "types/global";
 import { IEaringPerShare } from "types/financial";
 
-function getAnnualNetIncomePerShareData(
-  rst: IEaringPerShare[],
-  field: keyof IEaringPerShare
-) {
+function getAnnualNetIncomePerShareData(rst: IEaringPerShare[], field: keyof IEaringPerShare) {
   const newNetIncomePerShare = rst.reduce(
     (sum, currentItem) => sum + (currentItem[field] as number),
-    0
+    0,
   );
   return newNetIncomePerShare;
 }
@@ -37,7 +30,7 @@ const BlockChild = ({
       p="12px"
       minWidth={100}
       height={64}
-      bgcolor={COLOR_BG_CONVERTER[color]}
+      bgcolor="#f8f8f8"
       display="flex"
       flexDirection="column"
       justifyContent="space-between"
@@ -47,7 +40,7 @@ const BlockChild = ({
         component="div"
         sx={{
           fontSize: "14px",
-          color: "#475467",
+          color: "rgb(67, 67, 67)",
           fontWeight: 400,
           lineHeight: "20px",
         }}
@@ -60,7 +53,7 @@ const BlockChild = ({
           fontSize: "24px",
           fontWeight: 600,
           lineHeight: "32px",
-          color: COLOR_TEXT_CONVERTER[color],
+          color: "rgb(35, 35, 35)",
         }}
       >
         {value}
@@ -133,23 +126,16 @@ export default function BlockQuota() {
             if (item.field === "netIncomePerShare") {
               value = getAnnualNetIncomePerShareData(
                 rst1 as unknown as IEaringPerShare[],
-                "netIncomePerShare"
+                "netIncomePerShare",
               );
               item.value = value ? value.toFixed(3) : "0";
             } else if (item.field === "roe") {
-              value = getAnnualNetIncomePerShareData(
-                rst1 as unknown as IEaringPerShare[],
-                "roe"
-              );
+              value = getAnnualNetIncomePerShareData(rst1 as unknown as IEaringPerShare[], "roe");
               item.value = value ? (value * 100).toFixed(3) : "0";
             } else {
               item.value = value ? value.toFixed(3) : "0";
             }
-            item.color = value
-              ? value > 0
-                ? COLOR_TYPE.UP
-                : COLOR_TYPE.DOWN
-              : COLOR_TYPE.DOWN;
+            item.color = value ? (value > 0 ? COLOR_TYPE.UP : COLOR_TYPE.DOWN) : COLOR_TYPE.DOWN;
           });
         }
         if (rst2 && rst2[0]) {
@@ -157,9 +143,7 @@ export default function BlockQuota() {
           values[index].value = rst2[0]?.growthRevenue.toFixed(3);
           values[index].title = `${rst2[0]?.period}營收YOY`;
           values[index].color =
-            parseFloat(values[index].value) > 0
-              ? COLOR_TYPE.UP
-              : COLOR_TYPE.DOWN;
+            parseFloat(values[index].value) > 0 ? COLOR_TYPE.UP : COLOR_TYPE.DOWN;
         }
         return values;
       });
