@@ -42,7 +42,6 @@ export default function EarningsPerShare() {
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}
-            // domLayout="autoHeight"
           />
         </Box>
       </TagCard>
