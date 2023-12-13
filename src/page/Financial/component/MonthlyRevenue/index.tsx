@@ -1,5 +1,5 @@
 import { Stack, Box } from "@mui/material";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import TagCard from "../../../../component/tabCard";
 import MonthlyIncomeChart from "./MonthlyGraph";
 import PerStockIncomeChart from "./PerIncomeGraph";
@@ -10,9 +10,18 @@ export default function EarningsPerShare() {
   const [graphData1, setGraphData1] = useState<any[][]>([]);
   const [graphData2, setGraphData2] = useState<any[][]>([]);
 
+  const gridref = useRef<AgGridReact>(null);
+
   const [columnHeaders, rowData] = useMemo(() => {
     return tabIndex === 0 ? graphData1 : graphData2;
   }, [tabIndex, graphData1, graphData2]);
+
+  useEffect(() => {
+    if (gridref.current && columnHeaders?.length) {
+      const lastRowIndex = columnHeaders[columnHeaders.length - 1];
+      gridref.current.api.ensureColumnVisible(lastRowIndex.field, "end");
+    }
+  }, [columnHeaders]);
 
   return (
     <Stack rowGap={1}>
@@ -38,6 +47,7 @@ export default function EarningsPerShare() {
         >
           <AgGridReact
             rowData={rowData || []}
+            ref={gridref}
             columnDefs={(columnHeaders as any) || []}
             defaultColDef={{
               resizable: false,

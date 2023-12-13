@@ -39,11 +39,7 @@ export const GRAPH_TABLE_FIELDS = [
   },
 ];
 
-export default function MonthlyGraph({
-  getGraphData,
-}: {
-  getGraphData: (data: any[][]) => void;
-}) {
+export default function MonthlyGraph({ getGraphData }: { getGraphData: (data: any[][]) => void }) {
   const chartRef = useRef<Chart>();
   const stock = useRecoilValue(currentStock);
   const [period, setPeriod] = useState(PERIOD_YEAR[0].value);
@@ -52,7 +48,7 @@ export default function MonthlyGraph({
   const updateGraph = (
     data: IGraphField[],
     fields: { field: string; headerName: string }[],
-    dataIndex: number
+    dataIndex: number,
   ) => {
     if (chartRef.current) {
       const labels = data.map((item) => item.date);
@@ -60,7 +56,7 @@ export default function MonthlyGraph({
       fields.forEach(async ({ field }) => {
         if (chartRef.current) {
           chartRef.current.data.datasets[dataIndex].data = data.map(
-            (item) => +item[field as keyof IGraphField]
+            (item) => +item[field as keyof IGraphField],
           );
         }
       });
@@ -110,9 +106,7 @@ export default function MonthlyGraph({
   const cateGrowthRate = (data: any[], fieldValue: any) => {
     const prev =
       data.find(
-        (item) =>
-          moment(fieldValue.date).subtract(1, "year").format("YYYY-MM-DD") ===
-          item.date
+        (item) => moment(fieldValue.date).subtract(1, "year").format("YYYY-MM-DD") === item.date,
       )?.revenue || 1;
 
     if (!prev) {
@@ -131,7 +125,7 @@ export default function MonthlyGraph({
     if (rst) {
       const graphData = rst.map((item, index) => {
         return {
-          date: item.date,
+          date: moment(item.date).format("YYYY-MM"),
           revenue: item.revenue / 1000,
           sma: 0,
           growthByYearRate: index < 12 ? 1 : cateGrowthRate(rst, item),
