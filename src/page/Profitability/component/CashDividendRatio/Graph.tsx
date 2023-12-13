@@ -29,7 +29,11 @@ const genStartDate = (years: number) => {
   return moment().subtract(years, "years").startOf("year").format("YYYY-MM-DD");
 };
 
-export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) => void }) {
+export default function Graph({
+  getGraphData,
+}: {
+  getGraphData: (data: any[][]) => void;
+}) {
   const chartRef = useRef<Chart>();
   const stock = useRecoilValue(currentStock);
   const [period, setPeriod] = useState(3);
@@ -43,7 +47,9 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
       GRAPH_FIELDS.forEach(async ({ field }, index) => {
         if (chartRef.current) {
           chartRef.current.data.datasets[index].data = data.map(
-            (item) => +item[field as keyof IProfitRatio] * (field === "payoutRatio" ? 100 : 1),
+            (item) =>
+              +item[field as keyof IProfitRatio] *
+              (field === "payoutRatio" ? 100 : 1)
           );
         }
       });
@@ -67,7 +73,9 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
     data?.forEach((item) => {
       columnHeaders.push({
         field:
-          reportType === PERIOD.QUARTER ? `${item.calendarYear}-${item.period}` : item.calendarYear,
+          reportType === PERIOD.QUARTER
+            ? `${item.calendarYear}-${item.period}`
+            : item.calendarYear,
       });
     });
 
@@ -77,7 +85,9 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
       };
       data?.forEach((item) => {
         if (reportType === PERIOD.ANNUAL) {
-          dataSources[item.calendarYear] = (+item[field as keyof IProfitRatio] * 100).toFixed(2);
+          dataSources[item.calendarYear] = (
+            +item[field as keyof IProfitRatio] * 100
+          ).toFixed(2);
         } else {
           dataSources[`${item.calendarYear}-${item.period}`] = (
             +item[field as keyof IProfitRatio] * 100
@@ -92,7 +102,11 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
   const fetchGraphData = useCallback(async () => {
     const limit = getDataLimit(reportType, period);
     const startDate = genStartDate(period);
-    const rst = await fetchProfitRatio<IProfitRatio[]>(stock.Symbol, reportType, limit);
+    const rst = await fetchProfitRatio<IProfitRatio[]>(
+      stock.Symbol,
+      reportType,
+      limit
+    );
     const rst2 = await fetchFindMindAPI<IDividendPolicyItem[]>({
       data_id: stock.No,
       dataset: "TaiwanStockDividend",
@@ -108,6 +122,9 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
             //@ts-ignore
             item.payoutRatio1 = target.CashEarningsDistribution;
           }
+          item.date = moment(item.date, "YYYY-MM-DD")
+            .startOf("quarter")
+            .format("YYYY-MM-DD");
         });
       }
       updateGraph(rst);
@@ -121,9 +138,17 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
 
   return (
     <>
-      <PeriodController onChangePeriod={setPeriod} onChangeReportType={setReportType} />
+      <PeriodController
+        onChangePeriod={setPeriod}
+        onChangeReportType={setReportType}
+      />
       <Box height={510} bgcolor="#fff" pb={3}>
-        <ReactChart type="line" data={labelDataSets} options={graphConfig as any} ref={chartRef} />
+        <ReactChart
+          type="line"
+          data={labelDataSets}
+          options={graphConfig as any}
+          ref={chartRef}
+        />
       </Box>
     </>
   );

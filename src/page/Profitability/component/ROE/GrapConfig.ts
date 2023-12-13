@@ -4,18 +4,18 @@ export const labelDataSets = {
     {
       label: "ROE",
       data: [],
-      borderColor: "rgb(232,175,0)",
-      backgroundColor: "rgb(232,175,0)",
-      borderWidth: 1,
+      borderColor: "#e8af02",
+      backgroundColor: "#e8af02",
+      borderWidth: 2,
       yAxisID: "y",
       fill: false,
     },
     {
       label: "ROA",
       data: [],
-      backgroundColor: "rgba(237, 88, 157, 0.15)",
-      borderColor: "rgba(237, 88, 157, 0.35)",
-      borderWidth: 1,
+      backgroundColor: "#0586f4",
+      borderColor: "#0586f4",
+      borderWidth: 2,
       yAxisID: "y",
       fill: false,
     },
@@ -37,7 +37,7 @@ export const graphConfig = {
       type: "time",
       time: {
         unit: "year",
-        tooltipFormat: "YYYY/MM",
+        tooltipFormat: "YYYY-[Q]Q",
       },
     },
     y: {

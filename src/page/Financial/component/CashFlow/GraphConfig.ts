@@ -1,5 +1,3 @@
-import moment from "moment";
-
 export const GRAPH_DATA = {
   labels: [],
   datasets: [
@@ -8,7 +6,7 @@ export const GRAPH_DATA = {
       data: [],
       borderColor: "rgb(232,175,0)",
       backgroundColor: "rgb(232,175,0)",
-      borderWidth: 1,
+      borderWidth: 2,
       yAxisID: "y",
       fill: false,
     },
@@ -17,7 +15,7 @@ export const GRAPH_DATA = {
       data: [],
       backgroundColor: "#dc3911",
       borderColor: "#dc3911",
-      borderWidth: 1,
+      borderWidth: 2,
       yAxisID: "y",
       fill: false,
     },
@@ -26,7 +24,7 @@ export const GRAPH_DATA = {
       data: [],
       borderColor: "#0586f4",
       backgroundColor: "#0586f4",
-      borderWidth: 1,
+      borderWidth: 2,
       yAxisID: "y",
       fill: false,
     },
@@ -35,7 +33,7 @@ export const GRAPH_DATA = {
       data: [],
       borderColor: "#0f9617",
       backgroundColor: "#0f9617",
-      borderWidth: 1,
+      borderWidth: 2,
       yAxisID: "y",
       fill: false,
     },
@@ -44,7 +42,7 @@ export const GRAPH_DATA = {
       data: [],
       borderColor: "#b98c01",
       backgroundColor: "#b98c01",
-      borderWidth: 1,
+      borderWidth: 2,
       yAxisID: "y",
       fill: false,
     },

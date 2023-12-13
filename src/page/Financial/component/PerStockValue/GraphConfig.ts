@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export const labelDataSets = {
   datasets: [
     {
@@ -17,7 +19,7 @@ export const labelDataSets = {
       data: [],
       borderColor: "#EB5757",
       backgroundColor: "#EB5757",
-      borderWidth: 1,
+      borderWidth: 2,
       yAxisID: "y",
       fill: false,
       order: 1,
@@ -32,6 +34,17 @@ export const OPTIONS = {
   plugins: {
     legend: {
       position: "bottom",
+    },
+    tooltip: {
+      callbacks: {
+        title: function (context: any) {
+          if (context[0]?.dataset?.yAxisID === "y1") {
+            return moment(context[0].raw.x, "YYYY-MM-DD")
+              .format("YYYYY-[Q]Q");
+          }
+          return context[0]?.label;
+        },
+      },
     },
   },
   elements: {

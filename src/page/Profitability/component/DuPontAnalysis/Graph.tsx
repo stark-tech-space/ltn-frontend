@@ -13,6 +13,7 @@ import {
 } from "types/profitability";
 import PeriodController from "component/PeriodController";
 import type { Chart } from "chart.js";
+import moment from "moment";
 
 interface IComposedData {
   netProfitMargin: number;
@@ -128,7 +129,9 @@ export default function Graph({
     if (data1 && data2) {
       const composeData = data1.map((item, index) => {
         return {
-          date: item.date,
+          date: moment(item.date, "YYYY-MM-DD")
+            .startOf("quarter")
+            .format("YYYY-MM-DD"),
           period: item.period,
           calendarYear: item.calendarYear,
           netProfitMargin: item.netProfitMargin,

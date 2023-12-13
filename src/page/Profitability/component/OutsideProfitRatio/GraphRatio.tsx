@@ -10,6 +10,7 @@ import { currentStock } from "recoil/selector";
 import { IOutsideProfitRatio, IPreTaxIncome } from "types/profitability";
 import PeriodController from "component/PeriodController";
 import { fetchFindMindAPI } from "api/common";
+import moment from "moment";
 
 export const GRAPH_FIELDS = [
   {
@@ -36,7 +37,7 @@ export default function GraphSingleRatio({
       GRAPH_FIELDS.forEach(async ({ field }, index) => {
         if (chartRef.current) {
           chartRef.current.data.datasets[index].data = data.map(
-            (item) => +item[field as keyof IOutsideProfitRatio] * 100,
+            (item) => +item[field as keyof IOutsideProfitRatio] * 100
           );
         }
       });
@@ -60,7 +61,9 @@ export default function GraphSingleRatio({
     data?.forEach((item) => {
       columnHeaders.push({
         field:
-          reportType === PERIOD.QUARTER ? `${item.calendarYear}-${item.period}` : item.calendarYear,
+          reportType === PERIOD.QUARTER
+            ? moment(item.date).format("YYYY-[Q]Q")
+            : item.calendarYear,
       });
     });
 
@@ -74,7 +77,7 @@ export default function GraphSingleRatio({
             +item[field as keyof IOutsideProfitRatio] * 100
           ).toFixed(2);
         } else {
-          dataSources[`${item.calendarYear}-${item.period}`] = (
+          dataSources[moment(item.date).format("YYYY-[Q]Q")] = (
             +item[field as keyof IOutsideProfitRatio] * 100
           ).toFixed(2);
         }
@@ -91,15 +94,24 @@ export default function GraphSingleRatio({
       start_date: getBeforeYears(period),
     });
     if (rst) {
-      let allValues = rst.filter((item) => item.type === "TotalNonoperatingIncomeAndExpense");
+      let allValues = rst.filter(
+        (item) => item.type === "TotalNonoperatingIncomeAndExpense"
+      );
       let preTaxIncome = rst.filter((item) => item.type === "PreTaxIncome");
-      const newAllValues = allValues.map(findMindDataToFmpData) as unknown as IOutsideProfitRatio[];
-      const newPreTaxIncome = preTaxIncome.map(findMindDataToFmpData) as unknown as IPreTaxIncome[];
+      const newAllValues = allValues.map(
+        findMindDataToFmpData
+      ) as unknown as IOutsideProfitRatio[];
+      const newPreTaxIncome = preTaxIncome.map(
+        findMindDataToFmpData
+      ) as unknown as IPreTaxIncome[];
       newAllValues.forEach((item, index) => {
+        item.date = moment(item.date, "YYYY-MM-DD")
+          .startOf("quarter")
+          .format("YYYY-MM-DD");
         item.TotalNonoperatingIncomeAndExpense =
-          +item.TotalNonoperatingIncomeAndExpense / +newPreTaxIncome[index].PreTaxIncome;
+          +item.TotalNonoperatingIncomeAndExpense /
+          +newPreTaxIncome[index].PreTaxIncome;
       });
-      console.log(newAllValues);
       updateGraph(newAllValues);
       getGraphData(genGraphTableData(newAllValues));
     }
@@ -117,7 +129,12 @@ export default function GraphSingleRatio({
         showReportType={false}
       />
       <Box height={510} bgcolor="#fff" pb={3}>
-        <ReactChart type="line" data={labelDataSets} options={graphConfig as any} ref={chartRef} />
+        <ReactChart
+          type="line"
+          data={labelDataSets}
+          options={graphConfig as any}
+          ref={chartRef}
+        />
       </Box>
     </>
   );

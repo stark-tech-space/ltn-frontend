@@ -10,6 +10,7 @@ import { currentStock } from "recoil/selector";
 import { ISecurityRatio } from "types/security";
 import PeriodController from "component/PeriodController";
 import { fetchSecurityRatio } from "api/security";
+import moment from "moment";
 
 export const GRAPH_FIELDS = [
   {
@@ -95,8 +96,14 @@ export default function GraphDebt({
       limit
     );
     if (rst) {
-      updateGraph(rst);
-      getGraphData(genGraphTableData(rst));
+      const data = rst.map((item) => ({
+        ...item,
+        date: moment(item.date, "YYYY-MM-DD")
+          .startOf("quarter")
+          .format("YYYY-MM-DD"),
+      }));
+      updateGraph(data);
+      getGraphData(genGraphTableData(data));
     }
   }, [stock, period, reportType, getGraphData]);
 

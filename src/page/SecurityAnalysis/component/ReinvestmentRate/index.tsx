@@ -5,7 +5,10 @@ import { Chart as ReactChart } from "react-chartjs-2";
 import { Chart } from "chart.js";
 
 import TagCard from "../../../../component/tabCard";
-import { REINVESTMENT_RATE_DATASET, REINVESTMENT_RATE_GRAPH_CONFIG } from "./GrapConfig";
+import {
+  REINVESTMENT_RATE_DATASET,
+  REINVESTMENT_RATE_GRAPH_CONFIG,
+} from "./GrapConfig";
 import { PERIOD } from "types/common";
 
 import { currentStock } from "recoil/selector";
@@ -18,6 +21,8 @@ import { fetchIncomeStatement } from "api/financial";
 import { IIncomeStatements } from "types/financial";
 import { fetchSecurityBalanceSheetStatement } from "api/security";
 import { IBalanceSheetStatement } from "types/news";
+import WrappedAgGrid from "component/WrappedAgGrid";
+import moment from "moment";
 
 const GRAPH_FIELDS = [
   {
@@ -47,14 +52,17 @@ export default function ReinvestmentRate() {
   }, [incomeData]);
 
   const dataByYear = useMemo(() => {
-    return Object.fromEntries(data.map((line) => [`${line.calendarYear}-${line.period}`, line]));
+    return Object.fromEntries(
+      data.map((line) => [`${line.calendarYear}-${line.period}`, line])
+    );
   }, [data]);
 
   const RIR = useMemo(() => {
     const totalData = data
       .map((item) => {
         const period = `${item.calendarYear}-${item.period}`;
-        const fourYearBeforeData = dataByYear[`${Number(item.calendarYear) - 4}-${item.period}`];
+        const fourYearBeforeData =
+          dataByYear[`${Number(item.calendarYear) - 4}-${item.period}`];
         if (!fourYearBeforeData || netIncomeSummaryOf16Period[period] <= 0) {
           return { period, date: item.date, value: NaN };
         }
@@ -76,7 +84,9 @@ export default function ReinvestmentRate() {
     return totalData.slice(0, period * 4);
   }, [data, dataByYear, netIncomeSummaryOf16Period, period]);
 
-  const updateGraph = (data: { period: string; date: string; value: number }[]) => {
+  const updateGraph = (
+    data: { period: string; date: string; value: number }[]
+  ) => {
     if (chartRef.current) {
       const labels = data.map((item) => item.date);
       chartRef.current.data.labels = labels;
@@ -133,17 +143,31 @@ export default function ReinvestmentRate() {
       limit
     ).then((rst) => {
       if (rst) {
-        setData(rst || []);
+        const data = rst.map((item) => ({
+          ...item,
+          date: moment(item.date, "YYYY-MM-DD")
+            .startOf("quarter")
+            .format("YYYY-MM-DD"),
+        }));
+        setData(data || []);
       }
     });
 
     // 需要再往前拿16季（4年）
     const incomeLimit = getDataLimit(PERIOD.QUARTER, period + 4);
-    fetchIncomeStatement(stock.Symbol, PERIOD.QUARTER, incomeLimit).then((rst) => {
-      if (rst) {
-        setIncomeData(rst || []);
+    fetchIncomeStatement(stock.Symbol, PERIOD.QUARTER, incomeLimit).then(
+      (rst) => {
+        if (rst) {
+          const data = rst.map((item) => ({
+            ...item,
+            date: moment(item.date, "YYYY-MM-DD")
+              .startOf("quarter")
+              .format("YYYY-MM-DD"),
+          }));
+          setIncomeData(data || []);
+        }
       }
-    });
+    );
   }, [stock.Symbol, period]);
 
   useEffect(() => {
@@ -171,7 +195,7 @@ export default function ReinvestmentRate() {
             paddingBottom: "24px",
           }}
         >
-          <AgGridReact
+          <WrappedAgGrid
             rowData={tableRowData}
             columnDefs={columnHeaders as any}
             defaultColDef={{
@@ -179,9 +203,7 @@ export default function ReinvestmentRate() {
               initialWidth: 200,
               wrapHeaderText: true,
               autoHeaderHeight: true,
-              // flex: 1,
             }}
-            domLayout="autoHeight"
           />
         </Box>
       </TagCard>

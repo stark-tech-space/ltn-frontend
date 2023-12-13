@@ -10,6 +10,7 @@ import { currentStock } from "recoil/selector";
 import PeriodController from "component/PeriodController";
 import { fetchCashFlowStatement } from "api/cashflow";
 import { ICashFLowItem } from "types/cashflow";
+import moment from "moment";
 
 export const GRAPH_FIELDS = [
   {
@@ -94,7 +95,9 @@ export default function GraphOperatNetIncomeRate({
     const rst = await fetchCashFlowStatement(stock.Symbol, reportType, limit);
     if (rst) {
       const graphData = rst.map((item) => ({
-        date: item.date,
+        date: moment(item.date, "YYYY-MM-DD")
+          .startOf("quarter")
+          .format("YYYY-MM-DD"),
         operatingCashFlowRate:
           item.netCashProvidedByOperatingActivities / item.netIncome,
       }));

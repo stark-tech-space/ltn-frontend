@@ -99,7 +99,7 @@ export const genFullDateObject = (time: string) => {
     calendarYear: m.format("YYYY"),
     month: m.format("MM"),
     quarter: m.quarter(),
-    period: m.format("YYYY") + "Q" + m.quarter(),
+    period: m.format("YYYY-[Q]Q"),
   };
 };
 
