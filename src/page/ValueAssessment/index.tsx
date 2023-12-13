@@ -15,12 +15,12 @@ import { useActiveTabElement } from "Hooks/common";
 
 const CHILDREN_MAP: Record<VALUE_ASSESS_PAGE_ENUM, React.ReactNode> = {
   [VALUE_ASSESS_PAGE_ENUM.PAGE1]: <PriceEarningsRatio />,
-  [VALUE_ASSESS_PAGE_ENUM.PAGE2]: <Developing />,
+  // [VALUE_ASSESS_PAGE_ENUM.PAGE2]: <Developing />,
   [VALUE_ASSESS_PAGE_ENUM.PAGE3]: <PriceToBookRatio />,
-  [VALUE_ASSESS_PAGE_ENUM.PAGE4]: <Developing />,
+  // [VALUE_ASSESS_PAGE_ENUM.PAGE4]: <Developing />,
   [VALUE_ASSESS_PAGE_ENUM.PAGE5]: <CashDividend />,
   [VALUE_ASSESS_PAGE_ENUM.PAGE6]: <AvgCashDividend />,
-  [VALUE_ASSESS_PAGE_ENUM.PAGE7]: <Developing />,
+  // [VALUE_ASSESS_PAGE_ENUM.PAGE7]: <Developing />,
 };
 //
 export default function ValueAssessmentPage() {
