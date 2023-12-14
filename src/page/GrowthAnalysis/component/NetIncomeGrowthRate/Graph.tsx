@@ -13,6 +13,7 @@ import TagCard from "component/tabCard";
 import { findMindDataToFmpData, getBeforeYears, getDataLimit } from "until";
 import { minBy, maxBy } from "lodash";
 import numeral from "numeral";
+import UnAvailable from "component/UnAvailable";
 
 interface ISma {
   date: string;
@@ -165,6 +166,7 @@ export default function Graph({
   const [title, setTitle] = useState("單季稅後淨利年增率");
   const [subTitle, setSubTitle] = useState("近4季稅後淨利年增率");
   const [type, setType] = useState(1);
+  const [isUnlivable, setIsUnlivable] = useState(false);
 
   const changeType = (value: number) => {
     setTitle(changeINfo[value].label);
@@ -259,6 +261,9 @@ export default function Graph({
       const realData = data.filter(
         (item: any) => item.IncomeAfterTaxes && item.IncomeAfterTaxes !== 0
       );
+      if (realData && realData.length === 0) {
+        setIsUnlivable(true);
+      }
       const newData = generateGraphData(realData, limit);
       setGraphData(newData);
     }
@@ -393,6 +398,10 @@ export default function Graph({
   useEffect(() => {
     getGraphData(genGraphTableData(graphData));
   }, [graphData, type, reportType, AllYearData]);
+
+  if (isUnlivable) {
+    return <UnAvailable />;
+  }
 
   return (
     <>

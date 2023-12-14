@@ -75,7 +75,6 @@ function generateGraphData(data: IMonthlyRevenueGrowth[], limit: number) {
     },
     {}
   );
-  console.log("dataByYear", dataByYear);
   const result = [];
 
   for (const year in dataByYear) {
@@ -262,7 +261,6 @@ export default function Graph({
       const realData = data.filter(
         (item: any) => item?.GrossProfit && item.GrossProfit !== 0
       );
-      console.log("realData", realData);
       if (!realData || (realData && realData.length === 0)) {
         setIsUnAvailable(true);
       }
