@@ -56,7 +56,7 @@ export default function PerStockIncomeChart({
   const updateGraph = (
     data: IGraphField[],
     fields: { field: string; headerName: string }[],
-    dataIndex: number,
+    dataIndex: number
   ) => {
     if (chartRef.current) {
       const labels = data.map((item) => item.date);
@@ -64,7 +64,7 @@ export default function PerStockIncomeChart({
       fields.forEach(async ({ field }) => {
         if (chartRef.current) {
           chartRef.current.data.datasets[dataIndex].data = data.map(
-            (item) => +item[field as keyof IGraphField],
+            (item) => +item[field as keyof IGraphField]
           );
         }
       });
@@ -99,7 +99,9 @@ export default function PerStockIncomeChart({
         if (field === "growthByMonthRate") {
           dataSources[item.date] = item.growthByMonthRate;
         } else {
-          dataSources[item.date] = item[field] ? item[field as keyof IGraphField] : 0;
+          dataSources[item.date] = item[field]
+            ? item[field as keyof IGraphField]
+            : 0;
         }
       });
       rowData.push(dataSources);
@@ -116,8 +118,11 @@ export default function PerStockIncomeChart({
 
     if (rst) {
       const graphData = rst.map((item) => {
+        const dateMoment = moment(item.date).subtract(1, "day");
         return {
-          date: item.date,
+          date: dateMoment.format("YYYY-MM-DD"),
+          year: dateMoment.format("YYYY"),
+          month: dateMoment.format("MM"),
           revenue: item.revenue,
           sma: 0,
         };
@@ -132,20 +137,28 @@ export default function PerStockIncomeChart({
 
   useEffect(() => {
     if (graphData.length > 0) {
-      const data = graphData.map((graphItem) => {
-        const avgStockCount = getStockCountByDate(graphItem.date);
-        return {
-          date: graphItem.date,
-          sma: 0,
-          revenue: avgStockCount ? +(graphItem.revenue / avgStockCount.StockCount).toFixed(2) : 0,
-          growthByMonthRate: 0,
-        };
-      });
+      const data = graphData
+        .map((graphItem) => {
+          const avgStockCount = getStockCountByDate(graphItem.date);
+
+          return {
+            date: graphItem.date,
+            sma: 0,
+            revenue: avgStockCount
+              ? +(graphItem.revenue / avgStockCount.StockCount).toFixed(2)
+              : 0,
+            growthByMonthRate: 0,
+          };
+        })
+        .filter(({ revenue }) => revenue);
       const rst = data.map((item, index) => {
         const prevMonthRevenue = index < 12 ? 1 : data[index - 1]?.revenue;
         let growthByMonthRate = 0;
         if (prevMonthRevenue && item.revenue) {
-          growthByMonthRate = +((item.revenue / prevMonthRevenue - 1) * 100).toFixed(2);
+          growthByMonthRate = +(
+            (item.revenue / prevMonthRevenue - 1) *
+            100
+          ).toFixed(2);
         }
         return {
           ...item,
@@ -153,14 +166,14 @@ export default function PerStockIncomeChart({
           growthByMonthRate: index < 12 ? 1 : growthByMonthRate,
         };
       });
-      updateGraph(rst.slice(12), GRAPH_FIELDS.slice(0, 1), 0);
+      updateGraph(rst.slice(12), GRAPH_FIELDS.slice(0, 1), 1);
       getGraphData(genGraphTableData(rst.slice(12)));
     }
   }, [graphData, getStockCountByDate, getGraphData]);
 
   useEffect(() => {
     if (avgPrice.length > 0) {
-      updateGraph(avgPrice.slice(12) as IGraphField[], GRAPH_FIELDS, 1);
+      updateGraph(avgPrice.slice(12) as IGraphField[], GRAPH_FIELDS, 0);
     }
   }, [avgPrice]);
 
