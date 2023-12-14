@@ -49,7 +49,13 @@ export type IncomeType =
   // 税后淨利
   | 'IncomeAfterTaxes'
   // 母公司
-  | 'EquityAttributableToOwnersOfParent';
+  | 'EquityAttributableToOwnersOfParent'
+  // 呆帳費用、承諾及保證責任準備提存
+  | 'BadDebts'
+  // 保險負債準備淨變動
+  | 'NetChangeInProvisionsForInsuranceLiabilities'
+  // 營業費用
+  | 'OperatingExpenses';
 
 export interface IIncome extends IFinMindApiResponse {
   data: {
