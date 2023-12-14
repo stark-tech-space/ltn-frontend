@@ -5,6 +5,7 @@ import TagCard from "../../../../component/tabCard";
 import { AgGridReact } from "ag-grid-react";
 import GraphDebt from "./GraphDebt";
 import GraphDebtAssets from "./GraphDebtAssets";
+import WrappedAgGrid from "component/WrappedAgGrid";
 
 export default function StructureRatio() {
   const [tabIndex, setTabIndex] = useState(0);
@@ -39,7 +40,7 @@ export default function StructureRatio() {
             paddingBottom: "24px",
           }}
         >
-          <AgGridReact
+          <WrappedAgGrid
             rowData={rowData}
             columnDefs={columnHeaders as any}
             defaultColDef={{
@@ -48,7 +49,6 @@ export default function StructureRatio() {
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}
-            domLayout="autoHeight"
           />
         </Box>
       </TagCard>

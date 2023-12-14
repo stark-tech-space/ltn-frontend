@@ -1,12 +1,4 @@
-import {
-  Box,
-  Button,
-  Divider,
-  Stack,
-  styled,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, Button, Divider, Stack, styled, useMediaQuery, useTheme } from "@mui/material";
 import { Link } from "react-router-dom";
 import logoAssets from "../../assets/logo.svg";
 import AddIcon from "@mui/icons-material/Add";
@@ -55,14 +47,11 @@ export default function AppHeader() {
             lg: 4,
           }}
         >
-          <StyledLogo
-            to="/"
-            sx={{ display: isMobile ? "none" : "inline-block" }}
-          />
+          <StyledLogo to="/" sx={{ display: isMobile ? "none" : "inline-block" }} />
           <SearchStockTextField />
         </Stack>
         <MenuDrawer />
-        <Stack
+        {/* <Stack
           flexDirection="row"
           alignItems="center"
           columnGap={2}
@@ -77,7 +66,7 @@ export default function AppHeader() {
             }}
           />
           <Button color="primary">登入</Button>
-        </Stack>
+        </Stack> */}
       </Stack>
       <Stack
         flexDirection="row"
@@ -98,7 +87,7 @@ export default function AppHeader() {
         }}
       >
         <TopStockBar />
-        <Button
+        {/* <Button
           variant="contained"
           sx={{
             background: "#405DF9",
@@ -119,7 +108,7 @@ export default function AppHeader() {
           startIcon={<AddIcon htmlColor="#fff" />}
         >
           追蹤
-        </Button>
+        </Button> */}
       </Stack>
       <NavTabs />
     </Box>

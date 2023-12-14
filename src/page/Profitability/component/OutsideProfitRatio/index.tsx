@@ -1,9 +1,9 @@
-import { Stack, Box, Button, ButtonGroup } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import { Stack, Box } from "@mui/material";
+import { useState } from "react";
 import TagCard from "../../../../component/tabCard";
 
-import { AgGridReact } from "ag-grid-react";
 import GraphRatio from "./GraphRatio";
+import WrappedAgGrid from "component/WrappedAgGrid";
 
 export default function OutSideProfitRatio() {
   const [tabIndex, setTabIndex] = useState(0);
@@ -24,7 +24,7 @@ export default function OutSideProfitRatio() {
             paddingBottom: "24px",
           }}
         >
-          <AgGridReact
+          <WrappedAgGrid
             rowData={rowData}
             columnDefs={columnHeaders as any}
             defaultColDef={{
@@ -34,7 +34,6 @@ export default function OutSideProfitRatio() {
               autoHeaderHeight: true,
               // flex: 1,
             }}
-            domLayout="autoHeight"
           />
         </Box>
       </TagCard>

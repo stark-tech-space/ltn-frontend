@@ -6,7 +6,7 @@ import { PERIOD_YEAR, PERIOD, PERIOD_TYPE } from "types/common";
 export default function PeriodController({
   onChangePeriod,
   onChangeReportType,
-  showReportType = true,
+  showReportType = false,
   showMonthType = false,
 }: {
   showReportType?: boolean;

@@ -3,6 +3,7 @@ import { useState } from "react";
 import TagCard from "../../../../component/tabCard";
 import { AgGridReact } from "ag-grid-react";
 import Graph from "./Graph";
+import WrappedAgGrid from "component/WrappedAgGrid";
 
 export default function NetIncomeGrowthRate() {
   const [graphData, setGraphData] = useState<any[][]>([]);
@@ -17,7 +18,7 @@ export default function NetIncomeGrowthRate() {
             paddingBottom: "24px",
           }}
         >
-          <AgGridReact
+          <WrappedAgGrid
             rowData={rowData}
             columnDefs={columnHeaders as any}
             defaultColDef={{
@@ -27,7 +28,6 @@ export default function NetIncomeGrowthRate() {
               autoHeaderHeight: true,
               flex: 1,
             }}
-            domLayout="autoHeight"
           />
         </Box>
       </TagCard>

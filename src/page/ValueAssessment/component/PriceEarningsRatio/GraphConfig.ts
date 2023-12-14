@@ -1,3 +1,4 @@
+import moment from "moment";
 export const labelDataSets = {
   labels: [],
   datasets: [
@@ -5,22 +6,23 @@ export const labelDataSets = {
       type: "line" as const,
       label: "本益比",
       data: [],
-      borderColor: "rgb(232,175,0)",
-      backgroundColor: "rgb(232,175,0)",
-      borderWidth: 1,
+      borderColor: "rgb(229,166,0)",
+      backgroundColor: "rgb(229,166,0)",
+      borderWidth: 2,
       yAxisID: "y1",
       fill: false,
+      tension: 0,
     },
     {
       type: "line" as const,
       label: "月均價",
-      backgroundColor: "#EB5757",
+      backgroundColor: "rgb(196,66,66)",
       data: [],
-      pointRadius: 0,
-      borderColor: "#EB5757",
-      borderWidth: 1,
+      borderColor: "rgb(196,66,66)",
+      borderWidth: 2,
       yAxisID: "y",
       fill: false,
+      tension: 0.4,
     },
   ],
 };
@@ -32,10 +34,18 @@ export const graphConfig = {
     legend: {
       position: "bottom",
     },
-  },
-  elements: {
-    line: {
-      tension: 0.4,
+    tooltip: {
+      callbacks: {
+        title: function (context: any) {
+          if (context[0]?.dataset?.yAxisID === "y1") {
+            return moment(context[0].raw.x, "YYYY-MM-DD")
+              .format("YYYY-Q")
+              .split("-")
+              .join("-Q");
+          }
+          return context[0]?.label || "";
+        },
+      },
     },
   },
   scales: {

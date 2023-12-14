@@ -14,6 +14,7 @@ import { IValueAssessment } from "types/valueAssessment";
 import { useAvgPriceByMonth } from "Hooks/common";
 import { minBy, maxBy } from "lodash";
 import moment from "moment";
+import numeral from "numeral";
 
 interface IPriceEarningsFields extends IDateField {
   priceEarningsRatio: number;
@@ -36,7 +37,11 @@ export const GRAPH_FIELDS = [
   },
 ];
 
-export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) => void }) {
+export default function Graph({
+  getGraphData,
+}: {
+  getGraphData: (data: any[][]) => void;
+}) {
   const chartRef = useRef<Chart>();
   const stock = useRecoilValue(currentStock);
   const [period, setPeriod] = useState(3);
@@ -57,10 +62,12 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
             }));
           } else {
             // @ts-ignore
-            chartRef.current.data.datasets[index].data = smaData.map((item) => ({
-              x: item.date,
-              y: +item.sma,
-            }));
+            chartRef.current.data.datasets[index].data = smaData.map(
+              (item) => ({
+                x: item.date,
+                y: +item.sma,
+              })
+            );
           }
         }
       });
@@ -68,7 +75,10 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
     }
   };
 
-  const genGraphTableData = <T extends IPriceEarningsFields>(data: T[], smaData: ISma[]) => {
+  const genGraphTableData = <T extends IPriceEarningsFields>(
+    data: T[],
+    smaData: ISma[]
+  ) => {
     if (data.length === 0) {
       return [[], []];
     }
@@ -84,7 +94,9 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
     data?.forEach((item) => {
       columnHeaders.push({
         field:
-          reportType === PERIOD.QUARTER ? `${item.calendarYear}-${item.period}` : item.calendarYear,
+          reportType === PERIOD.QUARTER
+            ? `${item.calendarYear}-${item.period}`
+            : item.calendarYear,
       });
     });
 
@@ -95,11 +107,13 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
         };
         data?.forEach((item) => {
           if (reportType === PERIOD.ANNUAL) {
-            dataSources[item.calendarYear] = (+item[field as keyof T]).toFixed(2);
+            dataSources[item.calendarYear] = numeral(
+              item[field as keyof T]
+            ).format("0,0.00");
           } else {
-            dataSources[`${item.calendarYear}-${item.period}`] = (+item[field as keyof T]).toFixed(
-              2,
-            );
+            dataSources[`${item.calendarYear}-${item.period}`] = numeral(
+              item[field as keyof T]
+            ).format("0,0.00");
           }
         });
         rowData.push(dataSources);
@@ -110,10 +124,16 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
 
   const fetchGraphData = useCallback(async () => {
     const limit = getDataLimit(reportType, period);
-    const rst = await fetchProfitRatio<IValueAssessment[]>(stock.Symbol, reportType, limit);
+    const rst = await fetchProfitRatio<IValueAssessment[]>(
+      stock.Symbol,
+      reportType,
+      limit
+    );
     if (rst) {
       const data = rst.map((item) => ({
-        date: item.date,
+        date: moment(item.date, "YYYY-MM-DD")
+          .startOf("quarter")
+          .format("YYYY-MM-DD"),
         period: item.period,
         calendarYear: item.calendarYear,
         priceEarningsRatio: item.priceEarningsRatio,
@@ -131,7 +151,7 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
       .format("YYYY-MM-DD");
 
     const avgPrice = smaData.filter(
-      (item) => item.date > minDateInData && item.date <= maxDateInData,
+      (item) => item.date >= minDateInData && item.date <= maxDateInData
     );
 
     updateGraph(graphData, avgPrice);
@@ -150,9 +170,17 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
 
   return (
     <>
-      <PeriodController onChangePeriod={setPeriod} onChangeReportType={setReportType} />
+      <PeriodController
+        onChangePeriod={setPeriod}
+        onChangeReportType={setReportType}
+      />
       <Box height={510} bgcolor="#fff" pb={3}>
-        <ReactChart type="line" data={labelDataSets} options={graphConfig as any} ref={chartRef} />
+        <ReactChart
+          type="line"
+          data={labelDataSets}
+          options={graphConfig as any}
+          ref={chartRef}
+        />
       </Box>
     </>
   );

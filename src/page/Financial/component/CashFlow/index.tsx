@@ -14,6 +14,8 @@ import { PER_SHARE_OPTIONS, PER_SHARE_GRAPH_DATA } from "./GraphConfigPerShare";
 import { Chart as ReactChart } from "react-chartjs-2";
 import { ICashFLowItem } from "types/cashflow";
 import numeral from "numeral";
+import moment from "moment";
+import { useTable } from "Hooks/useTable";
 
 const GRAPH_FIELDS = [
   {
@@ -76,7 +78,7 @@ export default function CashFlow() {
     if (reportType === PERIOD.QUARTER) {
       return Object.fromEntries(
         stockCountByQuarterArray.map(({ date, StockCount }) => [
-          date,
+          moment(date).startOf("quarter").format("YYYY-MM-DD"),
           StockCount,
         ])
       );
@@ -103,9 +105,17 @@ export default function CashFlow() {
   const fetchGraphData = useCallback(async () => {
     const limit = getDataLimit(reportType, period);
     const rst = await fetchCashFlowStatement(stock.Symbol, reportType, limit);
+
     if (rst) {
-      setGraphData(rst);
-      updateGraph(rst);
+      const data = rst.map((item) => ({
+        ...item,
+        date: moment(item.date, "YYYY-MM-DD")
+          .startOf("quarter")
+          .format("YYYY-MM-DD"),
+      }));
+
+      setGraphData(data.reverse());
+      updateGraph(data);
     }
   }, [stock, period, reportType]);
 
@@ -219,7 +229,7 @@ export default function CashFlow() {
             dataSources[`${item.calendarYear}-${item.period}`] = numeral(
               Number(item[field as keyof ICashFLowItem]) /
                 (stockCountByPeriod[item.date] || 0)
-            ).format("0,0.000");
+            ).format("0,0.00");
           }
         });
         rowData.push(dataSources);
@@ -227,6 +237,11 @@ export default function CashFlow() {
     }
     return rowData;
   }, [graphData, reportType, tab, stockCountByPeriod]);
+
+  const gridRef = useRef<AgGridReact>(null);
+  const [gridReady, setGridReady] = useState(false);
+
+  useTable(gridRef, columnHeaders, gridReady);
 
   return (
     <Stack rowGap={1}>
@@ -283,6 +298,8 @@ export default function CashFlow() {
           }}
         >
           <AgGridReact
+            ref={gridRef}
+            onGridReady={() => setGridReady(true)}
             rowData={tableRowData}
             columnDefs={columnHeaders as any}
             domLayout="autoHeight"

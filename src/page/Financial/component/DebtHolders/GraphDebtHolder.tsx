@@ -11,6 +11,7 @@ import PeriodController from "component/PeriodController";
 import { fetchLiabilitiesAndEquity } from "api/financial";
 import { getDataLimit, ltnApiDataToFmpData } from "until";
 import numeral from "numeral";
+import moment from "moment";
 
 // 淨值：AccountsReceivableNet
 // 負載總：Liabilities
@@ -172,6 +173,7 @@ export default function GraphDebtHolder({
     if (data.length === 0) {
       return [[], []];
     }
+    data = data.reverse();
     const rowData: any[] = [];
     const columnHeaders: any[] = [
       {
@@ -185,7 +187,7 @@ export default function GraphDebtHolder({
       columnHeaders.push({
         field:
           reportType === PERIOD.QUARTER
-            ? `${item.calendarYear}-${item.period}`
+            ? `${moment(item.date).format("YYYY-[Q]Q")}`
             : `${item.calendarYear}`,
       });
     });
@@ -200,7 +202,7 @@ export default function GraphDebtHolder({
             "0,0",
           );
         } else {
-          dataSources[`${item.calendarYear}-${item.period}`] = numeral(
+          dataSources[`${moment(item.date).format("YYYY-[Q]Q")}`] = numeral(
             +item[field as keyof IProfitRatio],
           ).format("0,0");
         }
@@ -309,12 +311,13 @@ export default function GraphDebtHolder({
         const Liabilities = allTables.filter((item) => item.code === "2XXX")[0]?.value || 0;
         return {
           ...item,
+
           tables: allTables,
           CurrentLiabilities,
           LongtermBorrowings,
           AccountsReceivableNet,
           totalDebtAndNetValue,
-          date: allTables[0]?.date,
+          date: moment(allTables[0]?.date, "YYYY-MM-DD").startOf("quarter").format("YYYY-MM-DD"),
           calendarYear: allTables[0]?.calendarYear,
           period: allTables[0]?.period,
           ShorttermBorrowings,
@@ -452,7 +455,11 @@ export default function GraphDebtHolder({
 
   return (
     <>
-      <PeriodController onChangePeriod={setPeriod} onChangeReportType={setReportType} />
+      <PeriodController
+        onChangePeriod={setPeriod}
+        onChangeReportType={setReportType}
+        showReportType={false}
+      />
       <Box height={510} bgcolor="#fff" pb={3}>
         {tabIndex === 0 && (
           <ReactChart

@@ -5,8 +5,8 @@ export const labelDataSets = {
       type: "bar" as const,
       label: "現金股利",
       data: [],
-      borderColor: "rgb(232,175,0)",
-      backgroundColor: "rgb(232,175,0)",
+      borderColor: "#e8af02",
+      backgroundColor: "#f7dfab",
       borderWidth: 1,
       yAxisID: "y",
       fill: false,
@@ -15,10 +15,10 @@ export const labelDataSets = {
     {
       type: "line" as const,
       label: "現金股利發放率",
-      backgroundColor: "rgb(0, 99, 232, 0.55)",
+      backgroundColor: "#0586f4",
       data: [],
-      borderColor: "rgb(0, 99, 232, 0.85)",
-      borderWidth: 1,
+      borderColor: "#0586f4",
+      borderWidth: 2,
       yAxisID: "y1",
       fill: false,
       order: 1,
@@ -41,7 +41,7 @@ export const graphConfig = {
       type: "time",
       time: {
         unit: "year",
-        tooltipFormat: "YYYY/MM",
+        tooltipFormat: "YYYY-[Q]Q",
       },
     },
     y: {

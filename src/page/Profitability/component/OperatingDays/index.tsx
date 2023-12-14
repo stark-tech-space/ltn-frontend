@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Stack, Box } from "@mui/material";
-import { AgGridReact } from "ag-grid-react";
 import Graph from "./Graph";
 import TagCard from "../../../../component/tabCard";
+import WrappedAgGrid from "component/WrappedAgGrid";
 
 export default function OperatingDays() {
   const [graphData, setGraphData] = useState<any[][]>([[], []]);
@@ -20,7 +20,7 @@ export default function OperatingDays() {
             paddingBottom: "24px",
           }}
         >
-          <AgGridReact
+          <WrappedAgGrid
             rowData={rowData}
             columnDefs={columnHeaders as any}
             defaultColDef={{
@@ -28,9 +28,7 @@ export default function OperatingDays() {
               initialWidth: 200,
               wrapHeaderText: true,
               autoHeaderHeight: true,
-              // flex: 1,
             }}
-            domLayout="autoHeight"
           />
         </Box>
       </TagCard>

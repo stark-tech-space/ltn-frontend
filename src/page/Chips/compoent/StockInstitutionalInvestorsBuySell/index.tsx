@@ -2,9 +2,9 @@ import React from "react";
 import { Box, Stack } from "@mui/material";
 import { useMemo, useState } from "react";
 import TagCard from "component/tabCard";
-import { AgGridReact } from "ag-grid-react";
 import GraphForeignInvestorsSelf from "./GraphForeignInvestorsSelf";
-// import GraphForeignInvestors from "./GraphForeignInvestors";
+import GraphForeignInvestors from "./GraphForeignInvestors";
+import WrappedAgGrid from "component/WrappedAgGrid";
 
 export default function StockInstitutionalInvestorsBuySell() {
   // const [tabIndex, setTabIndex] = useState(0);
@@ -21,7 +21,7 @@ export default function StockInstitutionalInvestorsBuySell() {
 
       <TagCard tabs={["詳細數據"]}>
         <Box className="ag-theme-alpine" pb={3}>
-          <AgGridReact
+          <WrappedAgGrid
             rowData={rowData}
             columnDefs={columnHeader}
             defaultColDef={{
@@ -30,7 +30,6 @@ export default function StockInstitutionalInvestorsBuySell() {
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}
-            domLayout="autoHeight"
           />
         </Box>
       </TagCard>

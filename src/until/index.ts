@@ -34,14 +34,14 @@ export const addPlaceHolder = (value: any, symbol: string = "") => {
 export const formNumberToUnit = (
   number?: number,
   unit: string = "K",
-  pow = 3,
+  pow = 3
 ) => {
   if (!number) {
     return 0;
   }
-  const formattedResult = new BigNumber(number).dividedBy(
-    new BigNumber(10).pow(pow),
-  ).toFixed(3);
+  const formattedResult = new BigNumber(number)
+    .dividedBy(new BigNumber(10).pow(pow))
+    .toFixed(3);
   return `${formattedResult}${unit}`;
 };
 
@@ -99,7 +99,7 @@ export const genFullDateObject = (time: string) => {
     calendarYear: m.format("YYYY"),
     month: m.format("MM"),
     quarter: m.quarter(),
-    period: m.format("YYYY") + "Q" + m.quarter(),
+    period: m.format("YYYY-[Q]Q"),
   };
 };
 
@@ -116,7 +116,7 @@ export const caseDateToYYYYMMDD = (dateString: string) => {
     const endString = end.replaceAll(/年|月|日/g, "-");
     endMoment = moment(
       `${endString.length > 6 ? "" : startMoment.format("YYYY-")}${endString}`,
-      "YYYY-M-D",
+      "YYYY-M-D"
     );
   }
   let isSingleQuarter = endMoment
@@ -131,15 +131,15 @@ export const caseDateToYYYYMMDD = (dateString: string) => {
 };
 export const quarterToMonth = (quarter: string) => {
   if (quarter === "Q1") {
-    return `03`;
+    return `01`;
   }
   if (quarter === "Q2") {
-    return `06`;
+    return `04`;
   }
   if (quarter === "Q3") {
-    return `09`;
+    return `07`;
   }
   if (quarter === "Q4") {
-    return `12`;
+    return `10`;
   }
 };

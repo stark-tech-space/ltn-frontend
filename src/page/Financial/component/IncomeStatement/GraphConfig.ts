@@ -14,13 +14,10 @@ export const OPTIONS = {
       type: "time",
       time: {
         unit: "year",
-        tooltipFormat: "YYYY/MM",
+        tooltipFormat: "YYYY-[Q]Q",
       },
     },
     y: {
-      type: "linear",
-      display: true,
-      position: "left",
       title: {
         display: true,
         text: "千元",

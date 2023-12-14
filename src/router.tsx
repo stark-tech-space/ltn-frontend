@@ -92,11 +92,11 @@ export const ROUTES = [
     path: "/evaluation",
     children: VALUE_ASSESSMENT_CONVERTER,
   },
-  {
-    title: "關鍵指標",
-    path: "/indicator",
-    children: INDICATORS_CONVERTER,
-  },
+  // {
+  //   title: "關鍵指標",
+  //   path: "/indicator",
+  //   children: INDICATORS_CONVERTER,
+  // },
   {
     title: "籌碼",
     path: "/chips",

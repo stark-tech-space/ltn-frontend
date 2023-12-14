@@ -77,12 +77,7 @@ export default function GraphForeignInvestors({
           stacked: true,
           alignToPixels: true,
           offset: false,
-          type: "time",
-
-          time: {
-            unit: isMonthScale ? "day" : "year",
-            tooltipFormat: isMonthScale ? "YYYY-MM-DD" : "YYYY-MM",
-          },
+          type: isMonthScale ? "category" : "time",
         },
         y: {
           stacked: true,
@@ -96,7 +91,29 @@ export default function GraphForeignInvestors({
             },
           },
         },
+        y1: {
+          type: "linear",
+          display: true,
+          position: "right",
+          title: {
+            display: true,
+            text: "股价",
+            align: "end",
+            font: {
+              size: 12,
+              weight: "bold",
+            },
+          },
+        },
       };
+
+      if (!isMonthScale) {
+        // @ts-ignore
+        chartRef.current.options.scales.x!.time = {
+          unit: "year",
+          tooltipFormat: "YYYY-MM",
+        };
+      }
       chartRef.current.update();
     }
   };

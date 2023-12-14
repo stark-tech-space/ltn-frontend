@@ -12,6 +12,7 @@ import { useAvgPriceByMonth } from "Hooks/common";
 import moment from "moment";
 import { fetchDividendHistorical } from "api/value";
 import { IDividendPerShareHistorical } from "types/value";
+import numeral from "numeral";
 
 interface IAvgDividendYieldRatio extends IDateField {
   dividendYield: number;
@@ -54,26 +55,38 @@ const TABLE_FIELDS = [
   },
 ];
 
-export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) => void }) {
+export default function Graph({
+  getGraphData,
+}: {
+  getGraphData: (data: any[][]) => void;
+}) {
   const chartRef = useRef<Chart>();
   const stock = useRecoilValue(currentStock);
   const [period, setPeriod] = useState(3);
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
-  const [dividendPerShare, setDividendPerShare] = useState<Array<IDividendPerShareHistorical>>([]);
+  const [dividendPerShare, setDividendPerShare] = useState<
+    Array<IDividendPerShareHistorical>
+  >([]);
 
   const avgPrice = useAvgPriceByMonth(period);
 
   const finalData: Array<IAvgDividendYieldRatio> = useMemo(() => {
     const handleGetTimeRange = (date: string, timeLength: number) => {
-      const start = moment(date, "YYYY-MM-DD").subtract(timeLength, "year").format("YYYY-MM-DD");
-      const end = moment(date, "YYYY-MM-DD").subtract(1, "day").format("YYYY-MM-DD");
+      const start = moment(date, "YYYY-MM-DD")
+        .subtract(timeLength, "year")
+        .format("YYYY-MM-DD");
+      const end = moment(date, "YYYY-MM-DD")
+        .subtract(1, "day")
+        .format("YYYY-MM-DD");
       return { start, end };
     };
     const handleGetTimeRangeByYear = (date: string, timeLength: number) => {
       const start = moment(date, "YYYY-MM-DD")
         .subtract(timeLength + 1, "year")
         .format("YYYY-MM-DD");
-      const end = moment(date, "YYYY-MM-DD").subtract(timeLength, "day").format("YYYY-MM-DD");
+      const end = moment(date, "YYYY-MM-DD")
+        .subtract(timeLength, "day")
+        .format("YYYY-MM-DD");
       return { start, end };
     };
 
@@ -82,21 +95,31 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
       // 現金殖利率
       const dividendYieldRange = handleGetTimeRange(item.date, 1);
       const dataAvailable = dividendPerShare.filter(
-        (item) => item.date >= dividendYieldRange.start && item.date <= dividendYieldRange.end
+        (item) =>
+          item.date >= dividendYieldRange.start &&
+          item.date <= dividendYieldRange.end
       );
-      const dividendSum = dataAvailable.reduce((prev, cur) => prev + (cur.dividend || 0), 0);
+      const dividendSum = dataAvailable.reduce(
+        (prev, cur) => prev + (cur.dividend || 0),
+        0
+      );
 
       const yearDividendSum = Array.from({ length: 5 }).map((_, index) => {
         const range = handleGetTimeRangeByYear(item.date, index);
         const dividendData = dividendPerShare.filter(
           (item) => item.date > range.start && item.date <= range.end
         );
-        return dividendData.reduce((prev, cur) => prev + (cur.dividend || 0), 0);
+        return dividendData.reduce(
+          (prev, cur) => prev + (cur.dividend || 0),
+          0
+        );
       });
       // 3年平均
       const threeDividendRange = handleGetTimeRange(item.date, 3);
       const threeDividendData = dividendPerShare.filter(
-        (item) => item.date > threeDividendRange.start && item.date <= threeDividendRange.end
+        (item) =>
+          item.date > threeDividendRange.start &&
+          item.date <= threeDividendRange.end
       );
       const threeDividendSum = threeDividendData.reduce(
         (prev, cur) => prev + (cur.dividend || 0),
@@ -105,9 +128,14 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
       // 5年平均
       const fiveDividendRange = handleGetTimeRange(item.date, 5);
       const fiveDividendData = dividendPerShare.filter(
-        (item) => item.date > fiveDividendRange.start && item.date <= fiveDividendRange.end
+        (item) =>
+          item.date > fiveDividendRange.start &&
+          item.date <= fiveDividendRange.end
       );
-      const fiveDividendSum = fiveDividendData.reduce((prev, cur) => prev + (cur.dividend || 0), 0);
+      const fiveDividendSum = fiveDividendData.reduce(
+        (prev, cur) => prev + (cur.dividend || 0),
+        0
+      );
 
       return {
         date: item.date,
@@ -156,7 +184,9 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
     dataAvailable?.forEach((item) => {
       columnHeaders.push({
         field:
-          reportType === PERIOD.QUARTER ? `${item.calendarYear}-${item.period}` : item.calendarYear,
+          reportType === PERIOD.QUARTER
+            ? `${item.calendarYear}-${item.period}`
+            : item.calendarYear,
       });
     });
 
@@ -166,9 +196,13 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
       };
       dataAvailable?.forEach((item) => {
         if (reportType === PERIOD.ANNUAL) {
-          dataSources[item.calendarYear] = (+item[field as keyof T]).toFixed(2);
+          dataSources[item.calendarYear] = numeral(
+            item[field as keyof T]
+          ).format("0,0.00");
         } else {
-          dataSources[`${item.calendarYear}-${item.period}`] = (+item[field as keyof T]).toFixed(2);
+          dataSources[`${item.calendarYear}-${item.period}`] = numeral(
+            item[field as keyof T]
+          ).format("0,0.00");
         }
       });
       rowData.push(dataSources);
@@ -177,16 +211,18 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
   };
 
   useEffect(() => {
-    const periodTime = `${parseInt(moment().format("YYYY")) - period - 1}-00-00`;
-    fetchDividendHistorical<{ historical: Array<IDividendPerShareHistorical> }>(stock.Symbol).then(
-      (res) => {
-        setDividendPerShare(
-          res?.historical
-            .filter((item) => item.date > periodTime)
-            .sort((a, b) => (a?.date > b?.date ? -1 : 1)) || []
-        );
-      }
-    );
+    const periodTime = `${
+      parseInt(moment().format("YYYY")) - period - 1
+    }-00-00`;
+    fetchDividendHistorical<{ historical: Array<IDividendPerShareHistorical> }>(
+      stock.Symbol
+    ).then((res) => {
+      setDividendPerShare(
+        res?.historical
+          .filter((item) => item.date > periodTime)
+          .sort((a, b) => (a?.date > b?.date ? -1 : 1)) || []
+      );
+    });
   }, [stock.Symbol, period]);
 
   useEffect(() => {
@@ -202,7 +238,12 @@ export default function Graph({ getGraphData }: { getGraphData: (data: any[][]) 
         showReportType={false}
       />
       <Box height={510} bgcolor="#fff" pb={3}>
-        <ReactChart type="line" data={labelDataSets} options={graphConfig as any} ref={chartRef} />
+        <ReactChart
+          type="line"
+          data={labelDataSets}
+          options={graphConfig as any}
+          ref={chartRef}
+        />
       </Box>
     </>
   );

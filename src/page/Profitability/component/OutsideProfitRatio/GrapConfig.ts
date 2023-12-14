@@ -4,9 +4,9 @@ export const labelDataSets = {
     {
       label: "業外收支佔稅前淨利比",
       data: [],
-      borderColor: "rgb(0, 99, 132)",
-      backgroundColor: "rgb(0, 99, 132)",
-      borderWidth: 1,
+      borderColor: "#e8af02",
+      backgroundColor: "#e8af02",
+      borderWidth: 2,
       yAxisID: "y",
       fill: false,
     },
@@ -28,7 +28,7 @@ export const graphConfig = {
       type: "time",
       time: {
         unit: "year",
-        tooltipFormat: "YYYY/MM",
+        tooltipFormat: "YYYY-[Q]Q",
       },
     },
     y: {

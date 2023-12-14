@@ -13,10 +13,16 @@ import { currentStock } from "recoil/selector";
 export default function TopStockBar() {
   const theme = useTheme();
   const [isUpdating, setIsUpdating] = useState(false);
-  const [quote, setQuote] = React.useState<IRealTimeQuote>(
-    {} as IRealTimeQuote
-  );
+  const [quote, setQuote] = React.useState<IRealTimeQuote>({} as IRealTimeQuote);
   const stock = useRecoilValue(currentStock);
+
+  function getColor(value: number, nextValue: number) {
+    if (value > nextValue) {
+      return "#D92D20";
+    } else {
+      return "#27AE60";
+    }
+  }
 
   useEffect(() => {
     const pollFetch = async () => {
@@ -70,13 +76,7 @@ export default function TopStockBar() {
         }}
       >
         {stock.Name}
-        <Typography
-          component="span"
-          fontSize="16px"
-          color="#333333"
-          fontWeight={400}
-          ml="4px"
-        >
+        <Typography component="span" fontSize="16px" color="#333333" fontWeight={400} ml="4px">
           {stock.No}
         </Typography>
       </Box>
@@ -89,7 +89,7 @@ export default function TopStockBar() {
           <Typography
             component="div"
             sx={{
-              color: isUpdating ? "#BDBDBD" : "#EB5757",
+              color: isUpdating ? "#BDBDBD" : getColor(quote.price, quote.previousClose),
               fontWeight: 600,
             }}
             fontSize={{ xs: "18px", md: "24px" }}
@@ -113,13 +113,7 @@ export default function TopStockBar() {
                 <ArrowDropUpIcon fontSize="small" />
               )
             }
-            label={
-              quote
-                ? `${toFixed(quote?.change)} (${toFixed(
-                    quote.changesPercentage
-                  )}%)`
-                : ""
-            }
+            label={quote ? `${toFixed(quote?.change)} (${toFixed(quote.changesPercentage)}%)` : ""}
             sx={{
               px: 1,
               py: "4px",
@@ -132,13 +126,8 @@ export default function TopStockBar() {
             }}
           />
         </Stack>
-        <Typography
-          component="span"
-          sx={{ fontSize: "12px", color: "#BDBDBD" }}
-        >
-          {` 收盤 | ${dayjs(quote.timestamp * 1000).format(
-            "YYYY/MM/DD HH:mm"
-          )} 更新`}
+        <Typography component="span" sx={{ fontSize: "12px", color: "#BDBDBD" }}>
+          {` 收盤 | ${dayjs(quote.timestamp * 1000).format("YYYY/MM/DD HH:mm")} 更新`}
         </Typography>
       </Stack>
     </Stack>

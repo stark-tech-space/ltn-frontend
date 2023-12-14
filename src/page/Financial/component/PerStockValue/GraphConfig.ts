@@ -1,12 +1,13 @@
+import moment from "moment";
+
 export const labelDataSets = {
-  labels: [],
   datasets: [
     {
       type: "bar" as const,
       label: "每股淨值",
       data: [],
-      backgroundColor: "rgba(237, 88, 157, 0.15)",
-      borderColor: "rgba(237, 88, 157, 0.35)",
+      backgroundColor: "#f6e1b1",
+      borderColor: "#e8af00",
       borderWidth: 1,
       yAxisID: "y1",
       fill: false,
@@ -18,7 +19,7 @@ export const labelDataSets = {
       data: [],
       borderColor: "#EB5757",
       backgroundColor: "#EB5757",
-      borderWidth: 1,
+      borderWidth: 2,
       yAxisID: "y",
       fill: false,
       order: 1,
@@ -33,6 +34,17 @@ export const OPTIONS = {
   plugins: {
     legend: {
       position: "bottom",
+    },
+    tooltip: {
+      callbacks: {
+        title: function (context: any) {
+          if (context[0]?.dataset?.yAxisID === "y1") {
+            return moment(context[0].raw.x, "YYYY-MM-DD")
+              .format("YYYYY-[Q]Q");
+          }
+          return context[0]?.label;
+        },
+      },
     },
   },
   elements: {

@@ -31,7 +31,11 @@ const genStartDate = (years: number) => {
   return moment().subtract(years, "years").startOf("year").format("YYYY-MM-DD");
 };
 
-export default function IncomeGraph({ getGraphData }: { getGraphData: (data: any) => void }) {
+export default function IncomeGraph({
+  getGraphData,
+}: {
+  getGraphData: (data: any) => void;
+}) {
   const stock = useRecoilValue(currentStock);
   const [period, setPeriod] = useState(3);
   const [graphData, setGraphData] = useState<IIncomeGraph>();
@@ -45,15 +49,27 @@ export default function IncomeGraph({ getGraphData }: { getGraphData: (data: any
 
     if (rst?.status === 200) {
       const revenueData = rst.data.filter((item) => item.type === "Revenue");
-      const grossProfitData = rst.data.filter((item) => item.type === "GrossProfit");
-      const operatingExpenses = rst.data.filter((item) => item.type === "OperatingExpenses");
-      const costOfGoodsSold = rst.data.filter((item) => item.type === "CostOfGoodsSold");
-      const operatingIncome = rst.data.filter((item) => item.type === "OperatingIncome");
-      const preTaxIncome = rst.data.filter((item) => item.type === "PreTaxIncome");
-      const equityAttributableToOwnersOfParent = rst.data.filter(
-        (item) => item.type === "EquityAttributableToOwnersOfParent",
+      const grossProfitData = rst.data.filter(
+        (item) => item.type === "GrossProfit"
       );
-      const incomeAfterTaxes = rst.data.filter((item) => item.type === "IncomeAfterTaxes");
+      const operatingExpenses = rst.data.filter(
+        (item) => item.type === "OperatingExpenses"
+      );
+      const costOfGoodsSold = rst.data.filter(
+        (item) => item.type === "CostOfGoodsSold"
+      );
+      const operatingIncome = rst.data.filter(
+        (item) => item.type === "OperatingIncome"
+      );
+      const preTaxIncome = rst.data.filter(
+        (item) => item.type === "PreTaxIncome"
+      );
+      const equityAttributableToOwnersOfParent = rst.data.filter(
+        (item) => item.type === "EquityAttributableToOwnersOfParent"
+      );
+      const incomeAfterTaxes = rst.data.filter(
+        (item) => item.type === "IncomeAfterTaxes"
+      );
       const date = revenueData.map((item) => item.date);
       let sellingAndMarketingExpenses: any[] = [];
       let generalAndAdministrativeExpenses: any[] = [];
@@ -75,16 +91,22 @@ export default function IncomeGraph({ getGraphData }: { getGraphData: (data: any
         date.forEach((item, index) => {
           data.forEach((item2, index2) => {
             if (item2.date === item) {
-              sellingAndMarketingExpenses.push(item2.sellingAndMarketingExpenses);
-              generalAndAdministrativeExpenses.push(item2.generalAndAdministrativeExpenses);
-              researchAndDevelopmentExpenses.push(item2.researchAndDevelopmentExpenses);
+              sellingAndMarketingExpenses.push(
+                item2.sellingAndMarketingExpenses
+              );
+              generalAndAdministrativeExpenses.push(
+                item2.generalAndAdministrativeExpenses
+              );
+              researchAndDevelopmentExpenses.push(
+                item2.researchAndDevelopmentExpenses
+              );
             }
           });
         });
       }
 
       getGraphData({
-        date,
+        date: date.map((item) => moment(item).format("YYYY-[Q]Q")),
         revenue: revenueData.map((item) => item.value),
         grossProfit: grossProfitData.map((item) => item.value),
         operatingExpenses: operatingExpenses.map((item) => item.value),
@@ -92,9 +114,8 @@ export default function IncomeGraph({ getGraphData }: { getGraphData: (data: any
         operatingIncome: operatingIncome.map((item) => item.value),
         preTaxIncome: preTaxIncome.map((item) => item.value),
         afterTaxIncome: incomeAfterTaxes.map((item) => item.value),
-        equityAttributableToOwnersOfParent: equityAttributableToOwnersOfParent.map(
-          (item) => item.value,
-        ),
+        equityAttributableToOwnersOfParent:
+          equityAttributableToOwnersOfParent.map((item) => item.value),
         sellingAndMarketingExpenses,
         generalAndAdministrativeExpenses,
         researchAndDevelopmentExpenses,
@@ -115,65 +136,69 @@ export default function IncomeGraph({ getGraphData }: { getGraphData: (data: any
 
   const graphDataSet = useMemo(() => {
     return {
-      labels: graphData?.revenue.map((item) => item.date),
+      labels: graphData?.revenue.map((item) =>
+        moment(item.date, "YYYY-MM-DD").startOf("quarter").format("YYYY-MM-DD")
+      ),
       datasets: [
         {
           type: "line" as const,
           label: "營收",
-          backgroundColor: "rgb(232,175,0)",
+          backgroundColor: "#e8af00",
+          borderColor: "#e8af00",
           data: graphData?.revenue.map((item) => item.value / 1000),
-          borderColor: "rgb(232,175,0)",
-          borderWidth: 1,
+          borderWidth: 2,
           yAxisID: "y",
           fill: false,
         },
         {
           type: "line" as const,
           label: "毛利",
-          backgroundColor: "rgba(237, 88, 157, 0.15)",
+          backgroundColor: "#0586f4",
+          borderColor: "#0586f4",
           data: graphData?.grossProfit.map((item) => item.value / 1000),
-          borderColor: "rgba(237, 88, 157, 0.35)",
-          borderWidth: 1,
+          borderWidth: 2,
           yAxisID: "y",
           fill: false,
         },
         {
           type: "line" as const,
           label: "營業利益",
-          backgroundColor: "rgb(0, 99, 232)",
+          backgroundColor: "#dc3911",
+          borderColor: "#dc3911",
           data: graphData?.operatingIncome.map((item) => item.value / 1000),
-          borderColor: "rgb(0, 99, 232)",
-          borderWidth: 1,
+          borderWidth: 2,
           yAxisID: "y",
           fill: false,
         },
         {
           type: "line" as const,
           label: "稅前淨利",
-          backgroundColor: "rgb(100, 99, 132)",
+          backgroundColor: "#0f9617",
           data: graphData?.preTaxIncome.map((item) => item.value / 1000),
-          borderColor: "rgb(100, 99, 132)",
-          borderWidth: 1,
+          borderColor: "#0f9617",
+          borderWidth: 2,
           yAxisID: "y",
           fill: false,
         },
         {
           type: "line" as const,
           label: "稅後淨利",
-          backgroundColor: "rgb(10, 99, 132)",
+          backgroundColor: "#b98c01",
           data: graphData?.incomeAfterTaxes.map((item) => item.value / 1000),
-          borderColor: "rgb(10, 99, 132)",
-          borderWidth: 1,
+          borderColor: "#b98c01",
+          borderWidth: 2,
           yAxisID: "y",
           fill: false,
         },
         {
           type: "line" as const,
           label: "母公司主業利益",
-          backgroundColor: "rgb(200, 99, 132)",
-          data: graphData?.equityAttributableToOwnersOfParent.map((item) => item.value / 1000),
-          borderColor: "rgb(200, 99, 132)",
-          borderWidth: 1,
+          backgroundColor: "#026bc3",
+          data: graphData?.equityAttributableToOwnersOfParent.map(
+            (item) => item.value / 1000
+          ),
+          borderColor: "#026bc3",
+          borderWidth: 2,
           yAxisID: "y",
           fill: false,
         },

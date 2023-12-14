@@ -6,7 +6,7 @@ export const labelDataSets = {
       data: [],
       borderColor: "rgb(232,175,0)",
       backgroundColor: "rgb(232,175,0)",
-      borderWidth: 1,
+      borderWidth: 2,
       yAxisID: "y",
       fill: false,
     },
@@ -15,7 +15,7 @@ export const labelDataSets = {
       data: [],
       borderColor: "#0386f4",
       backgroundColor: "#0386f4",
-      borderWidth: 1,
+      borderWidth: 2,
       yAxisID: "y",
       fill: false,
     },
@@ -37,7 +37,7 @@ export const graphConfig = {
       type: "time",
       time: {
         unit: "year",
-        tooltipFormat: "YYYY/MM",
+        tooltipFormat: "YYYY-[Q]Q",
       },
     },
     y: {
