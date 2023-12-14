@@ -37,7 +37,7 @@ export const graphConfig = {
       position: "right",
       title: {
         display: true,
-        text: "元",
+        text: "股價",
         align: "end",
         font: {
           size: 12,

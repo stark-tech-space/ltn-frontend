@@ -22,7 +22,10 @@ export default function DebtHolders() {
 
   return (
     <Stack rowGap={1}>
-      <TagCard tabs={["負債和股東權益", "負債", "股東權益"]} onChange={setTabIndex}>
+      <TagCard
+        tabs={["負債和股東權益", "負債", "股東權益"]}
+        onChange={setTabIndex}
+      >
         <Box bgcolor="#fff">
           <GraphDebtHolder getGraphData={setGraphTable} tabIndex={tabIndex} />
         </Box>

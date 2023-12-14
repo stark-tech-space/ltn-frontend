@@ -13,6 +13,8 @@ import PeriodController from "component/PeriodController";
 import { fetchFindMindAPI } from "api/common";
 import { IDividendPolicyItem } from "types/financial";
 import moment from "moment";
+import { groupBy, sumBy } from "lodash";
+import numeral from "numeral";
 
 export const GRAPH_FIELDS = [
   {
@@ -37,7 +39,7 @@ export default function Graph({
   const chartRef = useRef<Chart>();
   const stock = useRecoilValue(currentStock);
   const [period, setPeriod] = useState(3);
-  const [reportType, setReportType] = useState(PERIOD.QUARTER);
+  const [reportType, setReportType] = useState(PERIOD.ANNUAL);
 
   const updateGraph = (data: IProfitRatio[]) => {
     if (chartRef.current) {
@@ -85,13 +87,14 @@ export default function Graph({
       };
       data?.forEach((item) => {
         if (reportType === PERIOD.ANNUAL) {
-          dataSources[item.calendarYear] = (
-            +item[field as keyof IProfitRatio] * 100
-          ).toFixed(2);
+          dataSources[item.calendarYear] = numeral(
+            +item[field as keyof IProfitRatio] *
+              (field === "payoutRatio" ? 100 : 1)
+          ).format("0,0.00");
         } else {
-          dataSources[`${item.calendarYear}-${item.period}`] = (
-            +item[field as keyof IProfitRatio] * 100
-          ).toFixed(2);
+          dataSources[`${item.calendarYear}-${item.period}`] = (+item[
+            field as keyof IProfitRatio
+          ]).toFixed(2);
         }
       });
       rowData.push(dataSources);
@@ -115,16 +118,32 @@ export default function Graph({
 
     if (rst) {
       if (rst2) {
+        const finMindCashEarningByYear = groupBy(rst2 || [], (item) =>
+          item.date.slice(0, 4)
+        );
         rst.forEach((item) => {
           const date = item.date.split("-").slice(0, 2).join("-");
-          const target = rst2?.find((item2) => item2.date.startsWith(date));
-          if (target) {
-            //@ts-ignore
-            item.payoutRatio1 = target.CashEarningsDistribution;
+          if (reportType === PERIOD.QUARTER) {
+            const target = rst2?.find((item2) => item2.date.startsWith(date));
+            if (target) {
+              //@ts-ignore
+              item.payoutRatio1 = target.CashEarningsDistribution;
+            }
+            item.date = moment(item.date, "YYYY-MM-DD")
+              .startOf("quarter")
+              .format("YYYY-MM-DD");
           }
-          item.date = moment(item.date, "YYYY-MM-DD")
-            .startOf("quarter")
-            .format("YYYY-MM-DD");
+          if (reportType === PERIOD.ANNUAL) {
+            item.date = moment(item.date, "YYYY-MM-DD")
+              .startOf("year")
+              .format("YYYY-MM-DD");
+            const year = item.calendarYear;
+            //@ts-ignore
+            item.payoutRatio1 = sumBy(
+              finMindCashEarningByYear[year],
+              "CashEarningsDistribution"
+            );
+          }
         });
       }
       updateGraph(rst);
@@ -141,6 +160,7 @@ export default function Graph({
       <PeriodController
         onChangePeriod={setPeriod}
         onChangeReportType={setReportType}
+        showReportType={false}
       />
       <Box height={510} bgcolor="#fff" pb={3}>
         <ReactChart

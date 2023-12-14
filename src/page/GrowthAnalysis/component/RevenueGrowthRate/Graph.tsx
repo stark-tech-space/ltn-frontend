@@ -320,6 +320,7 @@ export default function Graph({
           backgroundColor: "rgb(196,66,66)",
           borderWidth: 2,
           fill: false,
+          tension: 0.4,
           data: avgPrice.map((item) => ({
             x: item.date,
             y: numeral(item.sma).format("0,0.00"),

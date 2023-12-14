@@ -1,27 +1,27 @@
-import { IFinMindApiResponse, ILtnApiCommonData } from './common';
+import { IFinMindApiResponse, ILtnApiCommonData } from "./common";
 
 export enum FINANCIAL_PAGE_ENUM {
-  PAGE1 = 'PAGE1',
-  PAGE2 = 'PAGE2',
-  PAGE3 = 'PAGE3',
-  PAGE4 = 'PAGE4',
-  PAGE5 = 'PAGE5',
-  PAGE6 = 'PAGE6',
-  PAGE7 = 'PAGE7',
-  PAGE8 = 'PAGE8',
-  PAGE9 = 'PAGE9',
+  PAGE1 = "PAGE1",
+  PAGE2 = "PAGE2",
+  PAGE3 = "PAGE3",
+  PAGE4 = "PAGE4",
+  PAGE5 = "PAGE5",
+  PAGE6 = "PAGE6",
+  PAGE7 = "PAGE7",
+  PAGE8 = "PAGE8",
+  PAGE9 = "PAGE9",
 }
 
 export const FINANCIAL_PAGE_CONVERTER: Record<FINANCIAL_PAGE_ENUM, string> = {
-  [FINANCIAL_PAGE_ENUM.PAGE1]: '每月營收',
-  [FINANCIAL_PAGE_ENUM.PAGE2]: '每股盈餘',
-  [FINANCIAL_PAGE_ENUM.PAGE3]: '每股淨值',
-  [FINANCIAL_PAGE_ENUM.PAGE4]: '損益表',
-  [FINANCIAL_PAGE_ENUM.PAGE5]: '資產項目',
-  [FINANCIAL_PAGE_ENUM.PAGE6]: '負債和股東權益',
-  [FINANCIAL_PAGE_ENUM.PAGE7]: '現金流量表',
-  [FINANCIAL_PAGE_ENUM.PAGE8]: '股利政策',
-  [FINANCIAL_PAGE_ENUM.PAGE9]: '電子書',
+  [FINANCIAL_PAGE_ENUM.PAGE1]: "每月營收",
+  [FINANCIAL_PAGE_ENUM.PAGE2]: "每股盈餘",
+  [FINANCIAL_PAGE_ENUM.PAGE3]: "每股淨值",
+  [FINANCIAL_PAGE_ENUM.PAGE4]: "損益表",
+  [FINANCIAL_PAGE_ENUM.PAGE5]: "資產項目",
+  [FINANCIAL_PAGE_ENUM.PAGE6]: "負債和股東權益",
+  [FINANCIAL_PAGE_ENUM.PAGE7]: "現金流量表",
+  [FINANCIAL_PAGE_ENUM.PAGE8]: "股利政策",
+  [FINANCIAL_PAGE_ENUM.PAGE9]: "電子書",
 };
 
 // 每月營收
@@ -35,27 +35,27 @@ export interface IMonthlyRevenue extends IFinMindApiResponse {
 
 export type IncomeType =
   // 营收
-  | 'Revenue'
+  | "Revenue"
   // 毛利
-  | 'GrossProfit'
+  | "GrossProfit"
   // 營業費用
-  | 'OperatingExpenses'
+  | "OperatingExpenses"
   // 營業成本
-  | 'CostOfGoodsSold'
+  | "CostOfGoodsSold"
   // 營業利益
-  | 'OperatingIncome'
+  | "OperatingIncome"
   // 稅前淨利
-  | 'PreTaxIncome'
+  | "PreTaxIncome"
   // 税后淨利
-  | 'IncomeAfterTaxes'
+  | "IncomeFromContinuingOperations"
   // 母公司
-  | 'EquityAttributableToOwnersOfParent'
+  | "EquityAttributableToOwnersOfParent"
   // 呆帳費用、承諾及保證責任準備提存
-  | 'BadDebts'
+  | "BadDebts"
   // 保險負債準備淨變動
-  | 'NetChangeInProvisionsForInsuranceLiabilities'
+  | "NetChangeInProvisionsForInsuranceLiabilities"
   // 營業費用
-  | 'OperatingExpenses';
+  | "OperatingExpenses";
 
 export interface IIncome extends IFinMindApiResponse {
   data: {
@@ -155,7 +155,7 @@ export interface IStockTableInfo {
   quarter: string;
   tables: Array<IStockTable>;
   originalUrl: string;
-  format: '108' | '102';
+  format: "108" | "102";
 }
 
 export interface IStockTable {

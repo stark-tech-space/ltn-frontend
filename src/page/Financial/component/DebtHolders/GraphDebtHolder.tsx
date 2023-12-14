@@ -2,7 +2,12 @@ import { Box } from "@mui/material";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PERIOD } from "types/common";
 import { Chart as ReactChart } from "react-chartjs-2";
-import { graphConfig, labelDataSets_01, labelDataSets_02, labelDataSets_03 } from "./GraphConfig";
+import {
+  graphConfig,
+  labelDataSets_01,
+  labelDataSets_02,
+  labelDataSets_03,
+} from "./GraphConfig";
 import type { Chart } from "chart.js";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
@@ -162,7 +167,9 @@ export default function GraphDebtHolder({
 
       graphField?.forEach(async ({ field }, index) => {
         if (chartRef.current) {
-          chartRef.current.data.datasets[index].data = data.map((item) => +item[field]);
+          chartRef.current.data.datasets[index].data = data.map(
+            (item) => +item[field]
+          );
         }
       });
       chartRef.current.update();
@@ -198,12 +205,12 @@ export default function GraphDebtHolder({
       };
       data?.forEach((item) => {
         if (reportType === PERIOD.ANNUAL) {
-          dataSources[item.calendarYear] = numeral(+item[field as keyof IProfitRatio]).format(
-            "0,0",
-          );
+          dataSources[item.calendarYear] = numeral(
+            +item[field as keyof IProfitRatio]
+          ).format("0,0");
         } else {
           dataSources[`${moment(item.date).format("YYYY-[Q]Q")}`] = numeral(
-            +item[field as keyof IProfitRatio],
+            +item[field as keyof IProfitRatio]
           ).format("0,0");
         }
       });
@@ -221,8 +228,9 @@ export default function GraphDebtHolder({
     if (rst.list) {
       const data = rst.list.map((item: any) => {
         const year = item.year;
-        const tableData: any[] = item.tables.filter((table: any) => table.name === "資產負債表")[0]
-          .data;
+        const tableData: any[] = item.tables.filter(
+          (table: any) => table.name === "資產負債表"
+        )[0].data;
         /**
          * 21XX 流動負債
          * 2100 短期借款
@@ -264,15 +272,19 @@ export default function GraphDebtHolder({
               item.code === "2530" ||
               item.code === "2540" ||
               item.code === "2XXX" ||
-              item.code === "1XXX"
+              item.code === "1XXX" ||
+              item.code === "3110" ||
+              item.code === "3300"
             );
           });
 
         const allTables = allFilterData.map(ltnApiDataToFmpData);
-        const CurrentLiabilities = allTables.filter((item) => item.code === "21XX")[0]?.value || 0;
+        const CurrentLiabilities =
+          allTables.filter((item) => item.code === "21XX")[0]?.value || 0;
         const OrdinaryShareCapital =
           allTables.filter((item) => item.code === "3110")[0]?.value || 0;
-        const RetainedEarnings = allTables.filter((item) => item.code === "3300")[0]?.value || 0;
+        const RetainedEarnings =
+          allTables.filter((item) => item.code === "3300")[0]?.value || 0;
         const LongtermBorrowings =
           (allTables.filter((item) => item.code === "2530")[0]?.value || 0) +
           (allTables.filter((item) => item.code === "2540")[0]?.value || 0);
@@ -283,7 +295,8 @@ export default function GraphDebtHolder({
 
         const totalDebtAndNetValue =
           allTables.filter((item) => item.code === "1XXX")[0]?.value || 0;
-        const ShorttermBorrowings = allTables.filter((item) => item.code === "2100")[0]?.value || 0;
+        const ShorttermBorrowings =
+          allTables.filter((item) => item.code === "2100")[0]?.value || 0;
         const ShortTermBillsPayable =
           allTables.filter((item) => item.code === "2110")[0]?.value || 0;
         const AccountsPayableandNotes =
@@ -292,7 +305,8 @@ export default function GraphDebtHolder({
           (allTables.filter((item) => item.code === "2170")[0]?.value || 0) +
           (allTables.filter((item) => item.code === "2180")[0]?.value || 0);
 
-        const AdvancePayment = allTables.filter((item) => item.code === "2310")[0]?.value || 0;
+        const AdvancePayment =
+          allTables.filter((item) => item.code === "2310")[0]?.value || 0;
         const LongtermLiabilitiesDueWithinOneYear =
           allTables.filter((item) => item.code === "2320")[0]?.value || 0;
         const OtherCurrentLiabilities =
@@ -308,7 +322,8 @@ export default function GraphDebtHolder({
           (allTables.filter((item) => item.code === "2580")[0]?.value || 0) +
           (allTables.filter((item) => item.code === "2600")[0]?.value || 0);
 
-        const Liabilities = allTables.filter((item) => item.code === "2XXX")[0]?.value || 0;
+        const Liabilities =
+          allTables.filter((item) => item.code === "2XXX")[0]?.value || 0;
         return {
           ...item,
 
@@ -317,7 +332,9 @@ export default function GraphDebtHolder({
           LongtermBorrowings,
           AccountsReceivableNet,
           totalDebtAndNetValue,
-          date: moment(allTables[0]?.date, "YYYY-MM-DD").startOf("quarter").format("YYYY-MM-DD"),
+          date: moment(allTables[0]?.date, "YYYY-MM-DD")
+            .startOf("quarter")
+            .format("YYYY-MM-DD"),
           calendarYear: allTables[0]?.calendarYear,
           period: allTables[0]?.period,
           ShorttermBorrowings,
@@ -347,56 +364,60 @@ export default function GraphDebtHolder({
         Object.entries(allData).forEach(([key, value]) => {
           const CurrentLiabilities = value.reduce(
             (pre: number, cur: any) => pre + cur.CurrentLiabilities,
-            0,
+            0
           );
           const LongtermBorrowings = value.reduce(
             (pre: number, cur: any) => pre + cur.LongtermBorrowings,
-            0,
+            0
           );
           const AccountsReceivableNet = value.reduce(
             (pre: number, cur: any) => pre + cur.AccountsReceivableNet,
-            0,
+            0
           );
           const totalDebtAndNetValue = value.reduce(
             (pre: number, cur: any) => pre + cur.totalDebtAndNetValue,
-            0,
+            0
           );
           const ShorttermBorrowings = value.reduce(
             (pre: number, cur: any) => pre + cur.ShorttermBorrowings,
-            0,
+            0
           );
           const ShortTermBillsPayable = value.reduce(
             (pre: number, cur: any) => pre + cur.ShortTermBillsPayable,
-            0,
+            0
           );
           const AccountsPayableandNotes = value.reduce(
             (pre: number, cur: any) => pre + cur.AccountsPayableandNotes,
-            0,
+            0
           );
           const AdvancePayment = value.reduce(
             (pre: number, cur: any) => pre + cur.AdvancePayment,
-            0,
+            0
           );
           const LongtermLiabilitiesDueWithinOneYear = value.reduce(
-            (pre: number, cur: any) => pre + cur.LongtermLiabilitiesDueWithinOneYear,
-            0,
+            (pre: number, cur: any) =>
+              pre + cur.LongtermLiabilitiesDueWithinOneYear,
+            0
           );
           const OtherCurrentLiabilities = value.reduce(
             (pre: number, cur: any) => pre + cur.OtherCurrentLiabilities,
-            0,
+            0
           );
           const RemainingLiabilities = value.reduce(
             (pre: number, cur: any) => pre + cur.RemainingLiabilities,
-            0,
+            0
           );
-          const Liabilities = value.reduce((pre: number, cur: any) => pre + cur.Liabilities, 0);
+          const Liabilities = value.reduce(
+            (pre: number, cur: any) => pre + cur.Liabilities,
+            0
+          );
           const OrdinaryShareCapital = value.reduce(
             (pre: number, cur: any) => pre + cur.OrdinaryShareCapital,
-            0,
+            0
           );
           const RetainedEarnings = value.reduce(
             (pre: number, cur: any) => pre + cur.RetainedEarnings,
-            0,
+            0
           );
 
           allData[key] = {

@@ -8,7 +8,7 @@ export const labelDataSets = {
       borderColor: "#e8af02",
       backgroundColor: "#f7dfab",
       borderWidth: 1,
-      yAxisID: "y",
+      yAxisID: "y1",
       fill: false,
       order: 2,
     },
@@ -19,7 +19,7 @@ export const labelDataSets = {
       data: [],
       borderColor: "#0586f4",
       borderWidth: 2,
-      yAxisID: "y1",
+      yAxisID: "y",
       fill: false,
       order: 1,
     },
@@ -41,7 +41,7 @@ export const graphConfig = {
       type: "time",
       time: {
         unit: "year",
-        tooltipFormat: "YYYY-[Q]Q",
+        tooltipFormat: "YYYY",
       },
     },
     y: {
@@ -50,7 +50,7 @@ export const graphConfig = {
       position: "left",
       title: {
         display: true,
-        text: "元",
+        text: "%",
         align: "end",
         font: {
           size: 12,
@@ -67,7 +67,7 @@ export const graphConfig = {
       position: "right",
       title: {
         display: true,
-        text: "%",
+        text: "元",
         align: "end",
         font: {
           size: 12,
