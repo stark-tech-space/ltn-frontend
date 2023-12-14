@@ -1,6 +1,13 @@
 import BigNumber from "bignumber.js";
 import moment from "moment";
-import { IFinMindDataItem, ILTNDataItem, PERIOD } from "types/common";
+import {
+  IFinMindDataItem,
+  ILTNDataItem,
+  PERIOD,
+  PERIOD_TYPE,
+  PRICE_SCALE_PERIOD_ITEM,
+  PRICE_SCALE_TYPE,
+} from "types/common";
 
 export const sleep = (time = 120) => {
   return new Promise((resolve) => {
@@ -143,3 +150,31 @@ export const quarterToMonth = (quarter: string) => {
     return `10`;
   }
 };
+
+export const genStartDateForPriceChart = (timeKey: PRICE_SCALE_PERIOD_ITEM) => {
+  const HH_MM = "09:00";
+  // 1天
+  if (timeKey.type === PERIOD_TYPE.DAY) {
+    const now = moment().hour();
+    if (now >= 9) {
+      return moment(HH_MM, "HH:mm").toISOString();
+    }
+    return moment(HH_MM, "HH:mm").subtract(1, "days").toISOString();
+  }
+  if (timeKey.type === PERIOD_TYPE.MONTH) {
+    return moment(HH_MM, "HH:mm")
+      .subtract(1 * timeKey.value, "months")
+      .add(1, "days")
+      .toISOString();
+  }
+  return moment(HH_MM, "HH:mm")
+    .subtract(1 * timeKey.value, "years")
+    .toISOString();
+};
+
+export function timeToTz(originalTime: number, timeZone: string) {
+  const zonedDate = new Date(
+    new Date(originalTime * 1000).toLocaleString("en-US", { timeZone })
+  );
+  return moment(zonedDate.getTime());
+}
