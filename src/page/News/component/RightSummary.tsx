@@ -31,17 +31,16 @@ export const StockInformation = () => {
   const stock = useRecoilValue(currentStock);
 
   useEffect(() => {
-    fetchQuote(stock.Symbol).then((rst) => {
-      if (rst && rst[0]) {
-        setQuote(rst[0]);
-      }
-    });
-
-    fetchCompanyRatios(stock.Symbol, PERIOD.QUARTER, 1).then((rst) => {
-      if (rst && rst[0]) {
-        setOthers(rst[0]);
-      }
-    });
+    // fetchQuote(stock.Symbol).then((rst) => {
+    //   if (rst && rst[0]) {
+    //     setQuote(rst[0]);
+    //   }
+    // });
+    // fetchCompanyRatios(stock.Symbol, PERIOD.QUARTER, 1).then((rst) => {
+    //   if (rst && rst[0]) {
+    //     setOthers(rst[0]);
+    //   }
+    // });
   }, [stock?.Symbol]);
 
   function getColor(value: number, nextValue: number) {
@@ -147,27 +146,27 @@ export const CompanyInformation = () => {
   const stock = useRecoilValue(currentStock);
 
   useEffect(() => {
-    fetchSymbolInfo(stock.Symbol).then((rst) => {
-      if (rst && rst[0]) {
-        setCompanyState(rst[0]);
-      } else {
-        setCompanyState(undefined);
-      }
-    });
-    fetchBalanceSheetStatement(stock.Symbol).then((rst) => {
-      if (rst && rst[0]) {
-        setBalanceSheetStatement(rst[0]);
-      } else {
-        setBalanceSheetStatement(undefined);
-      }
-    });
-    fetchKeyMetrics(stock.Symbol).then((rst) => {
-      if (rst && rst[0]) {
-        setKeyMetrics(rst[0]);
-      } else {
-        setKeyMetrics(undefined);
-      }
-    });
+    // fetchSymbolInfo(stock.Symbol).then((rst) => {
+    //   if (rst && rst[0]) {
+    //     setCompanyState(rst[0]);
+    //   } else {
+    //     setCompanyState(undefined);
+    //   }
+    // });
+    // fetchBalanceSheetStatement(stock.Symbol).then((rst) => {
+    //   if (rst && rst[0]) {
+    //     setBalanceSheetStatement(rst[0]);
+    //   } else {
+    //     setBalanceSheetStatement(undefined);
+    //   }
+    // });
+    // fetchKeyMetrics(stock.Symbol).then((rst) => {
+    //   if (rst && rst[0]) {
+    //     setKeyMetrics(rst[0]);
+    //   } else {
+    //     setKeyMetrics(undefined);
+    //   }
+    // });
   }, [stock.Symbol]);
 
   return (

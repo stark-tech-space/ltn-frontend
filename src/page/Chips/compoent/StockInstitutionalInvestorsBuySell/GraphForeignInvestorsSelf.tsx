@@ -13,9 +13,9 @@ import numeral from "numeral";
 
 interface IGraphData {
   date: string;
-  Foreign_Investor_Foreign_Dealer_Self: number;
+  Foreign_Investor: number;
   Investment_Trust: number;
-  Dealer_self_Dealer_Hedging: number;
+  Foreign_Dealer_Self_Dealer_Hedging_Dealer_self: number;
 }
 
 interface IBuySellItem {
@@ -27,7 +27,7 @@ interface IBuySellItem {
 
 const GRAPH_FIELDS = [
   {
-    field: "Foreign_Investor_Foreign_Dealer_Self",
+    field: "Foreign_Investor",
     headerName: "外資及陸資",
   },
   {
@@ -35,11 +35,10 @@ const GRAPH_FIELDS = [
     headerName: "投信",
   },
   {
-    field: "Dealer_self_Dealer_Hedging",
+    field: "Foreign_Dealer_Self_Dealer_Hedging_Dealer_self",
     headerName: "自營商",
   },
 ];
-
 const PERIOD_YEAR = [
   { label: "近1月", value: 1, type: PERIOD_TYPE.MONTH },
   { label: "近1年", value: 1, type: PERIOD_TYPE.YEAR },
@@ -91,20 +90,6 @@ export default function GraphForeignInvestorsSelf({
             },
           },
         },
-        y1: {
-          type: "linear",
-          display: true,
-          position: "right",
-          title: {
-            display: true,
-            text: "股价",
-            align: "end",
-            font: {
-              size: 12,
-              weight: "bold",
-            },
-          },
-        },
       };
 
       if (!isMonthScale) {
@@ -137,19 +122,31 @@ export default function GraphForeignInvestorsSelf({
       });
     });
 
-    GRAPH_FIELDS.forEach(({ field, headerName }) => {
-      const dataSources: { [key: string]: any } = {
-        title: headerName,
-        pinned: "left",
-      };
+    [...GRAPH_FIELDS, { field: "total", headerName: "合計" }].forEach(
+      ({ field, headerName }) => {
+        const dataSources: { [key: string]: any } = {
+          title: headerName,
+          pinned: "left",
+        };
 
-      data?.forEach((item) => {
-        dataSources[item.date] = numeral(
-          item[field as keyof IGraphData]
-        ).format("0,0.00");
-      });
-      rowData.push(dataSources);
-    });
+        if (field === "total") {
+          data?.forEach((item) => {
+            const total =
+              item.Foreign_Investor +
+              item.Foreign_Dealer_Self_Dealer_Hedging_Dealer_self +
+              item.Investment_Trust;
+            dataSources[item.date] = numeral(total).format("0,0.00");
+          });
+        } else {
+          data?.forEach((item) => {
+            dataSources[item.date] = numeral(
+              item[field as keyof IGraphData]
+            ).format("0,0.00");
+          });
+        }
+        rowData.push(dataSources);
+      }
+    );
     return [columnHeaders, rowData];
   };
 
@@ -196,18 +193,20 @@ export default function GraphForeignInvestorsSelf({
       });
       groupByMonths[key] = groupMonths;
     }
-
     const list: any[] = [];
     Object.entries(groupByMonths).forEach(([year, monthData]) => {
       Object.entries(monthData as IGraphData).forEach(([month, item]) => {
         const monthByTotal = {
           date: `${year}-${month}`,
-          Foreign_Investor_Foreign_Dealer_Self: calc(
-            item,
-            "Foreign_Investor_Foreign_Dealer_Self"
-          ),
+          // 外資及陸資
+          Foreign_Investor: calc(item, "Foreign_Investor"),
+          // 信投
           Investment_Trust: calc(item, "Investment_Trust"),
-          Dealer_self_Dealer_Hedging: calc(item, "Dealer_self_Dealer_Hedging"),
+          // 自營商
+          Foreign_Dealer_Self_Dealer_Hedging_Dealer_self: calc(
+            item,
+            "Foreign_Dealer_Self_Dealer_Hedging_Dealer_self"
+          ),
         };
         list.push(monthByTotal);
       });
@@ -233,16 +232,9 @@ export default function GraphForeignInvestorsSelf({
       start_date,
     });
 
-    /**
-     * 外陸資=外陸資買賣超股數(不含外資自營商) + 外資自營商買賣超股數
-     * Foreign_Investor + Foreign_Dealer_Self
-     *
-     * 投信=投信買賣超股數
-     * Investment_Trust
-     *
-     * 自營商=自營商買賣超股數(自行買賣)+自營商買賣超股數(避險)
-     * Dealer_self + Dealer_Hedging
-     * */
+    const calcBuyAndSell = (item: IBuySellItem) => {
+      return item.buy - item.sell;
+    };
 
     const fieldsList: { [key: string]: IBuySellItem[] } = {
       Foreign_Investor: [],
@@ -257,20 +249,26 @@ export default function GraphForeignInvestorsSelf({
         fieldsList[field] = rst.filter((item) => item.name === field);
       });
     }
-    // console.log(rst);
-
+    /**
+     * 外陸 = Foreign_Investor（buy - sell）
+     * 投信 = Investment_Trust(buy - sell)
+     * 自營商 = Foreign_Dealer_Self(buy - sell) + Dealer_Hedging(buy -sell) + Dealer_self(buy - sell)
+     * */
     const graphData: any = fieldsList.Foreign_Investor.map((item, index) => {
       const fullDate = genFullDateObject(item.date);
       return {
         date: item.date,
         calendarYear: fullDate.calendarYear,
         month: fullDate.month,
-        Foreign_Investor_Foreign_Dealer_Self:
-          item.sell + fieldsList["Foreign_Dealer_Self"][index].sell,
-        Investment_Trust: fieldsList["Investment_Trust"][index].sell,
-        Dealer_self_Dealer_Hedging:
-          fieldsList["Dealer_self"][index].sell +
-          fieldsList["Dealer_Hedging"][index].sell,
+        // 外資及陸資
+        Foreign_Investor: calcBuyAndSell(item),
+        // 信投
+        Investment_Trust: calcBuyAndSell(fieldsList["Investment_Trust"][index]),
+        // 自營商
+        Foreign_Dealer_Self_Dealer_Hedging_Dealer_self:
+          calcBuyAndSell(fieldsList["Foreign_Dealer_Self"][index]) +
+          calcBuyAndSell(fieldsList["Dealer_Hedging"][index]) +
+          calcBuyAndSell(fieldsList["Dealer_self"][index]),
       };
     });
     if (period.type === PERIOD_TYPE.MONTH) {

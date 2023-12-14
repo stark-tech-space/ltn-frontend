@@ -1,7 +1,7 @@
 import { Box, Stack, useMediaQuery, useTheme } from "@mui/material";
 import { PageLayout } from "../../component/Layout";
 import BlockQuota from "./component/BlockQuota";
-import ReadTimePriceChart from "./component/ReadTime";
+import PriceTrendChart from "./component/PriceTrendChart";
 import { CompanyInformation, StockInformation } from "./component/RightSummary";
 import BlockNewsList from "./component/BlockNewsList";
 import TabCard from "component/tabCard";
@@ -20,7 +20,7 @@ function RealTimeNewsPage() {
       >
         <Box flex={{ xs: 1, lg: 2 }} gap={1}>
           <TabCard tabs={["走勢圖"]}>
-            <ReadTimePriceChart />
+            <PriceTrendChart />
           </TabCard>
         </Box>
         {isMobile && <BlockQuota />}
