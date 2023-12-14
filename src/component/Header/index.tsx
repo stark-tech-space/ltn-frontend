@@ -1,23 +1,23 @@
-import { Box, Button, Divider, Stack, styled, useMediaQuery, useTheme } from "@mui/material";
-import { Link } from "react-router-dom";
-import logoAssets from "../../assets/logo.svg";
-import AddIcon from "@mui/icons-material/Add";
-import TopStockBar from "../StockBar";
-import NavTabs from "../Menu";
-import SearchStockTextField from "component/SearchStockTextField";
-import MenuDrawer from "component/MenuDrawer/";
+import { Box, Button, Divider, Stack, styled, useMediaQuery, useTheme } from '@mui/material';
+import { Link } from 'react-router-dom';
+import logoAssets from '../../assets/logo.svg';
+import AddIcon from '@mui/icons-material/Add';
+import TopStockBar from '../StockBar';
+import NavTabs from '../Menu';
+import SearchStockTextField from 'component/SearchStockTextField';
+import MenuDrawer from 'component/MenuDrawer/';
 
 const StyledLogo = styled(Link)(() => ({
-  display: "inline-block",
-  width: "160px",
-  height: "42px",
+  display: 'inline-block',
+  width: '160px',
+  height: '42px',
   background: `url(${logoAssets}) no-repeat center`,
-  backgroundSize: "cover",
+  backgroundSize: 'cover',
 }));
 
 export default function AppHeader() {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   return (
     <Box>
@@ -26,14 +26,14 @@ export default function AppHeader() {
         alignItems="center"
         justifyContent="space-between"
         sx={{
-          bgcolor: "#fff",
-          [theme.breakpoints.up("md")]: {
+          bgcolor: '#fff',
+          [theme.breakpoints.up('md')]: {
             py: 3,
             px: 4,
           },
-          [theme.breakpoints.down("md")]: {
+          [theme.breakpoints.down('md')]: {
             p: 2,
-            height: "auto",
+            height: 'auto',
           },
         }}
       >
@@ -47,7 +47,7 @@ export default function AppHeader() {
             lg: 4,
           }}
         >
-          <StyledLogo to="/" sx={{ display: isMobile ? "none" : "inline-block" }} />
+          <StyledLogo to="/" sx={{ display: isMobile ? 'none' : 'inline-block' }} />
           <SearchStockTextField />
         </Stack>
         <MenuDrawer />
@@ -75,40 +75,35 @@ export default function AppHeader() {
         height="44px"
         bgcolor="#fff"
         sx={{
-          [theme.breakpoints.up("md")]: {
+          [theme.breakpoints.up('md')]: {
             px: 4,
-            pb: "12px",
+            pb: '12px',
           },
-          [theme.breakpoints.down("md")]: {
+          [theme.breakpoints.down('md')]: {
             px: 2,
             pb: 1,
-            height: "auto",
+            height: 'auto',
           },
         }}
       >
         <TopStockBar />
-        {/* <Button
+        <Button
           variant="contained"
           sx={{
-            background: "#405DF9",
-            color: "#fff",
-            borderRadius: "8px",
-            [theme.breakpoints.down("md")]: {
-              // display: "none",
-              position: "fixed",
-              right: "16px",
-              bottom: "30px",
-              zIndex: 100,
-              boxShadow: "rgba(0, 0, 0, 0.35) 0 5px 15px",
+            background: '#405DF9',
+            color: '#fff',
+            borderRadius: '8px',
+            [theme.breakpoints.down('md')]: {
+              display: 'none',
             },
-            ":hover": {
-              background: "#405DF9",
+            ':hover': {
+              background: '#405DF9',
             },
           }}
           startIcon={<AddIcon htmlColor="#fff" />}
         >
           追蹤
-        </Button> */}
+        </Button>
       </Stack>
       <NavTabs />
     </Box>
