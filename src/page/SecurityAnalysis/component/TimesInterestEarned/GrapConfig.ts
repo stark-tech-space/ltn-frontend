@@ -37,7 +37,7 @@ export const RATIO_GRAPH_CONFIG = {
       position: "left",
       title: {
         display: true,
-        text: "",
+        text: "倍",
         align: "end",
         font: {
           size: 12,

@@ -145,6 +145,7 @@ export const caseDateToYYYYMMDD = (dateString: string) => {
     isSingleQuarter,
   };
 };
+
 export const quarterToMonth = (quarter: string) => {
   if (quarter === "Q1") {
     return `01`;
@@ -158,4 +159,16 @@ export const quarterToMonth = (quarter: string) => {
   if (quarter === "Q4") {
     return `10`;
   }
+};
+
+// 轉換負數、去除分號
+export const formatNumberFromCompanyCase = (value: string) => {
+  let sign = 1;
+  if (/\([\d,]*\)/g.test(value)) {
+    sign = -1;
+  }
+
+  const newValue = parseInt(value.replaceAll(/[(),]/g, ""));
+
+  return newValue * sign;
 };
