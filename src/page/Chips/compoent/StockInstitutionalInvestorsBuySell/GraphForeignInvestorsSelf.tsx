@@ -77,12 +77,7 @@ export default function GraphForeignInvestorsSelf({
           stacked: true,
           alignToPixels: true,
           offset: false,
-          type: "time",
-
-          time: {
-            unit: isMonthScale ? "day" : "year",
-            tooltipFormat: isMonthScale ? "YYYY-MM-DD" : "YYYY-MM",
-          },
+          type: isMonthScale ? "category" : "time",
         },
         y: {
           stacked: true,
@@ -111,6 +106,15 @@ export default function GraphForeignInvestorsSelf({
           },
         },
       };
+
+      if (!isMonthScale) {
+        // @ts-ignore
+        chartRef.current.options.scales.x!.time = {
+          unit: "year",
+          tooltipFormat: "YYYY-MM",
+        };
+      }
+
       chartRef.current.update();
     }
   };
