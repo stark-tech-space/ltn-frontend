@@ -1,6 +1,6 @@
 import { useRecoilValue } from "recoil";
 import { Box, Stack } from "@mui/material";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PERIOD } from "types/common";
 import { currentStock } from "recoil/selector";
 import { fetchCompanyRatios } from "api/common";
@@ -14,6 +14,7 @@ import TagCard from "../../../../component/tabCard";
 import { useAvgPriceByMonth } from "Hooks/common";
 import moment from "moment";
 import { useTable } from "Hooks/useTable";
+import { maxBy, minBy } from "lodash";
 
 export default function PerStockShare() {
   const chartRef = useRef<Chart>();
@@ -21,10 +22,26 @@ export default function PerStockShare() {
   const [period, setPeriod] = useState(3);
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
 
-  const [columnHeaders, setColumnHeaders] = useState<{ field: string; headerName: string }[]>([]);
+  const [columnHeaders, setColumnHeaders] = useState<
+    { field: string; headerName: string }[]
+  >([]);
   const [rowData, setRowData] = useState<{ [key: string]: any }[]>([]);
+  const [dataDateInfo, setDataDateInfo] = useState<{
+    start: string;
+    end: string;
+  }>({ start: "", end: "" });
 
-  const avgPrice = useAvgPriceByMonth(period - 1);
+  const avgPrice = useAvgPriceByMonth(period);
+
+  const filteredAvgPrice = useMemo(
+    () =>
+      dataDateInfo.start && dataDateInfo.end
+        ? avgPrice.filter(
+            ({ date }) => dataDateInfo.start <= date && date <= dataDateInfo.end
+          )
+        : avgPrice,
+    [dataDateInfo, avgPrice]
+  );
 
   const gridRef = useRef<AgGridReact>(null);
   const [gridReady, setGridReady] = useState(false);
@@ -60,7 +77,9 @@ export default function PerStockShare() {
             : `${item.calendarYear}-${item.period}`;
 
         chartData.push({
-          x: moment(item.date, "YYYY-MM-DD").startOf("quarter").format("YYYY-MM-DD"),
+          x: moment(item.date, "YYYY-MM-DD")
+            .startOf("quarter")
+            .format("YYYY-MM-DD"),
           y: item.bookValuePerShare,
         });
         columnHeaders.push({ field });
@@ -69,6 +88,16 @@ export default function PerStockShare() {
 
       setColumnHeaders(columnHeaders as any);
       setRowData([rowData]);
+      setDataDateInfo({
+        start:
+          moment(minBy(rst, "date")?.date, "YYYY-MM-DD")
+            .startOf("quarter")
+            .format("YYYY-MM-DD") || "",
+        end:
+          moment(maxBy(rst, "date")?.date, "YYYY-MM-DD")
+            .endOf("quarter")
+            .format("YYYY-MM-DD") || "",
+      });
 
       if (chartRef.current) {
         // @ts-ignore
@@ -83,15 +112,15 @@ export default function PerStockShare() {
   }, [fetchGraphData]);
 
   useEffect(() => {
-    if (chartRef.current && avgPrice.length > 0) {
+    if (chartRef.current && filteredAvgPrice.length > 0) {
       //@ts-ignore
-      chartRef.current.data.datasets[1].data = avgPrice.map((item) => ({
+      chartRef.current.data.datasets[1].data = filteredAvgPrice.map((item) => ({
         x: item.date,
         y: item.sma,
       }));
       chartRef.current.update();
     }
-  }, [avgPrice]);
+  }, [filteredAvgPrice]);
 
   return (
     <Stack rowGap={1}>
@@ -102,7 +131,12 @@ export default function PerStockShare() {
           showReportType={false}
         />
         <Box height={510} bgcolor="#fff" pb={3}>
-          <ReactChart type="bar" data={labelDataSets} options={OPTIONS as any} ref={chartRef} />
+          <ReactChart
+            type="bar"
+            data={labelDataSets}
+            options={OPTIONS as any}
+            ref={chartRef}
+          />
         </Box>
       </Box>
       <TagCard tabs={["詳細數據"]}>

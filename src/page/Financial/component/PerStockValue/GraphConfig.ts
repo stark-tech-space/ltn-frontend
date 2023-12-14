@@ -39,8 +39,7 @@ export const OPTIONS = {
       callbacks: {
         title: function (context: any) {
           if (context[0]?.dataset?.yAxisID === "y1") {
-            return moment(context[0].raw.x, "YYYY-MM-DD")
-              .format("YYYYY-[Q]Q");
+            return moment(context[0].raw.x, "YYYY-MM-DD").format("YYYY-[Q]Q");
           }
           return context[0]?.label;
         },

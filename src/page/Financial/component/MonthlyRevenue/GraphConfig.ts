@@ -8,7 +8,7 @@ export const labelDataSets_01 = {
       borderColor: "#EB5757",
       backgroundColor: "#EB5757",
       borderWidth: 2,
-      yAxisID: "y1",
+      yAxisID: "y",
       fill: false,
     },
     {
@@ -18,7 +18,7 @@ export const labelDataSets_01 = {
       backgroundColor: "#f6e1b1",
       borderColor: "#e8af00",
       borderWidth: 1,
-      yAxisID: "y",
+      yAxisID: "y1",
       fill: false,
     },
   ],
@@ -28,17 +28,6 @@ export const labelDataSets_02 = {
   labels: [],
   datasets: [
     {
-      type: "bar" as const,
-      label: "月每股營收",
-      data: [],
-      backgroundColor: "#f6e1b1",
-      borderColor: "#e8af00",
-      borderWidth: 1,
-      yAxisID: "y",
-      fill: false,
-    },
-
-    {
       type: "line" as const,
       label: "月均價",
       data: [],
@@ -46,6 +35,16 @@ export const labelDataSets_02 = {
       backgroundColor: "#EB5757",
       borderWidth: 2,
       yAxisID: "y1",
+      fill: false,
+    },
+    {
+      type: "bar" as const,
+      label: "月每股營收",
+      data: [],
+      backgroundColor: "#f6e1b1",
+      borderColor: "#e8af00",
+      borderWidth: 1,
+      yAxisID: "y",
       fill: false,
     },
   ],
@@ -153,7 +152,7 @@ export const OPTIONS_02 = {
       position: "left",
       title: {
         display: true,
-        text: "元",
+        text: "千元",
         align: "end",
         font: {
           size: 12,
