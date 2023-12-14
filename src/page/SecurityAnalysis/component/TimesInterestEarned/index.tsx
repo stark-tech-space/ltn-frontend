@@ -1,23 +1,22 @@
 import { Stack, Box } from "@mui/material";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AgGridReact } from "ag-grid-react";
 import { Chart as ReactChart } from "react-chartjs-2";
 import { Chart } from "chart.js";
 
 import TagCard from "../../../../component/tabCard";
+import WrappedAgGrid from "component/WrappedAgGrid";
+import PeriodController from "component/PeriodController";
 import { RATIO_DATASET, RATIO_GRAPH_CONFIG } from "./GrapConfig";
-import { PERIOD, PERIOD_YEAR } from "types/common";
+import { PERIOD } from "types/common";
 
 import { currentStock } from "recoil/selector";
 import { useRecoilValue } from "recoil";
 
-import PeriodController from "component/PeriodController";
-import { getDataLimit } from "until";
+import { getBeforeYears } from "until";
 import numeral from "numeral";
-import { fetchIncomeStatement } from "api/financial";
-import { IIncomeStatements } from "types/financial";
 import moment from "moment";
-import WrappedAgGrid from "component/WrappedAgGrid";
+import { fetchFindMindAPI } from "api/common";
+import { groupBy } from "lodash";
 
 const GRAPH_FIELDS = [
   {
@@ -25,6 +24,14 @@ const GRAPH_FIELDS = [
     headerName: "利息保障倍數",
   },
 ];
+
+interface ITIE {
+  calendarYear: string;
+  month: string;
+  period: string;
+  date: string;
+  tie: string;
+}
 
 export default function TimesInterestEarned() {
   const stock = useRecoilValue(currentStock);
@@ -34,9 +41,12 @@ export default function TimesInterestEarned() {
   const [tabIndex, setTabIndex] = useState(0);
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
   const [period, setPeriod] = useState(3);
-  const [data, setData] = useState<Array<IIncomeStatements>>([]);
+  const [ties, setTIE] = useState<Array<ITIE>>([]);
+  const [finMindData, setFinMindData] = useState<Array<Record<string, number>>>(
+    []
+  );
 
-  const updateGraph = (data: IIncomeStatements[]) => {
+  const updateGraph = (data: ITIE[]) => {
     if (chartRef.current) {
       const labels = data.map((item) => item.date);
       chartRef.current.data.labels = labels;
@@ -44,9 +54,7 @@ export default function TimesInterestEarned() {
       GRAPH_FIELDS.forEach(async ({ field }, index) => {
         if (chartRef.current) {
           chartRef.current.data.datasets[index].data = data.map((item) =>
-            item["incomeBeforeTax"] <= 0 || item["interestExpense"] <= 0
-              ? NaN
-              : item["incomeBeforeTax"] / (item["interestExpense"] || 0)
+            parseFloat(item.tie)
           );
         }
       });
@@ -62,7 +70,7 @@ export default function TimesInterestEarned() {
         pinned: "left",
       },
     ];
-    data?.forEach((item) => {
+    ties?.forEach((item) => {
       columns.push({
         field:
           reportType === PERIOD.QUARTER
@@ -71,7 +79,7 @@ export default function TimesInterestEarned() {
       });
     });
     return columns;
-  }, [data, reportType]);
+  }, [ties, reportType]);
 
   const tableRowData = useMemo(() => {
     const rowData: any[] = [];
@@ -81,45 +89,60 @@ export default function TimesInterestEarned() {
         title: headerName,
       };
 
-      data?.forEach((item) => {
+      ties?.forEach((item) => {
         if (reportType === PERIOD.ANNUAL) {
-          if (item["incomeBeforeTax"] <= 0 || item["interestExpense"] <= 0) {
-            dataSources[item.calendarYear] = "-";
-          } else {
-            dataSources[item.calendarYear] = numeral(
-              item["incomeBeforeTax"] / (item["interestExpense"] || 0)
-            ).format("0,0.000");
-          }
+          //TODO
         } else {
-          if (item["incomeBeforeTax"] <= 0 || item["interestExpense"] <= 0) {
-            dataSources[`${item.calendarYear}-${item.period}`] = "-";
-          } else {
-            dataSources[`${item.calendarYear}-${item.period}`] = numeral(
-              item["incomeBeforeTax"] / (item["interestExpense"] || 0)
-            ).format("0,0.000");
-          }
+          dataSources[`${item.calendarYear}-${item.period}`] = item.tie;
         }
       });
       rowData.push(dataSources);
     });
     return rowData;
-  }, [data, reportType]);
+  }, [ties, reportType]);
 
   useEffect(() => {
-    const limit = getDataLimit(reportType, period);
-    fetchIncomeStatement(stock.Symbol, reportType, limit).then((rst) => {
-      if (rst) {
-        const data = rst.map((item) => ({
-          ...item,
-          date: moment(item.date, "YYYY-MM-DD")
-            .startOf("quarter")
-            .format("YYYY-MM-DD"),
+    fetchFindMindAPI<{ type: string; date: string; value: number }[]>({
+      data_id: stock.No,
+      dataset: "TaiwanStockCashFlowsStatement",
+      start_date: getBeforeYears(period - 1),
+    }).then((res) => {
+      const dataArrayByDate = groupBy(res, "date");
+      console.log("dataArrayByDate", dataArrayByDate);
+      const data = Object.entries(dataArrayByDate)
+        .map(([date, values]) => {
+          const dateMoment = moment(date).startOf("quarter");
+          return Object.assign(
+            Object.fromEntries(values.map((item) => [item.type, item.value])),
+            {
+              date: dateMoment.format("YYYY-MM-DD"),
+              calendarYear: dateMoment.format("YYYY"),
+              month: dateMoment.format("MM"),
+              period: dateMoment.format("Q"),
+            }
+          );
+        })
+        .sort((a, b) => (a.date > b.date ? 1 : -1));
+      if (reportType === PERIOD.QUARTER) {
+        const ties = data.map((item) => ({
+          calendarYear: item.calendarYear,
+          month: item.month,
+          period: item.period,
+          date: item.date,
+          tie: numeral(
+            (item.NetIncomeBeforeTax + item.InterestExpense) /
+              item.InterestExpense
+          ).format("0,0.00"),
         }));
-        setData(data || []);
-        updateGraph(data || []);
+        setTIE(ties);
+        updateGraph(ties);
       }
+      if (reportType === PERIOD.ANNUAL) {
+        // TODO
+      }
+      setFinMindData(data);
     });
-  }, [stock.Symbol, reportType, period]);
+  }, [stock.No, reportType, period]);
 
   return (
     <Stack rowGap={1}>
