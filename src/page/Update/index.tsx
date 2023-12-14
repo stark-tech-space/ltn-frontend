@@ -12,18 +12,18 @@ export function UpdateStockCount() {
 
   useEffect(() => {
     // // 默认拿8年的数据
-    // fetchPerQuarterStocks<IStockCount[]>({
-    //   data_id: stock.No,
-    //   start_date: getBeforeYears(8),
-    //   limit: 8 * 4,
-    // }).then((rst) => {
-    //   const data = rst?.map((item) => ({
-    //     ...genFullDateObject(item.date),
-    //     StockCount: item.StockCount,
-    //     EPS: item.EPS,
-    //   }));
-    //   setStockCount(data as any);
-    // });
+    fetchPerQuarterStocks<IStockCount[]>({
+      data_id: stock.No,
+      start_date: getBeforeYears(8),
+      limit: 8 * 4,
+    }).then((rst) => {
+      const data = rst?.map((item) => ({
+        ...genFullDateObject(item.date),
+        StockCount: item.StockCount,
+        EPS: item.EPS,
+      }));
+      setStockCount(data as any);
+    });
   }, [setStockCount, stock.No]);
 
   return null;
