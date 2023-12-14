@@ -10,6 +10,7 @@ import { IIncome } from "types/financial";
 import PeriodController from "component/PeriodController";
 import { getDataLimit } from "until";
 import { PERIOD } from "types/common";
+import { fetchGrowthRates } from "api/common";
 
 interface IGraphData {
   date: string;
@@ -30,6 +31,29 @@ interface IIncomeGraph {
 const genStartDate = (years: number) => {
   return moment().subtract(years, "years").startOf("year").format("YYYY-MM-DD");
 };
+
+export const GRAPH_FIELDS = [
+  {
+    field: "Revenue",
+    headerName: "營收",
+  },
+  {
+    field: "grossProfit",
+    headerName: "毛利",
+  },
+  {
+    field: "operatingIncome",
+    headerName: "營業利益",
+  },
+  {
+    field: "preTaxIncome",
+    headerName: "稅前淨利",
+  },
+  {
+    field: "preTaxIncome",
+    headerName: "稅前淨利",
+  },
+];
 
 export default function IncomeGraph({
   getGraphData,
@@ -59,7 +83,8 @@ export default function IncomeGraph({
         (item) => item.type === "CostOfGoodsSold"
       );
       const operatingIncome = rst.data.filter(
-        (item) => item.type === "OperatingIncome"
+        (item) =>
+          item.type === "OperatingIncome" || item.type === "PreTaxIncome"
       );
       const preTaxIncome = rst.data.filter(
         (item) => item.type === "PreTaxIncome"
@@ -68,7 +93,7 @@ export default function IncomeGraph({
         (item) => item.type === "EquityAttributableToOwnersOfParent"
       );
       const incomeAfterTaxes = rst.data.filter(
-        (item) => item.type === "IncomeAfterTaxes"
+        (item) => item.type === "IncomeFromContinuingOperations"
       );
       const date = revenueData.map((item) => item.date);
       let sellingAndMarketingExpenses: any[] = [];
@@ -131,7 +156,6 @@ export default function IncomeGraph({
 
   useEffect(() => {
     fetchData();
-    fetchExpenseData();
   }, [fetchData]);
 
   const graphDataSet = useMemo(() => {
@@ -192,7 +216,7 @@ export default function IncomeGraph({
         },
         {
           type: "line" as const,
-          label: "母公司主業利益",
+          label: "母公司業主綜合損益",
           backgroundColor: "#026bc3",
           data: graphData?.equityAttributableToOwnersOfParent.map(
             (item) => item.value / 1000

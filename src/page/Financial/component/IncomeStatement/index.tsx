@@ -42,18 +42,24 @@ export default function IncomeStatement() {
       dataSources2["title"] = "毛利";
       dataSources2[graphData.date[index]] = numeral(item).format("0,0");
     });
-    graphData.sellingAndMarketingExpenses?.forEach((item: any, index: number) => {
-      dataSources4["title"] = "銷售費用";
-      dataSources4[graphData.date[index]] = numeral(item).format("0,0");
-    });
-    graphData.generalAndAdministrativeExpenses?.forEach((item: any, index: number) => {
-      dataSources9["title"] = "管理費用";
-      dataSources9[graphData.date[index]] = numeral(item).format("0,0");
-    });
-    graphData.researchAndDevelopmentExpenses?.forEach((item: any, index: number) => {
-      dataSources10["title"] = "研發費用";
-      dataSources10[graphData.date[index]] = numeral(item).format("0,0");
-    });
+    graphData.sellingAndMarketingExpenses?.forEach(
+      (item: any, index: number) => {
+        dataSources4["title"] = "銷售費用";
+        dataSources4[graphData.date[index]] = numeral(item).format("0,0");
+      }
+    );
+    graphData.generalAndAdministrativeExpenses?.forEach(
+      (item: any, index: number) => {
+        dataSources9["title"] = "管理費用";
+        dataSources9[graphData.date[index]] = numeral(item).format("0,0");
+      }
+    );
+    graphData.researchAndDevelopmentExpenses?.forEach(
+      (item: any, index: number) => {
+        dataSources10["title"] = "研發費用";
+        dataSources10[graphData.date[index]] = numeral(item).format("0,0");
+      }
+    );
 
     graphData.operatingExpenses?.forEach((item: any, index: number) => {
       dataSources3["title"] = "營業費用";
@@ -75,14 +81,15 @@ export default function IncomeStatement() {
       dataSources7[graphData.date[index]] = numeral(item).format("0,0");
     });
 
-    graphData.equityAttributableToOwnersOfParent?.forEach((item: any, index: number) => {
-      dataSources8["title"] = "母公司主業利益";
-      dataSources8[graphData.date[index]] = numeral(item).format("0,0");
-    });
+    graphData.equityAttributableToOwnersOfParent?.forEach(
+      (item: any, index: number) => {
+        dataSources8["title"] = "母公司主業利益";
+        dataSources8[graphData.date[index]] = numeral(item).format("0,0");
+      }
+    );
 
-    return [
+    const res = [
       dataSources1,
-      dataSources2,
       dataSources3,
       dataSources4,
       dataSources9,
@@ -92,6 +99,12 @@ export default function IncomeStatement() {
       dataSources7,
       dataSources8,
     ];
+
+    if (dataSources2.title) {
+      res.splice(1, 0, dataSources2);
+    }
+
+    return res;
   }, [graphData]);
 
   const columnHeaders = useMemo(() => {

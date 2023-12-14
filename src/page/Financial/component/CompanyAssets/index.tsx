@@ -87,8 +87,15 @@ const TARGET_FIELDS = [
     code: ["1510 + 1550"],
     drawerLineChart: true,
     calc: (data: ITableItem[]) => {
-      const targets = data.filter((item) => item.code === "1510" || item.code === "1550");
-      return targets.reduce((acc, item) => acc + (numeral(item.value).value() || 0), 0) * UNIT;
+      const targets = data.filter(
+        (item) => item.code === "1510" || item.code === "1550"
+      );
+      return (
+        targets.reduce(
+          (acc, item) => acc + (numeral(item.value).value() || 0),
+          0
+        ) * UNIT
+      );
     },
   },
   {
@@ -98,7 +105,9 @@ const TARGET_FIELDS = [
     drawerLineChart: true,
     calc: (data: ITableItem[]) => {
       const targets = data.filter((item) => item.code === "1600");
-      return targets[0].value ? (numeral(targets[0].value).value() || 0) * UNIT : 0;
+      return targets[0]?.value
+        ? (numeral(targets[0].value).value() || 0) * UNIT
+        : 0;
     },
   },
   {
@@ -109,7 +118,9 @@ const TARGET_FIELDS = [
     calc: (data: ITableItem[]) => {
       // item.code === "19999" 可能是總資產
       const targets = data.filter((item) => item.code === "1XXX");
-      return targets[0].value ? (numeral(targets[0].value).value() || 0) * UNIT : 0;
+      return targets[0]?.value
+        ? (numeral(targets[0].value).value() || 0) * UNIT
+        : 0;
     },
   },
   {
@@ -131,7 +142,9 @@ const TARGET_FIELDS = [
     drawerLineChart: false,
     calc: (data: ITableItem[]) => {
       const targets = data.filter((item) => item.code === "1110");
-      return (numeral(targets[0].value).value() || 0) * UNIT;
+      return targets[0]?.value
+        ? (numeral(targets[0].value).value() || 0) * UNIT
+        : 0;
     },
   },
   {
@@ -145,9 +158,14 @@ const TARGET_FIELDS = [
           item.code === "1150" ||
           item.code === "1160" ||
           item.code === "1170" ||
-          item.code === "1180",
+          item.code === "1180"
       );
-      return targets.reduce((acc, item) => acc + (numeral(item.value).value() || 0), 0) * UNIT;
+      return (
+        targets.reduce(
+          (acc, item) => acc + (numeral(item.value).value() || 0),
+          0
+        ) * UNIT
+      );
     },
   },
   {
@@ -157,7 +175,7 @@ const TARGET_FIELDS = [
     drawerLineChart: false,
     calc: (data: ITableItem[]) => {
       const targets = data.filter((item) => item.code === "130X");
-      return (numeral(targets[0].value).value() || 0) * UNIT;
+      return (numeral(targets[0]?.value || 0).value() || 0) * UNIT;
     },
   },
   {
@@ -172,12 +190,16 @@ const TARGET_FIELDS = [
           item.code === "11XX" ||
           item.code === "1100" ||
           item.code === "1110" ||
-          item.code === "1180",
+          item.code === "1180"
       );
-      const Code_11XX = targets.find((item) => item.code === "11XX")?.value || 0;
-      const Code_1100 = targets.find((item) => item.code === "1100")?.value || 0;
-      const Code_1110 = targets.find((item) => item.code === "1110")?.value || 0;
-      const Code_1180 = targets.find((item) => item.code === "1180")?.value || 0;
+      const Code_11XX =
+        targets.find((item) => item.code === "11XX")?.value || 0;
+      const Code_1100 =
+        targets.find((item) => item.code === "1100")?.value || 0;
+      const Code_1110 =
+        targets.find((item) => item.code === "1110")?.value || 0;
+      const Code_1180 =
+        targets.find((item) => item.code === "1180")?.value || 0;
 
       return (
         ((numeral(Code_11XX).value() || 0) -
@@ -199,9 +221,14 @@ const TARGET_FIELDS = [
           item.code === "1150" ||
           item.code === "1160" ||
           item.code === "1170" ||
-          item.code === "1180",
+          item.code === "1180"
       );
-      return targets.reduce((acc, item) => acc + (numeral(item.value).value() || 0), 0) * UNIT;
+      return (
+        targets.reduce(
+          (acc, item) => acc + (numeral(item.value).value() || 0),
+          0
+        ) * UNIT
+      );
     },
   },
 ];
@@ -223,7 +250,9 @@ export default function CompanyAssets() {
       quarter: item.quarter,
       year: item.year,
       data:
-        item.tables?.find((subTableItem) => subTableItem.name === TARGET_TABLE_NAME)?.data || [],
+        item.tables?.find(
+          (subTableItem) => subTableItem.name === TARGET_TABLE_NAME
+        )?.data || [],
     }));
     return targetTableData;
   };
@@ -235,13 +264,15 @@ export default function CompanyAssets() {
       });
 
       chartRef.current.data.labels = labels;
-      TARGET_FIELDS.filter((item) => item.drawerLineChart).forEach(({ field }, index) => {
-        if (chartRef.current) {
-          chartRef.current.data.datasets[index].data = data.map((item) => {
-            return +item[field as keyof IFields] || 0;
-          });
+      TARGET_FIELDS.filter((item) => item.drawerLineChart).forEach(
+        ({ field }, index) => {
+          if (chartRef.current) {
+            chartRef.current.data.datasets[index].data = data.map((item) => {
+              return +item[field as keyof IFields] || 0;
+            });
+          }
         }
-      });
+      );
       chartRef.current.update();
     }
   };
@@ -358,7 +389,11 @@ export default function CompanyAssets() {
 
   return (
     <Stack rowGap={1}>
-      <Box bgcolor="#fff" borderRadius={{ xs: 0, md: 0, lg: "8px" }} p={{ xs: 2, md: 3, lg: 3 }}>
+      <Box
+        bgcolor="#fff"
+        borderRadius={{ xs: 0, md: 0, lg: "8px" }}
+        p={{ xs: 2, md: 3, lg: 3 }}
+      >
         <Stack
           direction="row"
           alignItems="center"
@@ -391,7 +426,9 @@ export default function CompanyAssets() {
           </Stack>
         </Stack>
         <Box bgcolor="#fff">
-          <div style={{ display: chartType === 0 ? "block" : "none", height: 534 }}>
+          <div
+            style={{ display: chartType === 0 ? "block" : "none", height: 534 }}
+          >
             <ReactChart
               type="line"
               data={labelDataSets}
@@ -399,7 +436,9 @@ export default function CompanyAssets() {
               ref={chartRef}
             />
           </div>
-          <div style={{ display: chartType === 1 ? "block" : "none", height: 534 }}>
+          <div
+            style={{ display: chartType === 1 ? "block" : "none", height: 534 }}
+          >
             <ReactChart
               type="pie"
               data={pieChartLabelDataSets}

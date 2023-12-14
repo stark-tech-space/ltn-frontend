@@ -13,6 +13,7 @@ import TagCard from "component/tabCard";
 import { findMindDataToFmpData, getBeforeYears, getDataLimit } from "until";
 import { minBy, maxBy } from "lodash";
 import numeral from "numeral";
+import UnAvailable from "component/UnAvailable";
 
 interface ISma {
   date: string;
@@ -74,7 +75,6 @@ function generateGraphData(data: IMonthlyRevenueGrowth[], limit: number) {
     },
     {}
   );
-  console.log("dataByYear", dataByYear);
   const result = [];
 
   for (const year in dataByYear) {
@@ -166,6 +166,7 @@ export default function Graph({
   const [title, setTitle] = useState("單季毛利年增率");
   const [subTitle, setSubTitle] = useState("近4季毛利年增率");
   const [type, setType] = useState(1);
+  const [isUnAvailable, setIsUnAvailable] = useState<boolean>(false);
 
   const changeType = (value: number) => {
     setTitle(changeINfo[value].label);
@@ -260,6 +261,9 @@ export default function Graph({
       const realData = data.filter(
         (item: any) => item?.GrossProfit && item.GrossProfit !== 0
       );
+      if (!realData || (realData && realData.length === 0)) {
+        setIsUnAvailable(true);
+      }
       const newData = generateGraphData(realData, limit);
       setGraphData(newData);
     }
@@ -397,6 +401,10 @@ export default function Graph({
   useEffect(() => {
     getGraphData(genGraphTableData(graphData));
   }, [graphData, type, reportType, AllYearData]);
+
+  if (isUnAvailable) {
+    return <UnAvailable />;
+  }
 
   return (
     <>

@@ -11,8 +11,9 @@ import { useAvgPriceByMonth } from "Hooks/common";
 import moment from "moment";
 import TagCard from "component/tabCard";
 import { findMindDataToFmpData, getBeforeYears, getDataLimit } from "until";
-import { minBy, maxBy, max } from "lodash";
+import { minBy, maxBy } from "lodash";
 import numeral from "numeral";
+import UnAvailable from "component/UnAvailable";
 
 interface ISma {
   date: string;
@@ -166,6 +167,7 @@ export default function Graph({
   const [title, setTitle] = useState("單季營業利益年增率");
   const [subTitle, setSubTitle] = useState("近4季營業利益年增率");
   const [type, setType] = useState(1);
+  const [isUnlivable, setIsUnlivable] = useState(false);
 
   const changeType = (value: number) => {
     setTitle(changeINfo[value].label);
@@ -257,10 +259,29 @@ export default function Graph({
       };
     });
     if (data) {
+      let renderData: any[] = [];
       const realData = data.filter(
         (item: any) => item.OperatingIncome && item.OperatingIncome !== 0
       );
-      const newData = generateGraphData(realData, limit);
+      if (realData && realData.length === 0) {
+        // setIsUnlivable(true);
+        const newRealData: any[] = data.filter(
+          (item: any) => item.PreTaxIncome && item.PreTaxIncome !== 0
+        );
+
+        newRealData.forEach((item) => {
+          item.OperatingIncome = item.PreTaxIncome;
+        });
+
+        if (newRealData && newRealData.length === 0) {
+          setIsUnlivable(true);
+        }
+        renderData = newRealData;
+      } else {
+        renderData = realData;
+      }
+
+      const newData = generateGraphData(renderData, limit);
       setGraphData(newData);
     }
   }, [stock, period, reportType, getGraphData]);
@@ -296,6 +317,7 @@ export default function Graph({
           backgroundColor: "rgb(196,66,66)",
           borderWidth: 2,
           fill: false,
+          tension: 0.4,
           data: avgPrice.map((item) => ({
             x: item.date,
             y: numeral(item.sma).format("0,0.00"),
@@ -394,6 +416,10 @@ export default function Graph({
   useEffect(() => {
     getGraphData(genGraphTableData(graphData));
   }, [graphData, type, reportType, AllYearData]);
+
+  if (isUnlivable) {
+    return <UnAvailable />;
+  }
 
   return (
     <>

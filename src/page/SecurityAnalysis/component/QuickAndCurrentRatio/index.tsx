@@ -18,6 +18,8 @@ import { ISecurityRatio } from "types/security";
 import numeral from "numeral";
 import moment from "moment";
 import WrappedAgGrid from "component/WrappedAgGrid";
+import { fetchDanYiGongSiAnLi } from "api/financial";
+import UnAvailable from "component/UnAvailable";
 
 const GRAPH_FIELDS = [
   {
@@ -39,6 +41,7 @@ export default function QuickAndCurrentRatio() {
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
   const [period, setPeriod] = useState(3);
   const [data, setData] = useState<Array<ISecurityRatio>>([]);
+  const [isUnAvailable, setIsUnAvailable] = useState<boolean>(false);
 
   const updateGraph = (data: ISecurityRatio[]) => {
     if (chartRef.current) {
@@ -87,17 +90,42 @@ export default function QuickAndCurrentRatio() {
         if (reportType === PERIOD.ANNUAL) {
           dataSources[item.calendarYear] = numeral(
             item[field as keyof ISecurityRatio]
-          ).format("0,0.000");
+          ).format("0,0.00");
         } else {
           dataSources[`${item.calendarYear}-${item.period}`] = numeral(
             item[field as keyof ISecurityRatio]
-          ).format("0,0.000");
+          ).format("0,0.00");
         }
       });
       rowData.push(dataSources);
     });
     return rowData;
   }, [data, reportType]);
+
+  useEffect(() => {
+    fetchDanYiGongSiAnLi({
+      securityCode: stock.No,
+      size: 1,
+    }).then((res) => {
+      if (res?.list && res.list[0]) {
+        const balanceTable = res.list[0].tables.find(
+          ({ name }) => name === "資產負債表"
+        );
+        //  流動資產合計
+        const currentAssets = parseInt(
+          balanceTable?.data
+            .find(
+              ({ code, name }) => code === "11XX" || name === "流動資產合計"
+            )
+            ?.value.replaceAll(",", "") || ""
+        );
+
+        if (!currentAssets) {
+          setIsUnAvailable(true);
+        }
+      }
+    });
+  }, []);
 
   useEffect(() => {
     const limit = getDataLimit(reportType, period);
@@ -109,6 +137,8 @@ export default function QuickAndCurrentRatio() {
       if (rst) {
         const data = rst.map((item) => ({
           ...item,
+          currentRatio: item.currentRatio * 100,
+          quickRatio: item.quickRatio * 100,
           date: moment(item.date, "YYYY-MM-DD")
             .startOf("quarter")
             .format("YYYY-MM-DD"),
@@ -118,6 +148,10 @@ export default function QuickAndCurrentRatio() {
       }
     });
   }, [stock.Symbol, reportType, period]);
+
+  if (isUnAvailable) {
+    return <UnAvailable />;
+  }
 
   return (
     <Stack rowGap={1}>

@@ -11,6 +11,7 @@ import { IOutsideProfitRatio, IPreTaxIncome } from "types/profitability";
 import PeriodController from "component/PeriodController";
 import { fetchFindMindAPI } from "api/common";
 import moment from "moment";
+import UnAvailable from "component/UnAvailable";
 
 export const GRAPH_FIELDS = [
   {
@@ -28,6 +29,7 @@ export default function GraphSingleRatio({
   const stock = useRecoilValue(currentStock);
   const [period, setPeriod] = useState(3);
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
+  const [isUnlivable, setIsUnlivable] = useState(false);
 
   const updateGraph = (data: IOutsideProfitRatio[]) => {
     if (chartRef.current) {
@@ -112,6 +114,9 @@ export default function GraphSingleRatio({
           +item.TotalNonoperatingIncomeAndExpense /
           +newPreTaxIncome[index].PreTaxIncome;
       });
+      if (newAllValues.length === 0) {
+        setIsUnlivable(true);
+      }
       updateGraph(newAllValues);
       getGraphData(genGraphTableData(newAllValues));
     }
@@ -120,6 +125,10 @@ export default function GraphSingleRatio({
   useEffect(() => {
     fetchGraphData();
   }, [fetchGraphData]);
+
+  if (isUnlivable) {
+    return <UnAvailable />;
+  }
 
   return (
     <>
