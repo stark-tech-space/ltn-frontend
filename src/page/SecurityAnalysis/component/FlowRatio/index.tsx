@@ -13,7 +13,7 @@ import _, { groupBy, keyBy } from "lodash";
 import WrappedAgGrid from "component/WrappedAgGrid";
 import moment from "moment";
 import { fetchDanYiGongSiAnLi } from "api/financial";
-import { caseDateToYYYYMMDD } from "until";
+import { caseDateToYYYYMMDD, formatNumberFromCompanyCase } from "until";
 
 interface IGraphData {
   date: string;
@@ -78,7 +78,9 @@ export default function FlowRate() {
       });
     });
 
-    GRAPH_FIELDS.forEach(({ field, headerName }) => {
+    GRAPH_FIELDS.filter(({ field }) =>
+      data.every((item) => !Number.isNaN(item[field as keyof IGraphData]))
+    ).forEach(({ field, headerName }) => {
       const dataSources: { [key: string]: any } = {
         title: headerName,
         pinned: "left",
@@ -134,13 +136,11 @@ export default function FlowRate() {
               };
             })
             .sort((a, b) => (a.start > b.start ? -1 : 1)) || [];
-        const accCashFlowsFromOperatingActivities = parseInt(
-          comprehensiveIncomeData
-            .find(
-              ({ code, name }) =>
-                code === "AAAA" || name === "營業活動之淨現金流入（流出）"
-            )
-            ?.value?.replaceAll(",", "") || ""
+        const accCashFlowsFromOperatingActivities = formatNumberFromCompanyCase(
+          comprehensiveIncomeData.find(
+            ({ code, name }) =>
+              code === "AAAA" || name === "營業活動之淨現金流入（流出）"
+          )?.value || ""
         );
 
         const balanceTable = tables.find(({ name }) => name === "資產負債表");
@@ -154,18 +154,17 @@ export default function FlowRate() {
               ...caseDateToYYYYMMDD(date),
             }))
             .sort((a, b) => (a.start > b.start ? -1 : 1)) || [];
-        const currentLiabilities = parseInt(
-          balanceData
-            .find(
-              ({ code, name }) => code === "21XX" || name === "流動負債合計"
-            )
-            ?.value.replaceAll(",", "") || ""
+        const currentLiabilities = formatNumberFromCompanyCase(
+          balanceData.find(
+            ({ code, name }) => code === "21XX" || name === "流動負債合計"
+          )?.value || ""
         );
 
-        const liabilities = parseInt(
-          balanceData
-            .find(({ code, name }) => code === "2XXX" || name === "負債總計")
-            ?.value.replaceAll(",", "") || ""
+        const liabilities = formatNumberFromCompanyCase(
+          balanceData.find(
+            ({ code, name }) =>
+              code === "2XXX" || name === "負債總計" || code === "29999"
+          )?.value || ""
         );
 
         return {
