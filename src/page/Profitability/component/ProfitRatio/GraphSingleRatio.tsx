@@ -36,7 +36,7 @@ export default function GraphSingleRatio({
       GRAPH_FIELDS.forEach(async ({ field }, index) => {
         if (chartRef.current) {
           chartRef.current.data.datasets[index].data = data.map(
-            (item) => +item[field as keyof IProfitRatio]
+            (item) => +item[field as keyof IProfitRatio],
           );
         }
       });
@@ -60,9 +60,7 @@ export default function GraphSingleRatio({
     data?.forEach((item) => {
       columnHeaders.push({
         field:
-          reportType === PERIOD.QUARTER
-            ? `${item.calendarYear}-${item.period}`
-            : item.calendarYear,
+          reportType === PERIOD.QUARTER ? `${item.calendarYear}-${item.period}` : item.calendarYear,
       });
     });
 
@@ -72,9 +70,7 @@ export default function GraphSingleRatio({
       };
       data?.forEach((item) => {
         if (reportType === PERIOD.ANNUAL) {
-          dataSources[item.calendarYear] = (
-            +item[field as keyof IProfitRatio] * 100
-          ).toFixed(2);
+          dataSources[item.calendarYear] = (+item[field as keyof IProfitRatio] * 100).toFixed(2);
         } else {
           dataSources[`${item.calendarYear}-${item.period}`] = (
             +item[field as keyof IProfitRatio] * 100
@@ -88,13 +84,15 @@ export default function GraphSingleRatio({
 
   const fetchGraphData = useCallback(async () => {
     const limit = getDataLimit(reportType, period);
-    const rst = await fetchProfitRatio<IProfitRatio[]>(
-      stock.Symbol,
-      reportType,
-      limit
-    );
+    const rst = await fetchProfitRatio<IProfitRatio[]>(stock.Symbol, reportType, limit);
     if (rst) {
-      updateGraph(rst);
+      const formatEffectiveTaxRate = (rst: IProfitRatio[]) =>
+        rst.map((item) => ({
+          ...item,
+          effectiveTaxRate: Number((item.effectiveTaxRate * 100).toFixed(2)),
+        }));
+
+      updateGraph(formatEffectiveTaxRate(rst));
       getGraphData(genGraphTableData(rst));
     }
   }, [stock, period, reportType, getGraphData]);
@@ -105,10 +103,7 @@ export default function GraphSingleRatio({
 
   return (
     <>
-      <PeriodController
-        onChangePeriod={setPeriod}
-        onChangeReportType={setReportType}
-      />
+      <PeriodController onChangePeriod={setPeriod} onChangeReportType={setReportType} />
       <Box height={510} bgcolor="#fff" pb={3}>
         <ReactChart
           type="line"
