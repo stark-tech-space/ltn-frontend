@@ -1,19 +1,18 @@
-import { Box, Button, Stack } from "@mui/material";
-import * as lightweightCharts from "lightweight-charts";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   PERIOD_TYPE,
   PRICE_SCALE_PERIOD,
   PRICE_SCALE_PERIOD_ITEM,
+  PRICE_SCALE_TYPE,
 } from "types/common";
-import CircularLoading from "component/Loading";
-import { test_01 } from "./test";
+import moment from "moment";
 import { io } from "socket.io-client";
 import { useRecoilValue } from "recoil";
-import { currentStock } from "recoil/selector";
-import moment from "moment";
 import ltnApi from "api/http/ltnApi";
-
+import { currentStock } from "recoil/selector";
+import CircularLoading from "component/Loading";
+import { Box, Button, Stack } from "@mui/material";
+import * as lightweightCharts from "lightweight-charts";
 import { genStartDateForPriceChart, timeToTz } from "until";
 
 interface IPrice {
@@ -26,18 +25,28 @@ interface IStockPushedDataItem {
   close: number;
 }
 
+interface IStockRst {
+  success: boolean;
+  data: IStockPushedDataItem;
+}
+
+const isClosedMarket = (now: number) => {
+  return now < moment("13:30", "HH:mm").unix();
+};
+
 export default function PriceTrendChart() {
   const stock = useRecoilValue(currentStock);
   const chartRef = useRef<lightweightCharts.IChartApi | null>(null);
   const areaSeriesRef = useRef<lightweightCharts.ISeriesApi<"Area"> | null>(
     null
   );
-  const chartContainerRef = useRef<HTMLElement | null>(null);
+  const toolTip = useRef<HTMLDivElement>(null);
+  const chartContainerRef = useRef<HTMLElement>(null);
+  const graphPeriodType = useRef<PRICE_SCALE_TYPE>(PRICE_SCALE_TYPE.MINUTE);
+  const firstReceived = useRef(true);
 
   const [graphPeriod, setGraphPeriod] = useState(PRICE_SCALE_PERIOD[0]);
   const [isLoading, setIsLoading] = useState(false);
-
-  const toolTip = useRef<HTMLDivElement>();
 
   const format = (data: IPrice[], isBusinessDay: boolean) => {
     if (isBusinessDay) {
@@ -53,34 +62,103 @@ export default function PriceTrendChart() {
         };
       });
     }
-    return data.map((item: any) => ({
+
+    const formatData = data.map((item: any) => ({
       time: moment(item.time).unix(),
       value: +item.price,
     }));
+    return isClosedMarket(+data[data.length - 1].time)
+      ? formatData.slice(0, -1)
+      : formatData;
   };
-
-  // test udpate
-  // const setIntervalGraph = () => {
-  //   if (chartRef.current && areaSeriesRef.current) {
-  //     index++;
-  //     areaSeriesRef.current.update({
-  //       time: moment(timeStamp * 1000)
-  //         .add(1 * index, "minute")
-  //         .unix(),
-  //       value: +faker.finance.amount(579, 582),
-  //     } as any);
-  //     chartRef.current.timeScale().fitContent();
-  //   }
-  // };
 
   const genGraphData = (periodType: PERIOD_TYPE, data: IPrice[]) => {
     if (periodType === "day") {
-      return data.slice(0, 100).map((item: IPrice) => ({
+      return data.slice(0, -1).map((item: IPrice) => ({
         time: moment(item.time).unix(),
         value: +item.price,
       }));
     }
     return format(data, true);
+  };
+
+  const updateToolTip = () => {
+    try {
+      if (
+        chartRef.current &&
+        chartContainerRef.current &&
+        toolTip.current &&
+        areaSeriesRef.current
+      ) {
+        console.log(111);
+        chartRef.current.subscribeCrosshairMove((param: any) => {
+          const toolTipWidth = 80;
+          const toolTipHeight = 80;
+          const toolTipMargin = 15;
+          const containerClientWidth =
+            chartContainerRef.current?.clientWidth || 0;
+          const containerClientHeight =
+            chartContainerRef.current?.clientHeight || 0;
+
+          if (
+            param.point === undefined ||
+            !param.time ||
+            param.point.x < 0 ||
+            param.point.x > containerClientWidth ||
+            param.point.y < 0 ||
+            param.point.y > containerClientHeight
+          ) {
+            toolTip.current!.style!.display = "none";
+          } else {
+            const dateStr =
+              typeof param.time === "object"
+                ? `${param.time.year}-${param.time.month}-${param.time.day}`
+                : timeToTz(param.time, "Asia/Taipei").format(
+                    "YYYY-MM-DD HH:mm"
+                  );
+
+            toolTip.current!.style.display = "block";
+            const data: any = areaSeriesRef.current
+              ? param.seriesData.get(areaSeriesRef.current)
+              : {};
+
+            const price = data.value !== undefined ? data.value : "";
+            toolTip.current!.innerHTML = `<div style="color: ${"#333"}">${
+              stock.Name
+            }</div><div style="font-size: 18px; margin: 4px 0px; color: ${"#333"}">
+          ${price}
+          </div><div style="color: ${"#333"}">
+          ${dateStr}
+          </div>`;
+
+            const coordinate =
+              areaSeriesRef.current?.priceToCoordinate(price) || 0;
+            let shiftedCoordinate = param.point.x - 50;
+            if (coordinate === null) {
+              return;
+            }
+            shiftedCoordinate = Math.max(
+              0,
+              Math.min(containerClientWidth - toolTipWidth, shiftedCoordinate)
+            );
+            const coordinateY =
+              coordinate - toolTipHeight - toolTipMargin > 0
+                ? coordinate - toolTipHeight - toolTipMargin
+                : Math.max(
+                    0,
+                    Math.min(
+                      containerClientHeight - toolTipHeight - toolTipMargin,
+                      coordinate + toolTipMargin
+                    )
+                  );
+            toolTip.current!.style.left = shiftedCoordinate + "px";
+            toolTip.current!.style.top = coordinateY + "px";
+          }
+        });
+      }
+    } catch (error) {
+      console.error("updateToolTip error", error);
+    }
   };
 
   useEffect(() => {
@@ -99,6 +177,15 @@ export default function PriceTrendChart() {
             return timeToTz(businessDayOrTimestamp, "Asia/Taipei").format(
               "YYYY-MM-DD HH:mm"
             );
+          },
+        },
+        crosshair: {
+          horzLine: {
+            visible: false,
+            labelVisible: false,
+          },
+          vertLine: {
+            labelVisible: false,
           },
         },
         layout: {
@@ -124,6 +211,7 @@ export default function PriceTrendChart() {
             bottom: 0,
           },
         },
+
         timeScale: {
           visible: true,
           fixLeftEdge: true,
@@ -178,22 +266,56 @@ export default function PriceTrendChart() {
       .then((rst: any) => {
         if (rst) {
           const graph = genGraphData(PERIOD_TYPE.DAY, rst.data.list);
+
           series.applyOptions({
-            lastPriceAnimation:
-              +graph[graph.length - 1].time <= moment("13:30", "HH:mm").unix()
-                ? lightweightCharts.LastPriceAnimationMode.Disabled
-                : lightweightCharts.LastPriceAnimationMode.Continuous,
+            lastPriceAnimation: isClosedMarket(+graph[graph.length - 1].time)
+              ? lightweightCharts.LastPriceAnimationMode.Disabled
+              : lightweightCharts.LastPriceAnimationMode.Continuous,
           });
           series.setData(graph as any);
           chart.timeScale().applyOptions({
             timeVisible: true,
             secondsVisible: false,
           });
+          updateToolTip();
           chart.timeScale().fitContent();
         }
       })
       .finally(() => setIsLoading(false));
   }, [stock.No]);
+
+  const updateLatestData = (rst: IStockRst) => {
+    if (
+      !rst.success ||
+      firstReceived.current ||
+      isClosedMarket(moment(rst.data.date).unix())
+    ) {
+      return;
+    }
+
+    if (firstReceived.current) {
+      firstReceived.current = false;
+    }
+
+    if (chartRef.current && rst.data) {
+      let nextData: { [key: string]: any } = {};
+      if (graphPeriodType.current === PRICE_SCALE_TYPE.MINUTE) {
+        nextData.time = moment(rst.data.date).unix();
+        nextData.value = +rst.data.close;
+      } else {
+        // 只有一天的数据才做分钟的刻度 （暂时如此）
+        const axisTime = moment(rst.data.date);
+        nextData.time = {
+          year: axisTime.year(),
+          month: axisTime.month(),
+          day: axisTime.date(),
+        };
+        nextData.value = +rst.data.close;
+      }
+      areaSeriesRef.current?.update(nextData as lightweightCharts.AreaData);
+      chartRef.current.timeScale().fitContent();
+    }
+  };
 
   useEffect(() => {
     if (!stock.No) return;
@@ -205,18 +327,32 @@ export default function PriceTrendChart() {
     });
 
     // 订阅分钟级别的股价
-    socket.on("stock-price", (data: any) => {
-      console.log("data:", data);
+    socket.on("stock-price", (data: IStockRst) => {
+      if (graphPeriodType.current === PRICE_SCALE_TYPE.MINUTE) {
+        updateLatestData(data);
+      }
     });
 
     // 订阅半小时级别的股价
-    socket.on("stock-price-half-hour", (data: any) => {});
+    socket.on("stock-price-half-hour", (data: IStockRst) => {
+      if (graphPeriodType.current === PRICE_SCALE_TYPE.HOURLY) {
+        updateLatestData(data);
+      }
+    });
 
     // 订阅一小时级别的股价
-    socket.on("stock-price-hour", (data: any) => {});
+    socket.on("stock-price-hour", (data: IStockRst) => {
+      if (graphPeriodType.current === PRICE_SCALE_TYPE.HOUR) {
+        updateLatestData(data);
+      }
+    });
 
     // 订阅一天级别的股价
-    socket.on("stock-price-day", (data: any) => {});
+    socket.on("stock-price-day", (data: IStockRst) => {
+      if (graphPeriodType.current === PRICE_SCALE_TYPE.DAY) {
+        updateLatestData(data);
+      }
+    });
 
     return () => {
       socket.disconnect();
@@ -227,6 +363,8 @@ export default function PriceTrendChart() {
     if (!stock.No || isLoading) {
       return;
     }
+    graphPeriodType.current = targetPeriod.period;
+    setGraphPeriod(targetPeriod);
     setIsLoading(true);
 
     const params = {
@@ -263,6 +401,22 @@ export default function PriceTrendChart() {
     chartRef.current?.timeScale().fitContent();
   };
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (chartContainerRef.current && chartRef.current) {
+        chartRef.current.resize(
+          chartContainerRef.current.offsetWidth,
+          chartContainerRef.current.offsetHeight
+        );
+        chartRef.current?.timeScale().fitContent();
+      }
+    };
+    window.addEventListener("resize", handleResize, false);
+    return () => {
+      window.removeEventListener("resize", handleResize, false);
+    };
+  }, []);
+
   return (
     <Box>
       <Stack
@@ -289,10 +443,7 @@ export default function PriceTrendChart() {
                   ? "#405DF9"
                   : "#333",
             }}
-            onClick={() => {
-              setGraphPeriod(item);
-              handleClickPeriod(item);
-            }}
+            onClick={() => handleClickPeriod(item)}
           >
             {item.label}
           </Button>
@@ -300,27 +451,30 @@ export default function PriceTrendChart() {
       </Stack>
       <Box position="relative" pb={2}>
         <CircularLoading open={isLoading} />
-        <Box ref={chartContainerRef} height={500} />
-        <Box
-          ref={toolTip}
-          sx={{
-            width: 80,
-            height: 80,
-            position: "absolute",
-            display: "none",
-            p: 1,
-            boxSizing: "border-box",
-            fontSize: "12px",
-            textAlign: "left",
-            left: "12px",
-            top: "12px",
-            pointerEvents: "none",
-            border: "1px solid rgba( 38, 166, 154, 1)",
-            borderRadius: "8px",
-            bgcolor: "#000",
-            color: "#fff",
-          }}
-        />
+        <Box ref={chartContainerRef} height={500} position="relative">
+          <Box
+            ref={toolTip}
+            sx={{
+              width: 120,
+              height: 90,
+              position: "absolute",
+              display: "none",
+              p: 1,
+              boxSizing: "border-box",
+              fontSize: "12px",
+              textAlign: "left",
+              left: "12px",
+              top: "12px",
+              pointerEvents: "none",
+              borderRadius: "6px",
+              bgcolor: "#fff",
+              color: "#fff",
+              zIndex: "100",
+              boxShadow:
+                "rgba(60, 64, 67, 0.3) 0 1px 2px 0px, rgba(60, 64, 67, 0.15) 0 2px 6px 2px",
+            }}
+          />
+        </Box>
       </Box>
     </Box>
   );
