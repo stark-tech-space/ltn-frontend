@@ -2,19 +2,18 @@ import { Stack, Box, Button, ButtonGroup } from "@mui/material";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import TagCard from "../../../../component/tabCard";
 import { Chart as ReactChart } from "react-chartjs-2";
-import { AgGridReact } from "ag-grid-react";
 import type { Chart } from "chart.js";
 import { PERIOD } from "types/common";
 import PeriodController from "component/PeriodController";
 import { graphConfig, labelDataSets } from "./ GraphConfig";
-import { genFullDateObject, getBeforeYears, getDataLimit } from "until";
-import { fetchCashFlowStatement } from "api/cashflow";
+import { genFullDateObject, getBeforeYears } from "until";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
-import { fetchFindMindAPI } from "api/common";
-import _ from "lodash";
+import _, { groupBy, keyBy } from "lodash";
 import WrappedAgGrid from "component/WrappedAgGrid";
 import moment from "moment";
+import { fetchDanYiGongSiAnLi } from "api/financial";
+import { caseDateToYYYYMMDD } from "until";
 
 interface IGraphData {
   date: string;
@@ -23,12 +22,12 @@ interface IGraphData {
 }
 const GRAPH_FIELDS = [
   {
-    field: "cashFlowToLongDebtRate",
-    headerName: "營業現金流對負債比",
-  },
-  {
     field: "cashFlowtoDebtRate",
     headerName: "營業現金流對流動負債比",
+  },
+  {
+    field: "cashFlowToLongDebtRate",
+    headerName: "營業現金流對負債比",
   },
 ];
 
@@ -114,54 +113,101 @@ export default function FlowRate() {
      * 營業現金流對負債比 = CashFlowsFromOperatingActivities / Liabilities
      */
 
-    const rst = await Promise.all([
-      fetchFindMindAPI<{ type: string; date: string; value: number }[]>({
-        data_id: stock.No,
-        dataset: "TaiwanStockCashFlowsStatement",
-        start_date: getBeforeYears(period - 1),
-      }),
-      fetchFindMindAPI<{ type: string; date: string; value: number }[]>({
-        data_id: stock.No,
-        dataset: "TaiwanStockBalanceSheet",
-        start_date: getBeforeYears(period - 1),
-      }),
-    ]);
+    const res = await fetchDanYiGongSiAnLi({
+      securityCode: stock.No,
+      yearRange: getBeforeYears(period - 1).slice(0, 4),
+    });
 
-    if (rst && rst.length === 2) {
-      const cashFlow = rst[0]
-        ?.filter((item) => item.type === "CashFlowsFromOperatingActivities")
-        .map((item) => ({
-          date: item.date,
-          CashFlowsFromOperatingActivities: item.value,
-        }));
-
-      const balanceByDate = Object.fromEntries(
-        Object.entries(_.groupBy(rst[1] || {}, "date")).map(
-          ([date, values]) => [
-            date,
-            Object.fromEntries(values.map(({ type, value }) => [type, value])),
-          ]
-        )
-      );
-
-      if (cashFlow && rst[1]) {
-        const graphData = cashFlow?.map((item, index) => ({
-          cashFlowToLongDebtRate:
-            item.CashFlowsFromOperatingActivities /
-            balanceByDate[item.date]?.Liabilities,
-          cashFlowtoDebtRate:
-            item.CashFlowsFromOperatingActivities /
-            balanceByDate[item.date]?.CurrentLiabilities,
-          date: moment(item.date, "YYYY-MM-DD")
-            .startOf("quarter")
-            .format("YYYY-MM-DD"),
-        }));
-        updateGraph(graphData);
-        setGraphData(graphData);
-      }
+    if (!res) {
+      return;
     }
 
-    // console.log("rst:", rst);
+    const dataByDateArray =
+      res.list.map(({ tables, year, quarter }) => {
+        const cashFlowTable = tables.find(({ name }) => name === "現金流量表");
+        const comprehensiveIncomeData =
+          cashFlowTable?.data
+            .map(({ date, ...data }) => {
+              return {
+                ...data,
+                ...caseDateToYYYYMMDD(date),
+              };
+            })
+            .sort((a, b) => (a.start > b.start ? -1 : 1)) || [];
+        const accCashFlowsFromOperatingActivities = parseInt(
+          comprehensiveIncomeData
+            .find(
+              ({ code, name }) =>
+                code === "AAAA" || name === "營業活動之淨現金流入（流出）"
+            )
+            ?.value?.replaceAll(",", "") || ""
+        );
+
+        const balanceTable = tables.find(({ name }) => name === "資產負債表");
+        const date = moment(`${year}-${quarter}`, "YYYY-[Q]Q")
+          .startOf("quarter")
+          .format("YYYY-MM-DD");
+        const balanceData =
+          balanceTable?.data
+            .map(({ date, ...data }) => ({
+              ...data,
+              ...caseDateToYYYYMMDD(date),
+            }))
+            .sort((a, b) => (a.start > b.start ? -1 : 1)) || [];
+        const currentLiabilities = parseInt(
+          balanceData
+            .find(
+              ({ code, name }) => code === "21XX" || name === "流動負債合計"
+            )
+            ?.value.replaceAll(",", "") || ""
+        );
+
+        const liabilities = parseInt(
+          balanceData
+            .find(({ code, name }) => code === "2XXX" || name === "負債總計")
+            ?.value.replaceAll(",", "") || ""
+        );
+
+        return {
+          year,
+          quarter,
+          date,
+          currentLiabilities,
+          liabilities,
+          accCashFlowsFromOperatingActivities,
+        };
+      }) || [];
+
+    const dataGroupByYear = Object.fromEntries(
+      Object.entries(
+        groupBy(dataByDateArray, (item) => item.date.slice(0, 4))
+      ).map(([key, values]) => [key, keyBy(values, "quarter")])
+    );
+
+    const finalData = dataByDateArray.map((item) => {
+      const yearData = dataGroupByYear[item.year];
+      const quarterNumber = Number(item.quarter[1]);
+      const cashFlowsFromOperatingActivities =
+        item.accCashFlowsFromOperatingActivities -
+        (yearData[`Q${quarterNumber - 1}`]
+          ?.accCashFlowsFromOperatingActivities || 0);
+      return {
+        ...item,
+        cashFlowsFromOperatingActivities,
+      };
+    });
+
+    const graphData = finalData?.map((item, index) => ({
+      cashFlowToLongDebtRate:
+        item.cashFlowsFromOperatingActivities / item.liabilities,
+      cashFlowtoDebtRate:
+        item.cashFlowsFromOperatingActivities / item.currentLiabilities,
+      date: moment(item.date, "YYYY-MM-DD")
+        .startOf("quarter")
+        .format("YYYY-MM-DD"),
+    }));
+    updateGraph(graphData);
+    setGraphData(graphData);
   }, [stock, period]);
 
   useEffect(() => {
@@ -172,6 +218,7 @@ export default function FlowRate() {
     () => genGraphTableData(graphData),
     [graphData]
   );
+
   return (
     <Stack rowGap={1}>
       <Box bgcolor="#fff" p={3} borderRadius="8px">
