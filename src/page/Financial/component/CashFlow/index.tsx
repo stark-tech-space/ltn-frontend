@@ -101,7 +101,7 @@ export default function CashFlow() {
 
     return {};
   }, [stockCountByQuarterArray, reportType]);
-  console.log("stockCountByPeriod", stockCountByPeriod);
+
   const fetchGraphData = useCallback(async () => {
     const limit = getDataLimit(reportType, period);
     const rst = await fetchCashFlowStatement(stock.Symbol, reportType, limit);
