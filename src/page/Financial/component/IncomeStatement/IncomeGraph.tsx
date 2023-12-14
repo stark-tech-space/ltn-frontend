@@ -72,7 +72,6 @@ export default function IncomeGraph({
     });
 
     if (rst?.status === 200) {
-      console.log("rst.data", rst.data);
       const revenueData = rst.data.filter((item) => item.type === "Revenue");
       const grossProfitData = rst.data.filter(
         (item) => item.type === "GrossProfit"
@@ -152,8 +151,6 @@ export default function IncomeGraph({
   const fetchExpenseData = async () => {
     const limit = getDataLimit(PERIOD.QUARTER, period);
     const rst = await fetchIncomeStatement(stock.Symbol, PERIOD.QUARTER, limit);
-    console.log("rst", rst);
-
     return rst;
   };
 

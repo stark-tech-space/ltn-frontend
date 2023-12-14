@@ -121,7 +121,6 @@ export default function Graph({
         const finMindCashEarningByYear = groupBy(rst2 || [], (item) =>
           item.date.slice(0, 4)
         );
-        console.log(finMindCashEarningByYear);
         rst.forEach((item) => {
           const date = item.date.split("-").slice(0, 2).join("-");
           if (reportType === PERIOD.QUARTER) {
