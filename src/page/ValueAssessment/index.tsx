@@ -22,7 +22,7 @@ const CHILDREN_MAP: Record<VALUE_ASSESS_PAGE_ENUM, React.ReactNode> = {
   [VALUE_ASSESS_PAGE_ENUM.PAGE6]: <AvgCashDividend />,
   [VALUE_ASSESS_PAGE_ENUM.PAGE7]: <Developing />,
 };
-//
+
 export default function ValueAssessmentPage() {
   const [activeTab, setActiveTab] = useState<VALUE_ASSESS_PAGE_ENUM>(
     VALUE_ASSESS_PAGE_ENUM.PAGE1

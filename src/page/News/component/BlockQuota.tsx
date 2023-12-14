@@ -119,51 +119,50 @@ export default function BlockQuota() {
   const stock = useRecoilValue(currentStock);
 
   useEffect(() => {
-    (async () => {
-      const [rst1, rst2] = await Promise.all([
-        fetchCompanyRatios(stock.Symbol, PERIOD.QUARTER, 4),
-        fetchGrowthRates(stock.Symbol, PERIOD.QUARTER, 1),
-      ]);
-
-      setBlockList((old) => {
-        const values = [...old];
-        if (rst1 && rst1[0]) {
-          values.forEach((item) => {
-            let value = rst1[0]?.[item.field];
-            if (item.field === "netIncomePerShare") {
-              value = getAnnualNetIncomePerShareData(
-                rst1 as unknown as IEaringPerShare[],
-                "netIncomePerShare"
-              );
-              item.value = value ? value.toFixed(3) : "0";
-            } else if (item.field === "roe") {
-              value = getAnnualNetIncomePerShareData(
-                rst1 as unknown as IEaringPerShare[],
-                "roe"
-              );
-              item.value = value ? (value * 100).toFixed(3) : "0";
-            } else {
-              item.value = value ? value.toFixed(3) : "0";
-            }
-            item.color = value
-              ? value > 0
-                ? COLOR_TYPE.UP
-                : COLOR_TYPE.DOWN
-              : COLOR_TYPE.DOWN;
-          });
-        }
-        if (rst2 && rst2[0]) {
-          const index = values.findIndex((item) => item.field === "YOY");
-          values[index].value = rst2[0]?.growthRevenue.toFixed(3);
-          values[index].title = `${rst2[0]?.period}營收YOY`;
-          values[index].color =
-            parseFloat(values[index].value) > 0
-              ? COLOR_TYPE.UP
-              : COLOR_TYPE.DOWN;
-        }
-        return values;
-      });
-    })();
+    // (async () => {
+    //   const [rst1, rst2] = await Promise.all([
+    //     fetchCompanyRatios(stock.Symbol, PERIOD.QUARTER, 4),
+    //     fetchGrowthRates(stock.Symbol, PERIOD.QUARTER, 1),
+    //   ]);
+    //   setBlockList((old) => {
+    //     const values = [...old];
+    //     if (rst1 && rst1[0]) {
+    //       values.forEach((item) => {
+    //         let value = rst1[0]?.[item.field];
+    //         if (item.field === "netIncomePerShare") {
+    //           value = getAnnualNetIncomePerShareData(
+    //             rst1 as unknown as IEaringPerShare[],
+    //             "netIncomePerShare"
+    //           );
+    //           item.value = value ? value.toFixed(3) : "0";
+    //         } else if (item.field === "roe") {
+    //           value = getAnnualNetIncomePerShareData(
+    //             rst1 as unknown as IEaringPerShare[],
+    //             "roe"
+    //           );
+    //           item.value = value ? (value * 100).toFixed(3) : "0";
+    //         } else {
+    //           item.value = value ? value.toFixed(3) : "0";
+    //         }
+    //         item.color = value
+    //           ? value > 0
+    //             ? COLOR_TYPE.UP
+    //             : COLOR_TYPE.DOWN
+    //           : COLOR_TYPE.DOWN;
+    //       });
+    //     }
+    //     if (rst2 && rst2[0]) {
+    //       const index = values.findIndex((item) => item.field === "YOY");
+    //       values[index].value = rst2[0]?.growthRevenue.toFixed(3);
+    //       values[index].title = `${rst2[0]?.period}營收YOY`;
+    //       values[index].color =
+    //         parseFloat(values[index].value) > 0
+    //           ? COLOR_TYPE.UP
+    //           : COLOR_TYPE.DOWN;
+    //     }
+    //     return values;
+    //   });
+    // })();
   }, [stock.Symbol, setBlockList]);
 
   return (

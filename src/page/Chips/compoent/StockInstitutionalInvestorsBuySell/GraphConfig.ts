@@ -1,3 +1,5 @@
+import numeral from "numeral";
+
 export const labelDataSets_01 = {
   labels: [],
   datasets: [
@@ -37,15 +39,15 @@ export const labelDataSets_02 = {
       data: [],
       backgroundColor: "#536DFA",
     },
-    {
-      label: "股价",
-      data: [],
-      borderColor: "rgb(0, 99, 232)",
-      backgroundColor: "rgb(0, 99, 232)",
-      borderWidth: 1,
-      yAxisID: "y1",
-      fill: false,
-    },
+    // {
+    //   label: "股价",
+    //   data: [],
+    //   borderColor: "rgb(0, 99, 232)",
+    //   backgroundColor: "rgb(0, 99, 232)",
+    //   borderWidth: 1,
+    //   yAxisID: "y1",
+    //   fill: false,
+    // },
   ],
 };
 
@@ -54,9 +56,24 @@ export const graphConfig = {
   responsive: true,
   locale: "zh-TW",
   maintainAspectRatio: false,
+  interaction: {
+    intersect: false,
+    mode: "index",
+  },
   plugins: {
     legend: {
       position: "bottom",
+    },
+    tooltip: {
+      callbacks: {
+        footer: (tooltipItems: any) => {
+          let sum = 0;
+          tooltipItems.forEach(function (tooltipItem: any) {
+            sum += tooltipItem.parsed.y;
+          });
+          return "合計: " + numeral(sum).format("0,0.00");
+        },
+      },
     },
   },
   scales: {
@@ -82,19 +99,19 @@ export const graphConfig = {
         },
       },
     },
-    y1: {
-      type: "linear",
-      display: true,
-      position: "right",
-      title: {
-        display: true,
-        text: "股价",
-        align: "end",
-        font: {
-          size: 12,
-          weight: "bold",
-        },
-      },
-    },
+    // y1: {
+    //   type: "linear",
+    //   display: true,
+    //   position: "right",
+    //   title: {
+    //     display: true,
+    //     text: "股价",
+    //     align: "end",
+    //     font: {
+    //       size: 12,
+    //       weight: "bold",
+    //     },
+    //   },
+    // },
   },
 };
