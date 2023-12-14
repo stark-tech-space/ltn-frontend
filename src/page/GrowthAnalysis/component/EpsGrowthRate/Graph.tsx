@@ -288,6 +288,7 @@ export default function Graph({
           borderColor: "rgb(196,66,66)",
           backgroundColor: "rgb(196,66,66)",
           borderWidth: 2,
+          tension: 0.4,
           fill: false,
           data: avgPrice.map((item) => ({
             x: item.date,
@@ -359,6 +360,7 @@ export default function Graph({
           borderColor: "rgb(196,66,66)",
           backgroundColor: "rgb(196,66,66)",
           borderWidth: 2,
+          tension: 0.4,
           fill: false,
           data: smaData.map((item) => ({
             x: item.date,

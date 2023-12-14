@@ -259,13 +259,29 @@ export default function Graph({
       };
     });
     if (data) {
+      let renderData: any[] = [];
       const realData = data.filter(
         (item: any) => item.OperatingIncome && item.OperatingIncome !== 0
       );
       if (realData && realData.length === 0) {
-        setIsUnlivable(true);
+        // setIsUnlivable(true);
+        const newRealData: any[] = data.filter(
+          (item: any) => item.PreTaxIncome && item.PreTaxIncome !== 0
+        );
+
+        newRealData.forEach((item) => {
+          item.OperatingIncome = item.PreTaxIncome;
+        });
+
+        if (newRealData && newRealData.length === 0) {
+          setIsUnlivable(true);
+        }
+        renderData = newRealData;
+      } else {
+        renderData = realData;
       }
-      const newData = generateGraphData(realData, limit);
+
+      const newData = generateGraphData(renderData, limit);
       setGraphData(newData);
     }
   }, [stock, period, reportType, getGraphData]);
@@ -301,6 +317,7 @@ export default function Graph({
           backgroundColor: "rgb(196,66,66)",
           borderWidth: 2,
           fill: false,
+          tension: 0.4,
           data: avgPrice.map((item) => ({
             x: item.date,
             y: numeral(item.sma).format("0,0.00"),

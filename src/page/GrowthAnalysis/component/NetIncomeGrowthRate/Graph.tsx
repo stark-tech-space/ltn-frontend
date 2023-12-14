@@ -32,7 +32,7 @@ const change4INfo = [
 
 interface IMonthlyRevenueGrowth {
   date: string;
-  IncomeAfterTaxes: number;
+  IncomeFromContinuingOperations: number;
   calendarYear: string;
   quarter: number;
   period: string;
@@ -56,10 +56,10 @@ function getAllFourData(
   const allData = preYearData.concat(data);
   const allIndex = index + preYearData.length;
   return (
-    (allData[allIndex]?.IncomeAfterTaxes || 0) +
-    (allData[allIndex - 1]?.IncomeAfterTaxes || 0) +
-    (allData[allIndex - 2]?.IncomeAfterTaxes || 0) +
-    (allData[allIndex - 3]?.IncomeAfterTaxes || 0)
+    (allData[allIndex]?.IncomeFromContinuingOperations || 0) +
+    (allData[allIndex - 1]?.IncomeFromContinuingOperations || 0) +
+    (allData[allIndex - 2]?.IncomeFromContinuingOperations || 0) +
+    (allData[allIndex - 3]?.IncomeFromContinuingOperations || 0)
   );
 }
 
@@ -115,14 +115,14 @@ function generateGraphData(data: IMonthlyRevenueGrowth[], limit: number) {
       );
 
       const allYearData = sortedData.reduce((acc: number, cur) => {
-        acc += cur.IncomeAfterTaxes;
+        acc += cur.IncomeFromContinuingOperations;
         return acc;
       }, 0);
 
       // @ts-ignore
       const allYearPreData = (dataByYear[year - 1] || []).reduce(
         (acc: number, cur) => {
-          acc += cur.IncomeAfterTaxes;
+          acc += cur.IncomeFromContinuingOperations;
           return acc;
         },
         0
@@ -132,11 +132,13 @@ function generateGraphData(data: IMonthlyRevenueGrowth[], limit: number) {
         result.push({
           ...sortedData[i],
           revenue_year_difference:
-            (sortedData[i].IncomeAfterTaxes - prevYearData.IncomeAfterTaxes) /
-            prevYearData.IncomeAfterTaxes,
+            (sortedData[i].IncomeFromContinuingOperations -
+              prevYearData.IncomeFromContinuingOperations) /
+            prevYearData.IncomeFromContinuingOperations,
           revenue_month_difference:
-            (sortedData[i].IncomeAfterTaxes - preMonthData.IncomeAfterTaxes) /
-            preMonthData.IncomeAfterTaxes,
+            (sortedData[i].IncomeFromContinuingOperations -
+              preMonthData.IncomeFromContinuingOperations) /
+            preMonthData.IncomeFromContinuingOperations,
           revenue_four_year_difference:
             (fourAllData - preFourYearAllData) / preFourYearAllData,
           revenue_four_month_difference:
@@ -259,7 +261,9 @@ export default function Graph({
     });
     if (data) {
       const realData = data.filter(
-        (item: any) => item.IncomeAfterTaxes && item.IncomeAfterTaxes !== 0
+        (item: any) =>
+          item.IncomeFromContinuingOperations &&
+          item.IncomeFromContinuingOperations !== 0
       );
       if (realData && realData.length === 0) {
         setIsUnlivable(true);
@@ -299,6 +303,7 @@ export default function Graph({
           borderColor: "rgb(196,66,66)",
           backgroundColor: "rgb(196,66,66)",
           borderWidth: 2,
+          tension: 0.4,
           fill: false,
           data: avgPrice.map((item) => ({
             x: item.date,
@@ -370,6 +375,7 @@ export default function Graph({
           borderColor: "#EB5757",
           backgroundColor: "#EB5757",
           borderWidth: 2,
+          tension: 0.4,
           fill: false,
           data: smaData.map((item) => ({
             x: item.date,
