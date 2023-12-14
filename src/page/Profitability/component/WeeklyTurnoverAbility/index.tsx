@@ -30,12 +30,12 @@ const TABLE_FIELDS: Record<
     {
       field: "receivablesTurnover",
       headerName: "應收帳款週轉",
-      fieldFormat: "0,0",
+      fieldFormat: "0,0.00",
     },
     {
       field: "inventoryTurnover",
       headerName: "存貨週轉",
-      fieldFormat: "0,0.000",
+      fieldFormat: "0,0.00",
     },
   ],
   "1": [
@@ -47,7 +47,7 @@ const TABLE_FIELDS: Record<
     {
       field: "fixedAssetTurnover",
       headerName: "固定資產周轉",
-      fieldFormat: "0,0.000",
+      fieldFormat: "0,0.00",
     },
   ],
   "2": [
@@ -59,7 +59,7 @@ const TABLE_FIELDS: Record<
     {
       field: "assetTurnover",
       headerName: "總資產週轉",
-      fieldFormat: "0,0.000",
+      fieldFormat: "0,0.00",
     },
   ],
 };
@@ -306,7 +306,9 @@ export default function WeeklyTurnoverAbility() {
           //  流動資產合計
           const currentAssets = parseInt(
             balanceData
-              .find(({ code, name }) => code === "11XX")
+              .find(
+                ({ code, name }) => code === "11XX" || name === "流動資產合計"
+              )
               ?.value.replaceAll(",", "") || ""
           );
 

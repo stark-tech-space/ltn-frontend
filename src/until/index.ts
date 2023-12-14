@@ -109,6 +109,22 @@ export const sortCallback = (t1: { date: string }, t2: { date: string }) => {
 
 // 2023年7月1日、2023年7月1日至9月30日
 export const caseDateToYYYYMMDD = (dateString: string) => {
+  if (/\d{4}年度/g.test(dateString)) {
+    const yearMoment = moment(dateString.slice(0, 4), "YYYY");
+    return {
+      start: yearMoment.startOf("year").format("YYYY-MM-DD"),
+      end: yearMoment.endOf("year").format("YYYY-MM-DD"),
+      isSingleQuarter: false,
+    };
+  }
+  if (/\d{4}年第\d季/g.test(dateString)) {
+    const quarterMoment = moment(dateString, "YYYY年第Q季");
+    return {
+      start: quarterMoment.startOf("quarter").format("YYYY-MM-DD"),
+      end: quarterMoment.endOf("quarter").format("YYYY-MM-DD"),
+      isSingleQuarter: true,
+    };
+  }
   const [start, end] = dateString.split("至");
   const startMoment = moment(start.replaceAll(/年|月|日/g, "-"), "YYYY-M-D");
   let endMoment = null;
