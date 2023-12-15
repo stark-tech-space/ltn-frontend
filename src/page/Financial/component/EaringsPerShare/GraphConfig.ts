@@ -12,7 +12,7 @@ export const OPTIONS = {
         title: function (context: any) {
           if (context[0]?.dataset?.yAxisID === "y") {
             return moment(context[0].raw.x, "YYYY-MM-DD")
-              .format("YYYYY-[Q]Q");
+              .format("YYYY-[Q]Q");
           }
           return context[0]?.label;
         },
@@ -33,6 +33,10 @@ export const OPTIONS = {
         unit: "year",
         tooltipFormat: "YYYY/MM",
       },
+      grid: {
+        offset: false,
+        drawTicks: true,
+      },
     },
     y: {
       type: "linear",
@@ -40,7 +44,7 @@ export const OPTIONS = {
       position: "left",
       title: {
         display: true,
-        text: "%",
+        text: "元",
         align: "end",
         font: {
           size: 12,

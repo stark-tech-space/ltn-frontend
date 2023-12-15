@@ -12,6 +12,10 @@ export const OPTIONS = {
       alignToPixels: true,
       offset: false,
       type: "time",
+      grid: {
+        offset: false,
+        drawTicks: true,
+      },
       time: {
         unit: "year",
         tooltipFormat: "YYYY-[Q]Q",

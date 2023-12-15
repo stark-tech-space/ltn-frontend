@@ -1,8 +1,7 @@
 import { Stack, Box } from "@mui/material";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import TagCard from "../../../../component/tabCard";
 
-import { AgGridReact } from "ag-grid-react";
 import { PERIOD } from "types/common";
 import { Chart } from "react-chartjs-2";
 import { OPTIONS } from "./GraphConfig";
@@ -16,18 +15,18 @@ import { useAvgPriceByMonth } from "Hooks/common";
 import { IEaringPerShare } from "types/financial";
 import { maxBy, minBy } from "lodash";
 import moment from "moment";
-import { useTable } from "Hooks/useTable";
+import WrappedAgGrid from "component/WrappedAgGrid";
 
 function getAnnualData(rst: IEaringPerShare[], allPeriod: number) {
   const newRst = rst.map((item, index, arr) => {
     const nextItems = arr.slice(index + 1, index + 4);
     const newNetIncomePerShare = nextItems.reduce(
       (sum, currentItem) => sum + currentItem.netIncomePerShare,
-      item.netIncomePerShare,
+      item.netIncomePerShare
     );
     return { ...item, netIncomePerShare: newNetIncomePerShare };
   });
-  return newRst.reverse().slice(0, allPeriod);
+  return newRst.slice(0, allPeriod);
 }
 
 interface ISma {
@@ -43,7 +42,7 @@ export default function EarningsPerShare() {
     if (tabIndex === 0) {
       return "單季度EPS";
     } else {
-      return "近4季累積EPS";
+      return "近四季累積EPS";
     }
   }, [tabIndex]);
 
@@ -51,7 +50,6 @@ export default function EarningsPerShare() {
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
   const [graphData, setGraphData] = useState<IEaringPerShare[]>([]);
   const [smaData, setSmaData] = useState<ISma[]>([]);
-  const [gridReady, setGridReady] = useState(false);
 
   const avgPrice = useAvgPriceByMonth(period);
 
@@ -64,49 +62,16 @@ export default function EarningsPerShare() {
     const rst = await fetchKeyMetrics(stock.Symbol, reportType, limit);
     const data = rst?.map((item) => ({
       ...item,
-      date: moment(item.date, "YYYY-MM-DD").startOf("quarter").format("YYYY-MM-DD"),
+      date: moment(item.date, "YYYY-MM-DD")
+        .startOf("quarter")
+        .format("YYYY-MM-DD"),
     }));
-    data && setGraphData(data.reverse() as any);
+    data && setGraphData(data as any);
   }, [period, reportType, stock, tabIndex]);
 
   useEffect(() => {
     fetchGraphData();
   }, [fetchGraphData, tabIndex]);
-
-  const columnHeaders = useMemo(() => {
-    const columns: any[] = [
-      {
-        field: "title",
-        headerName: reportType === PERIOD.QUARTER ? "年度/季度" : "年度",
-        pinned: "left",
-      },
-    ];
-    graphData?.forEach((item) => {
-      columns.push({
-        field:
-          reportType === PERIOD.QUARTER ? `${item.calendarYear}-${item.period}` : item.calendarYear,
-      });
-    });
-    return columns;
-  }, [graphData, reportType]);
-
-  const gridRef = useRef<AgGridReact>(null);
-
-  useTable(gridRef, columnHeaders, gridReady);
-
-  const tableRowData = useMemo(() => {
-    const dataSources: { [key: string]: any } = {
-      title: reportType === PERIOD.QUARTER ? "單季EPS" : "EPS",
-    };
-    graphData?.forEach((item) => {
-      if (reportType === PERIOD.ANNUAL) {
-        dataSources[item.calendarYear] = item.netIncomePerShare.toFixed(2);
-      } else {
-        dataSources[`${item.calendarYear}-${item.period}`] = item.netIncomePerShare.toFixed(2);
-      }
-    });
-    return [dataSources];
-  }, [graphData, reportType]);
 
   const netIncomePerShareDataSets = useMemo(() => {
     if (tabIndex === 1 && reportType === PERIOD.QUARTER) {
@@ -116,14 +81,56 @@ export default function EarningsPerShare() {
     }
   }, [graphData, tabIndex, allPeriod]);
 
+  const columnHeaders = useMemo(() => {
+    const columns: any[] = [
+      {
+        field: "title",
+        headerName: reportType === PERIOD.QUARTER ? "年度/季度" : "年度",
+        pinned: "left",
+      },
+    ];
+    netIncomePerShareDataSets?.forEach((item) => {
+      columns.push({
+        field:
+          reportType === PERIOD.QUARTER
+            ? `${item.calendarYear}-${item.period}`
+            : item.calendarYear,
+      });
+    });
+    return columns;
+  }, [netIncomePerShareDataSets, reportType]);
+
+  const tableRowData = useMemo(() => {
+    const dataSources: { [key: string]: any } = {
+      title:
+        reportType === PERIOD.QUARTER
+          ? tabIndex === 0
+            ? "單季EPS"
+            : "近四季EPS"
+          : "EPS",
+    };
+    netIncomePerShareDataSets?.forEach((item) => {
+      if (reportType === PERIOD.ANNUAL) {
+        dataSources[item.calendarYear] = item.netIncomePerShare.toFixed(2);
+      } else {
+        dataSources[`${item.calendarYear}-${item.period}`] =
+          item.netIncomePerShare.toFixed(2);
+      }
+    });
+    return [dataSources];
+  }, [netIncomePerShareDataSets, tabIndex, reportType]);
+
   const graphDataSets = useMemo(() => {
     const minDateInData = minBy(netIncomePerShareDataSets, "date")?.date || "";
-    const maxDateInData = moment(maxBy(netIncomePerShareDataSets, "date")?.date, "YYYY-MM-DD")
+    const maxDateInData = moment(
+      maxBy(netIncomePerShareDataSets, "date")?.date,
+      "YYYY-MM-DD"
+    )
       .add(1, "day")
       .format("YYYY-MM-DD");
 
     const avgPrice = smaData.filter(
-      (item) => item.date > minDateInData && item.date <= maxDateInData,
+      (item) => item.date > minDateInData && item.date <= maxDateInData
     );
 
     return {
@@ -170,8 +177,12 @@ export default function EarningsPerShare() {
           showReportType={false}
         />
         <Box height={510} bgcolor="#fff" pb={3}>
-          {tabIndex === 0 && <Chart type="bar" data={graphDataSets} options={OPTIONS as any} />}
-          {tabIndex === 1 && <Chart type="bar" data={graphDataSets} options={OPTIONS as any} />}
+          {tabIndex === 0 && (
+            <Chart type="bar" data={graphDataSets} options={OPTIONS as any} />
+          )}
+          {tabIndex === 1 && (
+            <Chart type="bar" data={graphDataSets} options={OPTIONS as any} />
+          )}
         </Box>
       </TagCard>
       <TagCard tabs={["詳細數據"]}>
@@ -181,9 +192,7 @@ export default function EarningsPerShare() {
             paddingBottom: "24px",
           }}
         >
-          <AgGridReact
-            ref={gridRef}
-            onGridReady={() => setGridReady(true)}
+          <WrappedAgGrid
             rowData={tableRowData as any}
             columnDefs={columnHeaders as any}
             defaultColDef={{
@@ -193,7 +202,6 @@ export default function EarningsPerShare() {
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}
-            domLayout="autoHeight"
           />
         </Box>
       </TagCard>
