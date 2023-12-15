@@ -774,11 +774,11 @@ export default function GraphDebtHolder({
 
   return (
     <>
-      <PeriodController
+      {/* <PeriodController
         onChangePeriod={setPeriod}
         onChangeReportType={setReportType}
         showReportType={false}
-      />
+      /> */}
       <Box height={510} bgcolor="#fff" pb={3}>
         {tabIndex === 0 && (
           <ReactChart
