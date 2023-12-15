@@ -118,6 +118,7 @@ export default function FlowRate() {
     const res = await fetchDanYiGongSiAnLi({
       securityCode: stock.No,
       yearRange: getBeforeYears(period - 1).slice(0, 4),
+      size: period * 4,
     });
 
     if (!res) {

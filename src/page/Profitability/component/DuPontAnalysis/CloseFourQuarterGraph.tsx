@@ -2,7 +2,7 @@ import { Box } from "@mui/material";
 import { useEffect, useRef } from "react";
 import { PERIOD } from "types/common";
 import { Chart as ReactChart } from "react-chartjs-2";
-import { graphConfig, labelDataSets } from "./GrapConfig";
+import { graphConfig, labelDataSets } from "./CloseFourQuarterGraphConfig";
 import type { Chart } from "chart.js";
 import { ICaseDataForDuPont } from "./type";
 
@@ -19,11 +19,11 @@ interface IComposedData {
 export const GRAPH_FIELDS = [
   {
     field: "netProfitMargin",
-    headerName: "稅後淨利率",
+    headerName: "近四季稅後淨利率",
   },
   {
     field: "assetTurnover",
-    headerName: "總資產週轉",
+    headerName: "近四季總資產週轉",
   },
   {
     field: "equityMultiplier",
@@ -31,11 +31,11 @@ export const GRAPH_FIELDS = [
   },
   {
     field: "returnOnEquity",
-    headerName: "ROE",
+    headerName: "近四季ROE",
   },
 ];
 
-export default function Graph({
+export default function CloseFourQuarterGraph({
   data,
   reportType,
   getTableData,
@@ -49,9 +49,21 @@ export default function Graph({
     caseDataArray: Array<ICaseDataForDuPont>
   ): Array<IComposedData> => {
     return caseDataArray.map((caseData, index) => {
-      const assetTurnover = caseData?.revenue / caseData?.totalAssets;
-      const netProfitMargin =
-        (caseData?.netIncomeAfterTax / caseData?.revenue) * 100;
+      const previousFourSeason = caseDataArray.slice(index, index + 4);
+      const revenueSum = previousFourSeason.reduce(
+        (prev, cur) => prev + (cur.revenue || NaN),
+        0
+      );
+      const totalAssetsSum = previousFourSeason.reduce(
+        (prev, cur) => prev + (cur.totalAssets || NaN),
+        0
+      );
+      const netIncomeAfterTaxSum = previousFourSeason.reduce(
+        (prev, cur) => prev + (cur.netIncomeAfterTax || NaN),
+        0
+      );
+      const assetTurnover = revenueSum / caseData.totalAssets;
+      const netProfitMargin = (netIncomeAfterTaxSum / revenueSum) * 100;
       const equityMultiplier = caseData?.totalAssets / caseData?.equity;
       return {
         date: caseData.date,
