@@ -23,7 +23,7 @@ function getAnnualData(rst: IEaringPerShare[], allPeriod: number) {
     const nextItems = arr.slice(index + 1, index + 4);
     const newNetIncomePerShare = nextItems.reduce(
       (sum, currentItem) => sum + currentItem.netIncomePerShare,
-      item.netIncomePerShare,
+      item.netIncomePerShare
     );
     return { ...item, netIncomePerShare: newNetIncomePerShare };
   });
@@ -64,7 +64,9 @@ export default function EarningsPerShare() {
     const rst = await fetchKeyMetrics(stock.Symbol, reportType, limit);
     const data = rst?.map((item) => ({
       ...item,
-      date: moment(item.date, "YYYY-MM-DD").startOf("quarter").format("YYYY-MM-DD"),
+      date: moment(item.date, "YYYY-MM-DD")
+        .startOf("quarter")
+        .format("YYYY-MM-DD"),
     }));
     data && setGraphData(data.reverse() as any);
   }, [period, reportType, stock, tabIndex]);
@@ -84,7 +86,9 @@ export default function EarningsPerShare() {
     graphData?.forEach((item) => {
       columns.push({
         field:
-          reportType === PERIOD.QUARTER ? `${item.calendarYear}-${item.period}` : item.calendarYear,
+          reportType === PERIOD.QUARTER
+            ? `${item.calendarYear}-${item.period}`
+            : item.calendarYear,
       });
     });
     return columns;
@@ -96,17 +100,23 @@ export default function EarningsPerShare() {
 
   const tableRowData = useMemo(() => {
     const dataSources: { [key: string]: any } = {
-      title: reportType === PERIOD.QUARTER ? "單季EPS" : "EPS",
+      title:
+        reportType === PERIOD.QUARTER
+          ? tabIndex === 0
+            ? "單季EPS"
+            : "近四季EPS"
+          : "EPS",
     };
     graphData?.forEach((item) => {
       if (reportType === PERIOD.ANNUAL) {
         dataSources[item.calendarYear] = item.netIncomePerShare.toFixed(2);
       } else {
-        dataSources[`${item.calendarYear}-${item.period}`] = item.netIncomePerShare.toFixed(2);
+        dataSources[`${item.calendarYear}-${item.period}`] =
+          item.netIncomePerShare.toFixed(2);
       }
     });
     return [dataSources];
-  }, [graphData, reportType]);
+  }, [graphData, tabIndex, reportType]);
 
   const netIncomePerShareDataSets = useMemo(() => {
     if (tabIndex === 1 && reportType === PERIOD.QUARTER) {
@@ -118,12 +128,15 @@ export default function EarningsPerShare() {
 
   const graphDataSets = useMemo(() => {
     const minDateInData = minBy(netIncomePerShareDataSets, "date")?.date || "";
-    const maxDateInData = moment(maxBy(netIncomePerShareDataSets, "date")?.date, "YYYY-MM-DD")
+    const maxDateInData = moment(
+      maxBy(netIncomePerShareDataSets, "date")?.date,
+      "YYYY-MM-DD"
+    )
       .add(1, "day")
       .format("YYYY-MM-DD");
 
     const avgPrice = smaData.filter(
-      (item) => item.date > minDateInData && item.date <= maxDateInData,
+      (item) => item.date > minDateInData && item.date <= maxDateInData
     );
 
     return {
@@ -170,8 +183,12 @@ export default function EarningsPerShare() {
           showReportType={false}
         />
         <Box height={510} bgcolor="#fff" pb={3}>
-          {tabIndex === 0 && <Chart type="bar" data={graphDataSets} options={OPTIONS as any} />}
-          {tabIndex === 1 && <Chart type="bar" data={graphDataSets} options={OPTIONS as any} />}
+          {tabIndex === 0 && (
+            <Chart type="bar" data={graphDataSets} options={OPTIONS as any} />
+          )}
+          {tabIndex === 1 && (
+            <Chart type="bar" data={graphDataSets} options={OPTIONS as any} />
+          )}
         </Box>
       </TagCard>
       <TagCard tabs={["詳細數據"]}>
