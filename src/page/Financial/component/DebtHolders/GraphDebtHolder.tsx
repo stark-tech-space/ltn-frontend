@@ -7,6 +7,8 @@ import {
   labelDataSets_01,
   labelDataSets_02,
   labelDataSets_03,
+  labelDataSets_f,
+  labelDataSets_f_2,
 } from "./GraphConfig";
 import type { Chart } from "chart.js";
 import { useRecoilValue } from "recoil";
@@ -36,6 +38,131 @@ export const GRAPH_FIELDS = [
   {
     field: "totalDebtAndNetValue",
     headerName: "總負債 + 淨值",
+  },
+];
+
+export const GRAPH_FIELDS_F = [
+  {
+    field: "f1",
+    headerName: "央行及金融同業存款",
+  },
+  {
+    field: "f2",
+    headerName: "央行及同業融資",
+  },
+  {
+    field: "f9",
+    headerName: "存款及匯款",
+  },
+  {
+    field: "f10",
+    headerName: "應付債券",
+  },
+  {
+    field: "f11",
+    headerName: "營業及負債準備",
+  },
+  {
+    field: "f12",
+    headerName: "其餘負債",
+  },
+  {
+    field: "f15",
+    headerName: "淨值",
+  },
+  {
+    field: "f17",
+    headerName: "總負債 + 淨值",
+  },
+];
+
+export const GRAPH_FIELDS_F_2 = [
+  {
+    field: "f1",
+    headerName: "央行及金融同業存款",
+  },
+  {
+    field: "f2",
+    headerName: "央行及同業融資",
+  },
+  {
+    field: "f9",
+    headerName: "存款及匯款",
+  },
+  {
+    field: "f10",
+    headerName: "應付債券",
+  },
+  {
+    field: "f11",
+    headerName: "營業及負債準備",
+  },
+  {
+    field: "f16",
+    headerName: "總負債",
+  },
+];
+
+export const TABLE_FIELDS_FINANCIAL = [
+  {
+    field: "f1",
+    headerName: "央行及金融同業存款",
+  },
+  {
+    field: "f2",
+    headerName: "央行及同業融資",
+  },
+  {
+    field: "f3",
+    headerName: "透過損益按公允價值衡量之金融負債",
+  },
+  {
+    field: "f4",
+    headerName: "避險之衍生金融負債",
+  },
+  {
+    field: "f5",
+    headerName: "附買回票券及債券負債",
+  },
+  {
+    field: "f6",
+    headerName: "應付商業本票",
+  },
+  {
+    field: "f7",
+    headerName: "應付款項",
+  },
+  {
+    field: "f8",
+    headerName: "當期所得稅負債",
+  },
+  {
+    field: "f9",
+    headerName: "存款及匯款",
+  },
+  {
+    field: "f10",
+    headerName: "應付債券",
+  },
+  {
+    field: "f18",
+    headerName: "其他借款",
+  },
+  {
+    field: "f11",
+    headerName: "營業及負債準備",
+  },
+  {
+    field: "f12",
+    headerName: "其餘負債",
+  },
+  {
+    field: "f16",
+    headerName: "總負債",
+  },
+  {
+    field: "f15",
+    headerName: "淨值",
   },
 ];
 
@@ -81,6 +208,21 @@ export const GRAPH_FIELDS3 = [
   },
   {
     field: "AccountsReceivableNet",
+    headerName: "淨值",
+  },
+];
+
+export const GRAPH_FIELDS3_f = [
+  {
+    field: "f13",
+    headerName: "普通股股本",
+  },
+  {
+    field: "f14",
+    headerName: "保留盈餘",
+  },
+  {
+    field: "f15",
     headerName: "淨值",
   },
 ];
@@ -147,6 +289,21 @@ export const GRAPH_TABLE_FIELDS2 = [
   },
 ];
 
+export const GRAPH_TABLE_FIELDS_f = [
+  {
+    field: "f13",
+    headerName: "普通股股本(千元)",
+  },
+  {
+    field: "f14",
+    headerName: "保留盈餘(千元)",
+  },
+  {
+    field: "f15",
+    headerName: "淨值(千元)",
+  },
+];
+
 export default function GraphDebtHolder({
   getGraphData,
   tabIndex,
@@ -159,8 +316,10 @@ export default function GraphDebtHolder({
 
   const [period, setPeriod] = useState(3);
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
+  const [graphData, setGraphData] = useState<IProfitRatio[]>();
+  const [isFinancial, setIsFinancial] = useState(false);
 
-  const updateGraph = (data: any[]) => {
+  const updateGraph = (data: any[], isFinancial = false) => {
     if (chartRef.current) {
       const labels = data.map((item) => item.date);
       chartRef.current.data.labels = labels;
@@ -176,7 +335,7 @@ export default function GraphDebtHolder({
     }
   };
 
-  const genGraphTableData = (data: IProfitRatio[]) => {
+  const genGraphTableData = (data: IProfitRatio[], isFinancial = false) => {
     if (data.length === 0) {
       return [[], []];
     }
@@ -274,7 +433,26 @@ export default function GraphDebtHolder({
               item.code === "2XXX" ||
               item.code === "1XXX" ||
               item.code === "3110" ||
-              item.code === "3300"
+              item.code === "3300" ||
+              item.code === "21000" ||
+              item.code === "21500" ||
+              item.code === "22000" ||
+              item.code === "22300" ||
+              item.code === "22500" ||
+              item.code === "22600" ||
+              item.code === "23000" ||
+              item.code === "23200" ||
+              item.code === "23500" ||
+              item.code === "24000" ||
+              item.code === "24600" ||
+              item.code === "25500" ||
+              item.code === "26000" ||
+              item.code === "29300" ||
+              item.code === "29500" ||
+              item.code === "31101" ||
+              item.code === "32000" ||
+              item.code === "39999" ||
+              item.code === "29999"
             );
           });
 
@@ -324,9 +502,98 @@ export default function GraphDebtHolder({
 
         const Liabilities =
           allTables.filter((item) => item.code === "2XXX")[0]?.value || 0;
+
+        // 金融企业的数据
+        const f1 =
+          allTables.filter((item) => item.code === "21000")[0]?.value || 0;
+
+        const f2 =
+          allTables.filter((item) => item.code === "21500")[0]?.value || 0;
+
+        const f3 =
+          allTables.filter((item) => item.code === "22000")[0]?.value || 0;
+
+        const f4 =
+          allTables.filter((item) => item.code === "22300")[0]?.value || 0;
+
+        const f5 =
+          allTables.filter((item) => item.code === "22500")[0]?.value || 0;
+
+        const f6 =
+          allTables.filter((item) => item.code === "22600")[0]?.value || 0;
+
+        const f7 =
+          allTables.filter((item) => item.code === "23000")[0]?.value || 0;
+
+        const f8 =
+          allTables.filter((item) => item.code === "23200")[0]?.value || 0;
+
+        const f9 =
+          allTables.filter((item) => item.code === "23500")[0]?.value || 0;
+
+        const f10 =
+          allTables.filter((item) => item.code === "24000")[0]?.value || 0;
+
+        const f11 =
+          allTables.filter((item) => item.code === "24600")[0]?.value || 0;
+
+        const f12 =
+          (allTables.filter((item) => item.code === "25500")[0]?.value || 0) +
+          (allTables.filter((item) => item.code === "26000")[0]?.value || 0) +
+          (allTables.filter((item) => item.code === "29300")[0]?.value || 0) +
+          (allTables.filter((item) => item.code === "29500")[0]?.value || 0);
+
+        const f13 =
+          allTables.filter((item) => item.code === "31101")[0]?.value || 0;
+        const f14 =
+          allTables.filter((item) => item.code === "32000")[0]?.value || 0;
+
+        const f15 =
+          allTables.filter((item) => item.code === "39999")[0]?.value || 0;
+
+        const f16 =
+          allTables.filter((item) => item.code === "29999")[0]?.value || 0;
+
+        const f17 =
+          (allTables.filter((item) => item.code === "39999")[0]?.value || 0) +
+          (allTables.filter((item) => item.code === "29999")[0]?.value || 0);
+
+        // 其他借款 暂时不知道 设置为0
+        const f18 = 0;
+
+        if (f1) {
+          setIsFinancial(true);
+          return {
+            ...item,
+            tables: allTables,
+            f1,
+            f2,
+            f3,
+            f4,
+            date: moment(allTables[0]?.date, "YYYY-MM-DD")
+              .startOf("quarter")
+              .format("YYYY-MM-DD"),
+            calendarYear: allTables[0]?.calendarYear,
+            period: allTables[0]?.period,
+            f5,
+            f6,
+            f7,
+            f8,
+            f9,
+            f10,
+            f11,
+            f12,
+            f13,
+            f14,
+            f15,
+            f16,
+            f17,
+            f18,
+          };
+        }
+
         return {
           ...item,
-
           tables: allTables,
           CurrentLiabilities,
           LongtermBorrowings,
@@ -350,7 +617,6 @@ export default function GraphDebtHolder({
         };
       });
       const realDate = data.filter((item: any) => item.tables.length > 0);
-
       // 年报 把当年的所有数据加起来
       if (reportType === PERIOD.ANNUAL) {
         const allData: { [key: string]: any[] } = {};
@@ -441,34 +707,59 @@ export default function GraphDebtHolder({
         });
         const newRealData: any[] = Object.values(allData);
         const updateData = newRealData.reverse().slice(0, period).reverse();
-        updateGraph(updateData);
-        getGraphData(genGraphTableData(updateData));
+        setGraphData(updateData);
+        // updateGraph(updateData, isFinancial);
+        // getGraphData(genGraphTableData(updateData, isFinancial));
         return;
       }
 
-      updateGraph(realDate);
-      getGraphData(genGraphTableData(realDate));
+      setGraphData(realDate);
+
+      // updateGraph(realDate, isFinancial);
+      // getGraphData(genGraphTableData(realDate, isFinancial));
     }
   }, [stock, period, reportType, getGraphData, tabIndex]);
 
+  useEffect(() => {
+    updateGraph(graphData || [], isFinancial);
+    getGraphData(genGraphTableData(graphData || [], isFinancial));
+  }, [graphData, isFinancial]);
+
   const graphField = useMemo(() => {
-    if (tabIndex === 0) {
-      return GRAPH_FIELDS;
+    if (isFinancial) {
+      if (tabIndex === 0) {
+        return GRAPH_FIELDS_F;
+      } else if (tabIndex === 1) {
+        return GRAPH_FIELDS_F_2;
+      } else if (tabIndex === 2) {
+        return GRAPH_FIELDS3_f;
+      }
+    } else {
+      if (tabIndex === 0) {
+        return GRAPH_FIELDS;
+      }
+      if (tabIndex === 1) {
+        return GRAPH_FIELDS2;
+      }
+      if (tabIndex === 2) {
+        return GRAPH_FIELDS3;
+      }
     }
-    if (tabIndex === 1) {
-      return GRAPH_FIELDS2;
-    }
-    if (tabIndex === 2) {
-      return GRAPH_FIELDS3;
-    }
-  }, [tabIndex]);
+  }, [tabIndex, isFinancial]);
 
   const tableField = useMemo(() => {
-    if (tabIndex === 2) {
-      return GRAPH_TABLE_FIELDS2;
+    if (isFinancial) {
+      if (tabIndex === 2) {
+        return GRAPH_TABLE_FIELDS_f;
+      }
+      return TABLE_FIELDS_FINANCIAL;
+    } else {
+      if (tabIndex === 2) {
+        return GRAPH_TABLE_FIELDS2;
+      }
+      return GRAPH_TABLE_FIELDS;
     }
-    return GRAPH_TABLE_FIELDS;
-  }, [tabIndex]);
+  }, [tabIndex, isFinancial]);
 
   useEffect(() => {
     fetchGraphData();
@@ -485,7 +776,7 @@ export default function GraphDebtHolder({
         {tabIndex === 0 && (
           <ReactChart
             type="line"
-            data={labelDataSets_01}
+            data={isFinancial ? labelDataSets_f : labelDataSets_01}
             options={graphConfig as any}
             ref={chartRef}
           />
@@ -493,7 +784,7 @@ export default function GraphDebtHolder({
         {tabIndex === 1 && (
           <ReactChart
             type="line"
-            data={labelDataSets_02}
+            data={isFinancial ? labelDataSets_f_2 : labelDataSets_02}
             options={graphConfig as any}
             ref={chartRef}
           />
