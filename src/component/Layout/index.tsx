@@ -1,8 +1,8 @@
-import { Stack, Typography, Box, SxProps } from '@mui/material';
-import { ReactNode } from 'react';
-import AppHeader from '../Header';
-import { Outlet } from 'react-router-dom';
-import MobileDrawerNavigation from 'component/MobileNavigation';
+import { Stack, Typography, Box, SxProps } from "@mui/material";
+import { ReactNode } from "react";
+import AppHeader from "../Header";
+import { Outlet } from "react-router-dom";
+import MobileDrawerNavigation from "component/MobileNavigation";
 
 export function PageLayout({
   tabs,
@@ -40,30 +40,30 @@ export default function Layout() {
         right={0}
         bottom={0}
         width="100vw"
-        height="100vh"
+        height="100svh"
         overflow="hidden auto"
         sx={{
-          scrollBehavior: 'smooth',
+          scrollBehavior: "smooth",
         }}
       >
-        <Stack minHeight="100vh">
+        <Stack minHeight="100svh">
           <AppHeader />
-          <main style={{ flex: 1, width: '100%', boxSizing: 'border-box' }}>
+          <main style={{ flex: 1, width: "100%", boxSizing: "border-box" }}>
             <Outlet />
           </main>
           <footer
             style={{
-              padding: '16px 0',
+              padding: "16px 0",
             }}
           >
             <Typography
-              fontSize={{ xs: '12px', md: '14x', lg: '14px' }}
+              fontSize={{ xs: "12px", md: "14x", lg: "14px" }}
               sx={{
-                color: '#333333',
+                color: "#333333",
                 fontWeight: 400,
-                lineHeight: '22px',
-                fontFamily: 'PingFang SC',
-                textAlign: 'center',
+                lineHeight: "22px",
+                fontFamily: "PingFang SC",
+                textAlign: "center",
               }}
             >
               Copyright @ 2022-2023 Starktech. All Rights Reserved
