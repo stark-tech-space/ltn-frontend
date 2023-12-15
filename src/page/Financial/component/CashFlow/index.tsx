@@ -15,6 +15,7 @@ import { Chart as ReactChart } from "react-chartjs-2";
 import { ICashFLowItem } from "types/cashflow";
 import numeral from "numeral";
 import moment from "moment";
+import PeriodController from "component/PeriodController";
 
 const GRAPH_FIELDS = [
   {
@@ -240,31 +241,7 @@ export default function CashFlow() {
   return (
     <Stack rowGap={1}>
       <TagCard tabs={["現金流表", "每股現金流表"]} onChange={handleChangeTab}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          sx={{
-            mb: 3,
-            "&>button": {
-              mx: 1,
-              bgcolor: "transparent",
-              border: 0,
-              cursor: "pointer",
-            },
-          }}
-        >
-          {PERIOD_YEAR.map((item) => (
-            <Button
-              key={item.value}
-              sx={{
-                color: item.value === period ? "primary" : "#333",
-              }}
-              onClick={() => setPeriod(item.value)}
-            >
-              {item.label}
-            </Button>
-          ))}
-        </Stack>
+        <PeriodController onChangePeriod={setPeriod} />
         <Box height={510} bgcolor="#fff" pb={3}>
           {tab === 0 && (
             <ReactChart
