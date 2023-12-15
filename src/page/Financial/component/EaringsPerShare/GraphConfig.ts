@@ -33,6 +33,10 @@ export const OPTIONS = {
         unit: "year",
         tooltipFormat: "YYYY/MM",
       },
+      grid: {
+        offset: false,
+        drawTicks: true,
+      },
     },
     y: {
       type: "linear",

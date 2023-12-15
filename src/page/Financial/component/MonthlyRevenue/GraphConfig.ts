@@ -69,6 +69,10 @@ export const OPTIONS_01 = {
       alignToPixels: true,
       offset: false,
       type: "time",
+      grid: {
+        offset: false,
+        drawTicks: true,
+      },
       ticks: {
         autoSkip: false,
         maxRotation: 0,
@@ -140,6 +144,10 @@ export const OPTIONS_02 = {
         major: {
           enabled: true,
         },
+      },
+      grid: {
+        offset: false,
+        drawTicks: true,
       },
       time: {
         unit: "year",
