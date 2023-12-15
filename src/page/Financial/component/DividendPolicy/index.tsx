@@ -50,10 +50,10 @@ export default function DividendPolicy() {
         field: "CashDividendPaymentDate",
         headerName: "現金股利發放日	",
       },
-      {
-        field: "SpecifiesDay",
-        headerName: "填息花費日數",
-      },
+      // {
+      //   field: "SpecifiesDay",
+      //   headerName: "填息花費日數",
+      // },
       {
         field: "StockEarningsDistribution",
         headerName: "股票股利",
@@ -76,7 +76,7 @@ export default function DividendPolicy() {
         CashDividendPaymentDate: item.CashDividendPaymentDate || "無",
         StockEarningsDistribution:
           item.StockEarningsDistribution?.toFixed(2) || "無",
-        SpecifiesDay: "無",
+        // SpecifiesDay: "無",
         ExceptDay: "無",
       };
     });
