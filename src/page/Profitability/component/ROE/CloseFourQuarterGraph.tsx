@@ -2,18 +2,18 @@ import { Box } from "@mui/material";
 import { useEffect, useRef } from "react";
 import { PERIOD } from "types/common";
 import { Chart as ReactChart } from "react-chartjs-2";
-import { graphConfig, labelDataSets } from "./GrapConfig";
+import { graphConfig, labelDataSets } from "./CloseFourQuarterGrapConfig";
 import type { Chart } from "chart.js";
 import { ICaseDataForROEAndROA } from "./type";
 
 export const GRAPH_FIELDS = [
   {
     field: "returnOnEquity",
-    headerName: "ROE",
+    headerName: "近四季ROE",
   },
   {
     field: "returnOnAssets",
-    headerName: "ROA",
+    headerName: "近四季ROA",
   },
 ];
 
@@ -25,7 +25,7 @@ interface IComposedData {
   returnOnAssets: number;
 }
 
-export default function Graph({
+export default function CloseFourQuarterGraph({
   getTableData,
   data,
   reportType,
@@ -40,8 +40,22 @@ export default function Graph({
     caseDataArray: Array<ICaseDataForROEAndROA>
   ): Array<IComposedData> => {
     return caseDataArray.map((caseData, index) => {
-      const roa = (caseData.netIncomeAfterTax / caseData.totalAssets) * 100;
-      const roe = (caseData.netIncomeAfterTax / caseData.equity) * 100;
+      const previousFourSeason = caseDataArray.slice(index, index + 4);
+      const totalAssetsAvg =
+        previousFourSeason.reduce(
+          (prev, cur) => prev + (cur.totalAssets || NaN),
+          0
+        ) / 4;
+      const netIncomeAfterTaxSum = previousFourSeason.reduce(
+        (prev, cur) => prev + (cur.netIncomeAfterTax || NaN),
+        0
+      );
+      const equityAvg = previousFourSeason.reduce(
+        (prev, cur) => prev + cur.equity || NaN,
+        0
+      );
+      const roa = (netIncomeAfterTaxSum / totalAssetsAvg) * 100;
+      const roe = (netIncomeAfterTaxSum / equityAvg) * 100;
       return {
         date: caseData.date,
         period: caseData.period,
