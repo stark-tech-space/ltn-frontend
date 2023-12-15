@@ -1,6 +1,6 @@
 import { Stack, Box } from "@mui/material";
 import { useState } from "react";
-import { AgGridReact } from "ag-grid-react";
+import WrappedAgGrid from "component/WrappedAgGrid";
 import Graph from "./Graph";
 import TagCard from "../../../../component/tabCard";
 
@@ -20,7 +20,7 @@ export default function PiotroskiF() {
             paddingBottom: "24px",
           }}
         >
-          <AgGridReact
+          <WrappedAgGrid
             rowData={rowData}
             columnDefs={columnHeaders as any}
             defaultColDef={{
@@ -29,7 +29,6 @@ export default function PiotroskiF() {
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}
-            domLayout="autoHeight"
           />
         </Box>
       </TagCard>

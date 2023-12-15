@@ -95,6 +95,7 @@ export default function DividendPolicy() {
             minWidth: 200,
             wrapHeaderText: true,
             autoHeaderHeight: true,
+            lockPosition: true,
           }}
         />
       </Box>

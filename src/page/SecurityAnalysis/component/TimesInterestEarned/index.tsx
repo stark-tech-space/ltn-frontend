@@ -118,7 +118,7 @@ export default function TimesInterestEarned() {
               date: dateMoment.format("YYYY-MM-DD"),
               calendarYear: dateMoment.format("YYYY"),
               month: dateMoment.format("MM"),
-              period: dateMoment.format("Q"),
+              period: `Q${dateMoment.format("Q")}`,
             }
           );
         })

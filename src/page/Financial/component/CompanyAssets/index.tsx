@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Box, IconButton, Stack } from "@mui/material";
-import { AgGridReact } from "ag-grid-react";
+import WrappedAgGrid from "component/WrappedAgGrid";
 import ltnApi from "api/http/ltnApi";
 import PeriodController from "component/PeriodController";
 import TagCard from "component/tabCard";
@@ -19,7 +19,6 @@ import {
 } from "./graphConfig";
 import { quarterToMonth } from "until";
 import moment from "moment";
-import { useTable } from "Hooks/useTable";
 
 /**
  * graph fields
@@ -382,11 +381,6 @@ export default function CompanyAssets() {
     return rows;
   }, [graphData]);
 
-  const gridRef = useRef<AgGridReact>(null);
-  const [gridReady, setGridReady] = useState(false);
-
-  useTable(gridRef, columnHeaders, gridReady);
-
   return (
     <Stack rowGap={1}>
       <Box
@@ -455,12 +449,9 @@ export default function CompanyAssets() {
             paddingBottom: "24px",
           }}
         >
-          <AgGridReact
-            ref={gridRef}
-            onGridReady={() => setGridReady(true)}
+          <WrappedAgGrid
             columnDefs={columnHeaders as any}
             rowData={rowData}
-            domLayout="autoHeight"
             defaultColDef={{
               resizable: true,
               minWidth: 200,

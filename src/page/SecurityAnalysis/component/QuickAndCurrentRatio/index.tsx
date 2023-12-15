@@ -1,6 +1,5 @@
 import { Stack, Box, Button, ButtonGroup } from "@mui/material";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AgGridReact } from "ag-grid-react";
 import { Chart as ReactChart } from "react-chartjs-2";
 import { Chart } from "chart.js";
 

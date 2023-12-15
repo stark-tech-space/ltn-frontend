@@ -8,7 +8,6 @@ import moment from "moment";
 import { keyBy } from "lodash";
 import { Chart as ReactChart } from "react-chartjs-2";
 import { Chart } from "chart.js";
-import { AgGridReact } from "ag-grid-react";
 import numeral from "numeral";
 import { TURNOVER_DATASETS, TURNOVER_GRAPH_OPTIONS } from "./GrapConfig";
 

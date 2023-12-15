@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Box, Button, Stack } from "@mui/material";
-import { AgGridReact } from "ag-grid-react";
+import WrappedAgGrid from "component/WrappedAgGrid";
 import { useRecoilValue } from "recoil";
 import { getDataLimit } from "until";
 import { fetchCashFlowStatement } from "api/cashflow";
@@ -15,7 +15,6 @@ import { Chart as ReactChart } from "react-chartjs-2";
 import { ICashFLowItem } from "types/cashflow";
 import numeral from "numeral";
 import moment from "moment";
-import { useTable } from "Hooks/useTable";
 
 const GRAPH_FIELDS = [
   {
@@ -238,11 +237,6 @@ export default function CashFlow() {
     return rowData;
   }, [graphData, reportType, tab, stockCountByPeriod]);
 
-  const gridRef = useRef<AgGridReact>(null);
-  const [gridReady, setGridReady] = useState(false);
-
-  useTable(gridRef, columnHeaders, gridReady);
-
   return (
     <Stack rowGap={1}>
       <TagCard tabs={["現金流表", "每股現金流表"]} onChange={handleChangeTab}>
@@ -297,12 +291,9 @@ export default function CashFlow() {
             paddingBottom: "24px",
           }}
         >
-          <AgGridReact
-            ref={gridRef}
-            onGridReady={() => setGridReady(true)}
+          <WrappedAgGrid
             rowData={tableRowData}
             columnDefs={columnHeaders as any}
-            domLayout="autoHeight"
             defaultColDef={{
               resizable: true,
               initialWidth: 200,

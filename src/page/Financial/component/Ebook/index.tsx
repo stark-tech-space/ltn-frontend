@@ -126,6 +126,7 @@ export default function EBooks() {
             resizable: true,
             wrapHeaderText: true,
             autoHeaderHeight: true,
+            lockPosition: true,
           }}
         />
       </Box>

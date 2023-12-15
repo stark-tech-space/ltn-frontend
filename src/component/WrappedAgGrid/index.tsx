@@ -38,7 +38,7 @@ export default function WrappedAgGrid({
       ref={gridRef}
       rowData={rowData}
       columnDefs={sortedColDef}
-      defaultColDef={defaultColDef}
+      defaultColDef={{ ...defaultColDef, lockPosition: true }}
       domLayout="autoHeight"
     />
   );
