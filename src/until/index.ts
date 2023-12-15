@@ -176,6 +176,7 @@ export const genStartDateForPriceChart = (timeKey: PRICE_SCALE_PERIOD_ITEM) => {
     if (now >= 9) {
       return moment(HH_MM, "HH:mm").toISOString();
     }
+
     return moment(HH_MM, "HH:mm").subtract(1, "days").toISOString();
   }
   if (timeKey.type === PERIOD_TYPE.MONTH) {

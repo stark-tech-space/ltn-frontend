@@ -14,6 +14,7 @@ import CircularLoading from "component/Loading";
 import { Box, Button, Stack } from "@mui/material";
 import * as lightweightCharts from "lightweight-charts";
 import { genStartDateForPriceChart, timeToTz } from "until";
+import { test_01 } from "./test";
 
 interface IPrice {
   time: string;
@@ -31,8 +32,10 @@ interface IStockRst {
 }
 
 const isClosedMarket = (now: number) => {
-  return now < moment("13:30", "HH:mm").unix();
+  return moment().isBefore("13:30:00");
 };
+
+// console.log(moment("2023-12-15T01:11:45.374Z").format("YYYY-MM-DD:HH:mm:ss"));
 
 export default function PriceTrendChart() {
   const stock = useRecoilValue(currentStock);
@@ -49,6 +52,7 @@ export default function PriceTrendChart() {
   const [isLoading, setIsLoading] = useState(false);
 
   const format = (data: IPrice[], isBusinessDay: boolean) => {
+    // debugger;
     if (isBusinessDay) {
       return data.map((item: any) => {
         const axTime = moment(item.time);
@@ -67,22 +71,59 @@ export default function PriceTrendChart() {
       time: moment(item.time).unix(),
       value: +item.price,
     }));
-    return isClosedMarket(+data[data.length - 1].time)
-      ? formatData.slice(0, -1)
-      : formatData;
+    return formatData.slice(1, -1);
+    // const totalItems = 4 * 60 + 30;
+
+    // const all: any[] = new Array(totalItems).fill(0);
+    // const test: any = [];
+
+    // return all.map((_, index) => {
+    //   if (index < formatData.length) {
+    //     // test.push({
+    //     //   ...formatData[index],
+    //     //   fmt: moment(formatData[index].time * 1000).format(
+    //     //     "YYYY-MM-DD:HH:mm:ss"
+    //     //   ),
+    //     // });
+    //     // console.log(
+    //     //   "has:",
+    //     //   moment(formatData[index].time * 1000).format("YYYY-MM-DD:HH:mm:ss")
+    //     // );
+
+    //     return { ...formatData[index] };
+    //   } else {
+    //     const t = moment("09:00", "HH:mm").unix() + index * 60;
+    //     // const date = moment(t * 1000);
+    //     // console.log("none", date.format("YYYY-MM-DD:HH:mm:ss"));
+
+    //     // test.push({
+    //     //   time: t,
+    //     //   value: undefined,
+    //     //   // fmt: date.format("YYYY-MM-DD:HH:mm:ss"),
+    //     // });
+
+    //     return {
+    //       time: t,
+    //       value: undefined,
+    //       // fmt: date.format("YYYY-MM-DD:HH:mm:ss"),
+    //     };
+    //   }
+    // });
+
+    // return list
+    //   .map((item) => ({ time: item.time, value: item.value }))
+    //   .reverse();
+
+    // return isClosedMarket(+data[data.length - 1].time)
+    //   ? formatData.slice(0, -1)
+    //   : formatData;
   };
 
   const genGraphData = (periodType: PERIOD_TYPE, data: IPrice[]) => {
-    if (periodType === "day") {
-      return data.slice(0, -1).map((item: IPrice) => ({
-        time: moment(item.time).unix(),
-        value: +item.price,
-      }));
-    }
-    return format(data, true);
+    return format(data, periodType !== "day");
   };
 
-  const updateToolTip = () => {
+  const handleSubscribeCrosshairMove = () => {
     try {
       if (
         chartRef.current &&
@@ -90,7 +131,6 @@ export default function PriceTrendChart() {
         toolTip.current &&
         areaSeriesRef.current
       ) {
-        console.log(111);
         chartRef.current.subscribeCrosshairMove((param: any) => {
           const toolTipWidth = 80;
           const toolTipHeight = 80;
@@ -122,7 +162,7 @@ export default function PriceTrendChart() {
               ? param.seriesData.get(areaSeriesRef.current)
               : {};
 
-            const price = data.value !== undefined ? data.value : "";
+            const price = data?.value !== undefined ? data.value : "";
             toolTip.current!.innerHTML = `<div style="color: ${"#333"}">${
               stock.Name
             }</div><div style="font-size: 18px; margin: 4px 0px; color: ${"#333"}">
@@ -162,7 +202,7 @@ export default function PriceTrendChart() {
   };
 
   useEffect(() => {
-    setIsLoading(true);
+    //  setIsLoading(true);
     const chart = lightweightCharts.createChart(
       chartContainerRef.current as HTMLDivElement,
       {
@@ -179,6 +219,7 @@ export default function PriceTrendChart() {
             );
           },
         },
+
         crosshair: {
           horzLine: {
             visible: false,
@@ -239,15 +280,21 @@ export default function PriceTrendChart() {
       bottomColor: "rgba( 239, 83, 80, 0.01)",
       lineColor: "rgba( 239, 83, 80, 1)",
       lineWidth: 2,
-      lineType: lightweightCharts.LineType.Curved,
-      lastPriceAnimation: lightweightCharts.LastPriceAnimationMode.Continuous,
+      lineType: lightweightCharts.LineType.Simple,
+      lastPriceAnimation: lightweightCharts.LastPriceAnimationMode.Disabled,
+      priceFormat: {
+        type: "custom",
+        minMove: 2,
+        // maxMove:3,
+        formatter: (price: any) => (price ? price.toFixed(2) : ""),
+      },
     });
 
     series.priceScale().applyOptions({
       autoScale: true,
       scaleMargins: {
         top: 0.1,
-        bottom: 0.1,
+        bottom: 0.02,
       },
     });
 
@@ -259,7 +306,7 @@ export default function PriceTrendChart() {
         params: {
           securityCode: stock.No,
           priceType: "minute",
-          startDate: moment("2023-12-14 08:00").toISOString(),
+          startDate: genStartDateForPriceChart(graphPeriod),
           time: "desc",
         },
       })
@@ -277,83 +324,84 @@ export default function PriceTrendChart() {
             timeVisible: true,
             secondsVisible: false,
           });
-          updateToolTip();
+          handleSubscribeCrosshairMove();
           chart.timeScale().fitContent();
         }
       })
       .finally(() => setIsLoading(false));
+    return () => {
+      if (chartRef.current && areaSeriesRef.current) {
+        chartRef.current.remove();
+      }
+    };
   }, [stock.No]);
 
   const updateLatestData = (rst: IStockRst) => {
-    if (
-      !rst.success ||
-      firstReceived.current ||
-      isClosedMarket(moment(rst.data.date).unix())
-    ) {
-      return;
-    }
-
-    if (firstReceived.current) {
-      firstReceived.current = false;
-    }
-
-    if (chartRef.current && rst.data) {
-      let nextData: { [key: string]: any } = {};
-      if (graphPeriodType.current === PRICE_SCALE_TYPE.MINUTE) {
-        nextData.time = moment(rst.data.date).unix();
-        nextData.value = +rst.data.close;
-      } else {
-        // 只有一天的数据才做分钟的刻度 （暂时如此）
-        const axisTime = moment(rst.data.date);
-        nextData.time = {
-          year: axisTime.year(),
-          month: axisTime.month(),
-          day: axisTime.date(),
-        };
-        nextData.value = +rst.data.close;
-      }
-      areaSeriesRef.current?.update(nextData as lightweightCharts.AreaData);
-      chartRef.current.timeScale().fitContent();
-    }
+    // if (!rst.success || firstReceived.current) {
+    //   firstReceived.current = false;
+    //   return;
+    // }
+    // if (chartRef.current && rst.data) {
+    //   let nextData: { [key: string]: any } = {};
+    //   const axisTime = timeToTz(
+    //     new Date(rst.data.date).getTime() / 1000,
+    //     "Asia/Taipei"
+    //   );
+    //   if (graphPeriodType.current === PRICE_SCALE_TYPE.MINUTE) {
+    //     nextData.time = moment(
+    //       `${axisTime.hour()}:${axisTime.minute()}`,
+    //       "HH:mm"
+    //     ).unix();
+    //     nextData.value = +rst.data.close;
+    //   } else {
+    //     // 只有一天的数据才做分钟的刻度 （暂时如此）
+    //     nextData.time = {
+    //       year: axisTime.year(),
+    //       month: axisTime.month(),
+    //       day: axisTime.date(),
+    //     };
+    //     nextData.value = +rst.data.close;
+    //   }
+    //   console.log(nextData.time, axisTime.format("YYYY-MM-DD HH:mm"));
+    //   areaSeriesRef.current?.update(nextData as lightweightCharts.AreaData);
+    //   chartRef.current.timeScale().fitContent();
+    // }
   };
 
   useEffect(() => {
     if (!stock.No) return;
     const socket = io("wss://financial-data-gateway-dev.intltrip.com");
-
     socket.on("connect", () => {
       socket.emit("subscribe-stock-price", { stockId: stock.No });
-      console.log(111);
+      console.log("訂閱成功");
     });
-
     // 订阅分钟级别的股价
     socket.on("stock-price", (data: IStockRst) => {
+      // console.log("data:", data);
+      // console.log("graphPeriodType.current", graphPeriodType.current);
       if (graphPeriodType.current === PRICE_SCALE_TYPE.MINUTE) {
+        // console.log("ddd:", data.data);
         updateLatestData(data);
       }
     });
-
     // 订阅半小时级别的股价
     socket.on("stock-price-half-hour", (data: IStockRst) => {
       if (graphPeriodType.current === PRICE_SCALE_TYPE.HOURLY) {
         updateLatestData(data);
       }
     });
-
     // 订阅一小时级别的股价
     socket.on("stock-price-hour", (data: IStockRst) => {
       if (graphPeriodType.current === PRICE_SCALE_TYPE.HOUR) {
         updateLatestData(data);
       }
     });
-
     // 订阅一天级别的股价
     socket.on("stock-price-day", (data: IStockRst) => {
       if (graphPeriodType.current === PRICE_SCALE_TYPE.DAY) {
         updateLatestData(data);
       }
     });
-
     return () => {
       socket.disconnect();
     };
