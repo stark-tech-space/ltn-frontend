@@ -8,7 +8,11 @@ import { addPlaceHolder, isClosedMarket, sleep } from "until";
 import { Box, Chip, Stack, Typography, useTheme } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
-import { COLOR_TEXT_CONVERTER, COLOR_TYPE } from "types/global";
+import {
+  COLOR_BG_CONVERTER,
+  COLOR_TEXT_CONVERTER,
+  COLOR_TYPE,
+} from "types/global";
 
 export default function TopStockBar() {
   const theme = useTheme();
@@ -47,13 +51,13 @@ export default function TopStockBar() {
       100
     ).toFixed(2);
 
-    const color =
-      COLOR_TEXT_CONVERTER[changePrice > 0 ? COLOR_TYPE.UP : COLOR_TYPE.DOWN];
-
     return {
       changePrice,
       changeRate,
-      color,
+      color:
+        COLOR_TEXT_CONVERTER[changePrice > 0 ? COLOR_TYPE.UP : COLOR_TYPE.DOWN],
+      bgColor:
+        COLOR_BG_CONVERTER[changePrice > 0 ? COLOR_TYPE.UP : COLOR_TYPE.DOWN],
       price: +realTimePrice?.close,
       isUp: changePrice > 0,
       closedText: isClosed ? "收盤" : "",
@@ -140,10 +144,12 @@ export default function TopStockBar() {
               px: 1,
               py: "4px",
               height: 26,
-              bgcolor: isUpdating ? "#BDBDBD" : "#EB57571A",
-              color: isUpdating ? "#333" : "#EB5757",
+              bgcolor: isUpdating ? "#BDBDBD" : quote?.bgColor,
+              color: isUpdating ? "#333" : quote?.color,
               "&>.MuiSvgIcon-root": {
-                color: isUpdating ? "#rgba(255, 255, 255,0.5)" : "#D92D20",
+                color: isUpdating
+                  ? "#rgba(255, 255, 255,0.5)"
+                  : quote?.color || "#D92D20",
               },
             }}
           />

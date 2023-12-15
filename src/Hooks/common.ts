@@ -71,7 +71,7 @@ export const useActiveTabElement = <T>(
   tab: T,
   ElementMap: Record<any, ReactNode>
 ) => {
-  const theme = useTheme();
+  // const theme = useTheme();
   const currentPageRoute = useMobileRoute();
   // const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
