@@ -488,20 +488,27 @@ export default function GraphDebtHolder({
         const LongtermLiabilitiesDueWithinOneYear =
           allTables.filter((item) => item.code === "2320")[0]?.value || 0;
         const OtherCurrentLiabilities =
-          (allTables.filter((item) => item.code === "2130")[0]?.value || 0) +
-          (allTables.filter((item) => item.code === "2200")[0]?.value || 0) +
-          (allTables.filter((item) => item.code === "2230")[0]?.value || 0) +
-          (allTables.filter((item) => item.code === "2280")[0]?.value || 0) +
-          (allTables.filter((item) => item.code === "2399")[0]?.value || 0);
-        // 2527 + 2570 + 2580 + 2600
-        const RemainingLiabilities =
-          (allTables.filter((item) => item.code === "2527")[0]?.value || 0) +
-          (allTables.filter((item) => item.code === "2570")[0]?.value || 0) +
-          (allTables.filter((item) => item.code === "2580")[0]?.value || 0) +
-          (allTables.filter((item) => item.code === "2600")[0]?.value || 0);
+          CurrentLiabilities -
+          (ShorttermBorrowings +
+            ShortTermBillsPayable +
+            AccountsPayableandNotes +
+            AdvancePayment +
+            LongtermLiabilitiesDueWithinOneYear);
 
+        // (allTables.filter((item) => item.code === "2130")[0]?.value || 0) +
+        // (allTables.filter((item) => item.code === "2200")[0]?.value || 0) +
+        // (allTables.filter((item) => item.code === "2230")[0]?.value || 0) +
+        // (allTables.filter((item) => item.code === "2280")[0]?.value || 0) +
+        // (allTables.filter((item) => item.code === "2399")[0]?.value || 0);
+        // 2527 + 2570 + 2580 + 2600
         const Liabilities =
           allTables.filter((item) => item.code === "2XXX")[0]?.value || 0;
+        const RemainingLiabilities =
+          Liabilities - (CurrentLiabilities + LongtermBorrowings);
+        // (allTables.filter((item) => item.code === "2527")[0]?.value || 0) +
+        // (allTables.filter((item) => item.code === "2570")[0]?.value || 0) +
+        // (allTables.filter((item) => item.code === "2580")[0]?.value || 0) +
+        // (allTables.filter((item) => item.code === "2600")[0]?.value || 0);
 
         // 金融企业的数据
         const f1 =
