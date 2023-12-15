@@ -181,7 +181,7 @@ export default function QuickAndCurrentRatio() {
             columnDefs={columnHeaders as any}
             defaultColDef={{
               resizable: false,
-              initialWidth: 200,
+              initialWidth: 160,
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}

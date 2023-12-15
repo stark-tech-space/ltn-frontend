@@ -11,7 +11,7 @@ export default function IncomeStatement() {
   const defaultColDef = useMemo(() => {
     return {
       resizable: false,
-      initialWidth: 200,
+      initialWidth: 160,
       wrapHeaderText: true,
       autoHeaderHeight: true,
     };

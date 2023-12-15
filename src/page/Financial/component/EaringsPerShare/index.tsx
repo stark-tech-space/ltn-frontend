@@ -197,7 +197,7 @@ export default function EarningsPerShare() {
             columnDefs={columnHeaders as any}
             defaultColDef={{
               resizable: true,
-              minWidth: 200,
+              minWidth: 160,
               flex: 1,
               wrapHeaderText: true,
               autoHeaderHeight: true,

@@ -23,10 +23,9 @@ export default function RevenueGrowthRate() {
             columnDefs={columnHeaders as any}
             defaultColDef={{
               resizable: false,
-              minWidth: 200,
+              initialWidth: 160,
               wrapHeaderText: true,
               autoHeaderHeight: true,
-              flex: 1,
             }}
           />
         </Box>

@@ -36,7 +36,7 @@ export default function DebtHolders() {
             columnDefs={columnHeaders as any}
             defaultColDef={{
               resizable: false,
-              minWidth: 200,
+              minWidth: 160,
               flex: 1,
               wrapHeaderText: true,
               autoHeaderHeight: true,

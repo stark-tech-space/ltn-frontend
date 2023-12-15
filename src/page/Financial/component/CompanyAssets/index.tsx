@@ -454,7 +454,7 @@ export default function CompanyAssets() {
             rowData={rowData}
             defaultColDef={{
               resizable: true,
-              minWidth: 200,
+              minWidth: 160,
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}
