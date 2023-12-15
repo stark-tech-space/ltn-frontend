@@ -35,12 +35,14 @@ export enum PERIOD {
 
 export enum PERIOD_TYPE {
   YEAR = "year",
-  MONTH = "month",
   QUARTER = "quarter",
+  MONTH = "month",
+  DAY = "day",
 }
 
 export enum PRICE_SCALE_TYPE {
   MINUTE = "minute",
+  HOUR = "hour",
   HOURLY = "half_hour",
   DAY = "day",
 }
@@ -68,21 +70,45 @@ export const PERIOD_YEAR = [
   { label: "近8年", value: 8, type: PERIOD_TYPE.YEAR },
 ];
 
-export const PRICE_SCALE_PERIOD = [
-  { label: "1天", value: 1, type: PRICE_SCALE_TYPE.MINUTE },
-  { label: "1月", value: 1, type: PRICE_SCALE_TYPE.HOURLY },
-  { label: "1年", value: 1, type: PRICE_SCALE_TYPE.DAY },
-  { label: "3年", value: 3, type: PRICE_SCALE_TYPE.DAY },
-];
+export interface PRICE_SCALE_PERIOD_ITEM {
+  label: string;
+  value: number;
+  type: PERIOD_TYPE;
+  period: PRICE_SCALE_TYPE;
+}
 
-// const INTERVALS_CONVERTER: Record<string, string> = {
-//   "1D": "1天",
-//   "5D": "5天",
-//   "1M": "1個月",
-//   "1HM": "6個月",
-//   "1Y": "1年",
-//   MAX: "最大",
-// };
+export const PRICE_SCALE_PERIOD: PRICE_SCALE_PERIOD_ITEM[] = [
+  {
+    label: "1天",
+    value: 1,
+    type: PERIOD_TYPE.DAY,
+    period: PRICE_SCALE_TYPE.MINUTE,
+  },
+  {
+    label: "1月",
+    value: 1,
+    type: PERIOD_TYPE.MONTH,
+    period: PRICE_SCALE_TYPE.HOURLY,
+  },
+  {
+    label: "3月",
+    value: 3,
+    type: PERIOD_TYPE.MONTH,
+    period: PRICE_SCALE_TYPE.HOUR,
+  },
+  {
+    label: "1年",
+    value: 1,
+    type: PERIOD_TYPE.YEAR,
+    period: PRICE_SCALE_TYPE.DAY,
+  },
+  {
+    label: "5年",
+    value: 3,
+    type: PERIOD_TYPE.YEAR,
+    period: PRICE_SCALE_TYPE.DAY,
+  },
+];
 
 export interface IFinMindApiResponse {
   msg: string;

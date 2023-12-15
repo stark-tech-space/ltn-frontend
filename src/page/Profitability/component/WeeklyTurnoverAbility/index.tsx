@@ -14,7 +14,11 @@ import { TURNOVER_DATASETS, TURNOVER_GRAPH_OPTIONS } from "./GrapConfig";
 
 import { IProfitRatio } from "types/profitability";
 import { IDateField, PERIOD } from "types/common";
-import { getDataLimit, caseDateToYYYYMMDD } from "until";
+import {
+  getDataLimit,
+  caseDateToYYYYMMDD,
+  formatNumberFromCompanyCase,
+} from "until";
 
 import { currentStock } from "recoil/selector";
 import { useRecoilValue } from "recoil";
@@ -252,10 +256,9 @@ export default function WeeklyTurnoverAbility() {
               code === "4000" || name === "營業收入-營業收入合計"
           );
 
-          const quarterRevenue = parseInt(
-            allRevenue
-              .find(({ isSingleQuarter }) => isSingleQuarter)
-              ?.value.replaceAll(",", "") || ""
+          const quarterRevenue = formatNumberFromCompanyCase(
+            allRevenue.find(({ isSingleQuarter }) => isSingleQuarter)?.value ||
+              ""
           );
 
           const yearRevenue =
@@ -284,32 +287,25 @@ export default function WeeklyTurnoverAbility() {
                 ...caseDateToYYYYMMDD(date),
               }))
               .sort((a, b) => (a.start > b.start ? -1 : 1)) || [];
-          const accountsReceivable = parseInt(
-            balanceData
-              .find(
-                ({ code, name }) => code === "1170" || name === "應收帳款淨額"
-              )
-              ?.value.replaceAll(",", "") || ""
+          const accountsReceivable = formatNumberFromCompanyCase(
+            balanceData.find(
+              ({ code, name }) => code === "1170" || name === "應收帳款淨額"
+            )?.value || ""
           );
           const totalAssetsData = balanceTable?.data.find(
             ({ name }) => name === "資產-資產總計"
           );
-          const fixedAssets = parseInt(
-            balanceData
-              .find(
-                ({ code, name }) =>
-                  code === "1600" ||
-                  name === "資產-非流動資產-不動產、廠房及設備"
-              )
-              ?.value.replaceAll(",", "") || ""
+          const fixedAssets = formatNumberFromCompanyCase(
+            balanceData.find(
+              ({ code, name }) =>
+                code === "1600" || name === "資產-非流動資產-不動產、廠房及設備"
+            )?.value || ""
           );
           //  流動資產合計
-          const currentAssets = parseInt(
-            balanceData
-              .find(
-                ({ code, name }) => code === "11XX" || name === "流動資產合計"
-              )
-              ?.value.replaceAll(",", "") || ""
+          const currentAssets = formatNumberFromCompanyCase(
+            balanceData.find(
+              ({ code, name }) => code === "11XX" || name === "流動資產合計"
+            )?.value || ""
           );
 
           return {
@@ -320,8 +316,8 @@ export default function WeeklyTurnoverAbility() {
             yearRevenue,
             revenue: quarterRevenue,
             accountsReceivable,
-            totalAssets: parseInt(
-              totalAssetsData?.value.replaceAll(",", "") || ""
+            totalAssets: formatNumberFromCompanyCase(
+              totalAssetsData?.value || ""
             ),
             fixedAssets: fixedAssets,
             currentAssets,
