@@ -44,7 +44,7 @@ export const OPTIONS = {
       position: "left",
       title: {
         display: true,
-        text: "%",
+        text: "元",
         align: "end",
         font: {
           size: 12,
