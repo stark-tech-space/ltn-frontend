@@ -10,6 +10,7 @@ import {
   COLOR_TYPE,
 } from "types/global";
 import { IEaringPerShare } from "types/financial";
+import { fetchQuote } from "api/news";
 
 function getAnnualNetIncomePerShareData(
   rst: IEaringPerShare[],
@@ -79,8 +80,8 @@ export default function BlockQuota() {
     }[]
   >([
     {
-      title: "本益比 (倍)",
-      field: "peRatio",
+      title: "PE",
+      field: "pe",
       value: "0",
       color: COLOR_TYPE.UP,
     },
@@ -98,7 +99,7 @@ export default function BlockQuota() {
     },
     {
       title: "營收YOY",
-      value: "-13.36",
+      value: "0",
       field: "YOY",
       color: COLOR_TYPE.DOWN,
     },
@@ -120,14 +121,15 @@ export default function BlockQuota() {
 
   useEffect(() => {
     (async () => {
-      const [rst1, rst2] = await Promise.all([
+      const [rst1, rst2, rst3] = await Promise.all([
         fetchCompanyRatios(stock.Symbol, PERIOD.QUARTER, 4),
         fetchGrowthRates(stock.Symbol, PERIOD.QUARTER, 1),
+        fetchQuote(stock.Symbol),
       ]);
 
       setBlockList((old) => {
         const values = [...old];
-        if (rst1 && rst1[0]) {
+        if (rst1 && rst1[0] && rst3) {
           values.forEach((item) => {
             let value = rst1[0]?.[item.field];
             if (item.field === "netIncomePerShare") {
@@ -152,6 +154,7 @@ export default function BlockQuota() {
               : COLOR_TYPE.DOWN;
           });
         }
+
         if (rst2 && rst2[0]) {
           const index = values.findIndex((item) => item.field === "YOY");
           values[index].value = rst2[0]?.growthRevenue.toFixed(3);
@@ -161,6 +164,11 @@ export default function BlockQuota() {
               ? COLOR_TYPE.UP
               : COLOR_TYPE.DOWN;
         }
+
+        if (rst3 && rst3[0]) {
+          values[0].value = rst3[0]?.pe.toFixed(3);
+        }
+
         return values;
       });
     })();

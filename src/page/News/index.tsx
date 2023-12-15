@@ -38,8 +38,8 @@ function RealTimeNewsPage() {
           <BlockNewsList />
         </Stack>
         <Box flex={1} gap={1}>
-          <CompanyInformation />
-          <Box height="8px" />
+          {/* <CompanyInformation />
+          <Box height="8px" /> */}
           <ArticleList />
         </Box>
       </Stack>

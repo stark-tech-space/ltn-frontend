@@ -10,6 +10,7 @@ import {
   openMobileNavigationDrawerState,
 } from "recoil/atom";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import useMobileRoute from "Hooks/useMobileRoute";
 
 interface LinkTabProps {
   label?: string;
@@ -61,7 +62,8 @@ export default function NavTabs() {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const currentRoute = useRecoilValue(currentPageRouteState);
   const toggleDrawer = useSetRecoilState(openMobileNavigationDrawerState);
-
+  const route = useMobileRoute();
+  console.log("route", route);
   const [value, setValue] = React.useState(() => {
     return ROUTES.findIndex((item) => item.path === window.location.pathname);
   });

@@ -73,13 +73,19 @@ const TARGET_TABLE_NAME = "資產負債表";
 
 const TARGET_FIELDS = [
   // 流動資產合計可能拿不到先不做
-  //   {
-  //     // 流動資產合計
-  //     name: "流動資產",
-  //     field: "flowingAssets",
-  //     code: ["11XX"],
-  //     calc: () => {},
-  //   },
+  {
+    // 流動資產合計
+    name: "流動資產",
+    field: "flowingAssets",
+    code: ["11XX"],
+    drawerLineChart: true,
+    calc: (data: ITableItem[]) => {
+      const targets = data.filter((item) => item.code === "11XX");
+      return targets[0]?.value
+        ? (numeral(targets[0].value).value() || 0) * UNIT
+        : 0;
+    },
+  },
 
   {
     name: "長期投資",
@@ -238,6 +244,7 @@ export default function CompanyAssets() {
   const [period, setPeriod] = useState(3);
   const [chartType, setChartType] = useState(0);
   const [graphData, setGraphData] = useState<IFields[]>([]);
+
   const chartRef = useRef<Chart>();
   const chartPieRef = useRef<any>();
 
@@ -304,9 +311,7 @@ export default function CompanyAssets() {
       .get(`/financial/dan-yi-gong-si-an-li`, {
         params: {
           securityCode: stock.No,
-          yearRange: moment()
-            .subtract(period - 1, "year")
-            .format("YYYY"),
+          yearRange: moment().subtract(period, "year").format("YYYY"),
         },
       })
       .then((rst: any) => {
@@ -327,6 +332,7 @@ export default function CompanyAssets() {
               ...keyValues,
             });
           });
+          console.log(list);
           setGraphData(list.reverse() || []);
         }
       });
@@ -389,11 +395,7 @@ export default function CompanyAssets() {
 
   return (
     <Stack rowGap={1}>
-      <Box
-        bgcolor="#fff"
-        borderRadius={{ xs: 0, md: 0, lg: "8px" }}
-        p={{ xs: 2, md: 3, lg: 3 }}
-      >
+      <TagCard tabs={["資產項目", "流動資產細項"]}>
         <Stack
           direction="row"
           alignItems="center"
@@ -425,7 +427,7 @@ export default function CompanyAssets() {
             </IconButton>
           </Stack>
         </Stack>
-        <Box bgcolor="#fff">
+        <Box bgcolor="#fff" pb={{ xs: 2, md: 2, lg: 3 }}>
           <div
             style={{ display: chartType === 0 ? "block" : "none", height: 534 }}
           >
@@ -447,7 +449,8 @@ export default function CompanyAssets() {
             />
           </div>
         </Box>
-      </Box>
+      </TagCard>
+
       <TagCard tabs={["詳細數據"]}>
         <Box
           className="ag-theme-alpine"

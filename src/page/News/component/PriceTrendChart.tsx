@@ -67,11 +67,11 @@ export default function PriceTrendChart() {
       });
     }
 
-    const formatData = data.map((item: any) => ({
+    return data.slice(0, -1).map((item: any) => ({
       time: moment(item.time).unix(),
       value: +item.price,
     }));
-    return formatData.slice(1, -1);
+
     // const totalItems = 4 * 60 + 30;
 
     // const all: any[] = new Array(totalItems).fill(0);
@@ -202,7 +202,7 @@ export default function PriceTrendChart() {
   };
 
   useEffect(() => {
-    //  setIsLoading(true);
+    setIsLoading(true);
     const chart = lightweightCharts.createChart(
       chartContainerRef.current as HTMLDivElement,
       {
@@ -285,7 +285,6 @@ export default function PriceTrendChart() {
       priceFormat: {
         type: "custom",
         minMove: 2,
-        // maxMove:3,
         formatter: (price: any) => (price ? price.toFixed(2) : ""),
       },
     });
@@ -294,7 +293,7 @@ export default function PriceTrendChart() {
       autoScale: true,
       scaleMargins: {
         top: 0.1,
-        bottom: 0.02,
+        bottom: 0,
       },
     });
 
@@ -315,9 +314,11 @@ export default function PriceTrendChart() {
           const graph = genGraphData(PERIOD_TYPE.DAY, rst.data.list);
 
           series.applyOptions({
-            lastPriceAnimation: isClosedMarket(+graph[graph.length - 1].time)
-              ? lightweightCharts.LastPriceAnimationMode.Disabled
-              : lightweightCharts.LastPriceAnimationMode.Continuous,
+            lastPriceAnimation:
+              lightweightCharts.LastPriceAnimationMode.OnDataUpdate,
+            // lastPriceAnimation: isClosedMarket(+graph[graph.length - 1].time)
+            //   ? lightweightCharts.LastPriceAnimationMode.Disabled
+            //   : lightweightCharts.LastPriceAnimationMode.Continuous,
           });
           series.setData(graph as any);
           chart.timeScale().applyOptions({
@@ -377,7 +378,7 @@ export default function PriceTrendChart() {
     });
     // 订阅分钟级别的股价
     socket.on("stock-price", (data: IStockRst) => {
-      // console.log("data:", data);
+      console.log("data:", data);
       // console.log("graphPeriodType.current", graphPeriodType.current);
       if (graphPeriodType.current === PRICE_SCALE_TYPE.MINUTE) {
         // console.log("ddd:", data.data);
@@ -411,10 +412,10 @@ export default function PriceTrendChart() {
     if (!stock.No || isLoading) {
       return;
     }
-    graphPeriodType.current = targetPeriod.period;
+
     setGraphPeriod(targetPeriod);
     setIsLoading(true);
-
+    graphPeriodType.current = targetPeriod.period;
     const params = {
       priceType: "",
       time: "desc",
@@ -499,7 +500,7 @@ export default function PriceTrendChart() {
       </Stack>
       <Box position="relative" pb={2}>
         <CircularLoading open={isLoading} />
-        <Box ref={chartContainerRef} height={500} position="relative">
+        <Box ref={chartContainerRef} height={480} position="relative">
           <Box
             ref={toolTip}
             sx={{

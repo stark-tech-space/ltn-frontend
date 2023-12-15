@@ -1,5 +1,5 @@
 import { Box, Chip, Stack, Typography, useTheme } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import dayjs from "dayjs";
 import { IRealTimeQuote } from "types/common";
 import { fetchQuote } from "api/common";
@@ -9,12 +9,26 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
+import { realTimeStockPriceState } from "recoil/atom";
+import ltnApi from "api/http/ltnApi";
+import moment from "moment";
 
 export default function TopStockBar() {
   const theme = useTheme();
   const [isUpdating, setIsUpdating] = useState(false);
-  const [quote, setQuote] = React.useState<IRealTimeQuote>({} as IRealTimeQuote);
+  const [quote, setQuote] = React.useState<IRealTimeQuote>(
+    {} as IRealTimeQuote
+  );
   const stock = useRecoilValue(currentStock);
+
+  // const realTimeQuote = useRecoilValue(realTimeStockPriceState);
+
+  // const priceInfo = useMemo(() => {
+  //   if (realTimeQuote) {
+  //     return realTimeQuote;
+  //   }
+  //   return quote;
+  // }, [realTimeQuote, quote]);
 
   function getColor(value: number, nextValue: number) {
     if (value > nextValue) {
@@ -29,7 +43,6 @@ export default function TopStockBar() {
       if (!stock.Symbol) {
         return;
       }
-
       setIsUpdating(true);
       const rst = await fetchQuote(stock.Symbol).finally(async () => {
         await sleep(1000);
@@ -38,15 +51,25 @@ export default function TopStockBar() {
       if (rst && rst[0]) {
         setQuote(rst[0]);
       }
+
+      // if (!stock.No) {
+      //   return;
+      // }
+      // const rst = await ltnApi.get(`/financial/stock-prices`, {
+      //   params: {
+      //     securityCode: stock.No,
+      //     priceType: "minute",
+      //     startDate: moment("2023-12-14 13:30:00").toISOString(),
+      //   },
+      // });
+      // console.log(
+      //   "rst:",
+      //   moment(rst.data[0].time).format("YYYY-MM-DD HH:mm:ss")
+      // );
     };
-    // const timer = setInterval(async () => {
-    //   pollFetch();
-    // }, 1 * 60 * 1000);
+
     pollFetch();
-    return () => {
-      // clearInterval(timer);
-    };
-  }, [stock.Symbol]);
+  }, [stock.No]);
 
   return (
     <Stack
@@ -76,7 +99,13 @@ export default function TopStockBar() {
         }}
       >
         {stock.Name}
-        <Typography component="span" fontSize="16px" color="#333333" fontWeight={400} ml="4px">
+        <Typography
+          component="span"
+          fontSize="16px"
+          color="#333333"
+          fontWeight={400}
+          ml="4px"
+        >
           {stock.No}
         </Typography>
       </Box>
@@ -89,7 +118,9 @@ export default function TopStockBar() {
           <Typography
             component="div"
             sx={{
-              color: isUpdating ? "#BDBDBD" : getColor(quote.price, quote.previousClose),
+              color: isUpdating
+                ? "#BDBDBD"
+                : getColor(quote.price, quote.previousClose),
               fontWeight: 600,
             }}
             fontSize={{ xs: "18px", md: "24px" }}
@@ -113,7 +144,13 @@ export default function TopStockBar() {
                 <ArrowDropUpIcon fontSize="small" />
               )
             }
-            label={quote ? `${toFixed(quote?.change)} (${toFixed(quote.changesPercentage)}%)` : ""}
+            label={
+              quote
+                ? `${toFixed(quote?.change)} (${toFixed(
+                    quote.changesPercentage
+                  )}%)`
+                : ""
+            }
             sx={{
               px: 1,
               py: "4px",
@@ -126,8 +163,13 @@ export default function TopStockBar() {
             }}
           />
         </Stack>
-        <Typography component="span" sx={{ fontSize: "12px", color: "#BDBDBD" }}>
-          {` 收盤 | ${dayjs(quote.timestamp * 1000).format("YYYY/MM/DD HH:mm")} 更新`}
+        <Typography
+          component="span"
+          sx={{ fontSize: "12px", color: "#BDBDBD" }}
+        >
+          {` 收盤 | ${dayjs(quote.timestamp * 1000).format(
+            "YYYY/MM/DD HH:mm"
+          )} 更新`}
         </Typography>
       </Stack>
     </Stack>

@@ -1,5 +1,13 @@
-import { useEffect, useState } from "react";
-import { Box, Stack, Typography, styled, Chip, Divider } from "@mui/material";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Box,
+  Stack,
+  Typography,
+  styled,
+  Chip,
+  Divider,
+  Tooltip,
+} from "@mui/material";
 import ArticleList from "./ArticleList";
 import {
   ICompanyState,
@@ -20,6 +28,7 @@ import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import { fetchCompanyRatios } from "api/common";
 import { IFinancialStatementRatio, PERIOD } from "types/common";
+import { useTaiPeiStockOverview } from "Hooks/common";
 
 const StyledLabel = styled(Typography)(({ theme, color }) => ({
   fontSize: "16px",
@@ -124,8 +133,15 @@ export const StockInformation = () => {
           {addPlaceHolder(quote.previousClose)}
         </StyledValue>
       </Box>
-      <Divider sx={{ bgcolor: "#D0D5DD" }} />
       <Box display="flex" alignItems="center" justifyContent="space-between">
+        <StyledLabel>市值</StyledLabel>
+        <StyledValue color="#000000">
+          {formNumberToUnit(quote.marketCap, "T", 12)}
+        </StyledValue>
+      </Box>
+      <Divider sx={{ bgcolor: "#D0D5DD" }} />
+      <CompanyInformation />
+      {/*<Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>EPS</StyledLabel>
         <StyledValue color="#000000">{addPlaceHolder(quote?.eps)}</StyledValue>
       </Box>
@@ -133,7 +149,7 @@ export const StockInformation = () => {
         <StyledLabel>PE</StyledLabel>
         <StyledValue color="#000000">{addPlaceHolder(quote?.pe)}</StyledValue>
       </Box>
-      <Box display="flex" alignItems="center" justifyContent="space-between">
+    <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>股息率</StyledLabel>
         <StyledValue color="#000000">--</StyledValue>
       </Box>
@@ -152,7 +168,7 @@ export const StockInformation = () => {
         <StyledValue color="#000000">
           {formNumberToUnit(quote.marketCap, "T", 12)}
         </StyledValue>
-      </Box>
+      </Box> */}
     </Stack>
   );
 };
@@ -163,6 +179,18 @@ export const CompanyInformation = () => {
     useState<IBalanceSheetStatement>();
   const [keyMetrics, setKeyMetrics] = useState<IKeyMetrics>();
   const stock = useRecoilValue(currentStock);
+
+  const taipeiStockOverview = useTaiPeiStockOverview();
+
+  const industry_category = useMemo(() => {
+    if (taipeiStockOverview && companyState?.industry && stock.No) {
+      const filterList = taipeiStockOverview
+        .filter((item) => item.stock_id === stock.No)
+        .map((item) => item.industry_category);
+      return filterList.length > 0 ? filterList.join("、") : "-";
+    }
+    return "-";
+  }, [stock.No, companyState?.industry, taipeiStockOverview]);
 
   useEffect(() => {
     fetchSymbolInfo(stock.Symbol).then((rst) => {
@@ -189,34 +217,36 @@ export const CompanyInformation = () => {
   }, [stock.Symbol]);
 
   return (
-    <Stack
-      p={{ xs: 2, md: 3, lg: 3 }}
-      borderRadius={{ xs: 0, md: "8px", lg: "8px" }}
-      bgcolor="#fff"
-      rowGap="12px"
-    >
-      <Box display="flex" alignItems="center" justifyContent="space-between">
+    <>
+      {/* <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>交易所</StyledLabel>
         <StyledValue color="#000000">
           {addPlaceHolder(companyState?.exchangeShortName)}
         </StyledValue>
-      </Box>
+      </Box> */}
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>產業類別</StyledLabel>
-        <StyledValue color="#000000">
-          {addPlaceHolder(companyState?.industry)}
-        </StyledValue>
+        {industry_category.length >= 12 ? (
+          <Tooltip title={industry_category} placement="bottom-start">
+            <StyledValue color="#000000">{`${industry_category.slice(
+              0,
+              13
+            )}...`}</StyledValue>
+          </Tooltip>
+        ) : (
+          <StyledValue color="#000000">{industry_category}</StyledValue>
+        )}
       </Box>
-      <Box display="flex" alignItems="center" justifyContent="space-between">
+      {/* <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>市值 (百萬)</StyledLabel>
         <StyledValue color="#000000">
           {formNumberToUnit(companyState?.mktCap, "M", 6)}
         </StyledValue>
-      </Box>
+      </Box> */}
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>總債務 (百萬)</StyledLabel>
         <StyledValue color="#000000">
-          {formNumberToUnit(balanceSheetStatement?.totalDebt, "M", 6)}
+          {formNumberToUnit(balanceSheetStatement?.totalDebt, "", 6)}
         </StyledValue>
       </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -224,7 +254,7 @@ export const CompanyInformation = () => {
         <StyledValue color="#000000">
           {formNumberToUnit(
             balanceSheetStatement?.cashAndShortTermInvestments,
-            "M",
+            "",
             6
           )}
         </StyledValue>
@@ -232,10 +262,10 @@ export const CompanyInformation = () => {
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>企業價值 (百萬)</StyledLabel>
         <StyledValue color="#000000">
-          {formNumberToUnit(keyMetrics?.enterpriseValue, "M", 6)}
+          {formNumberToUnit(keyMetrics?.enterpriseValue, "", 6)}
         </StyledValue>
       </Box>
-    </Stack>
+    </>
   );
 };
 
@@ -244,8 +274,8 @@ export default function RightSummary() {
     <>
       <StockInformation />
       <Box height={{ xs: "8px", lg: "40px" }} />
-      <CompanyInformation />
-      <Box height="8px" />
+      {/* <CompanyInformation />
+      <Box height="8px" /> */}
       <ArticleList />
     </>
   );

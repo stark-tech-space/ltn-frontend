@@ -11,7 +11,7 @@ export function UpdateStockCount() {
   const setStockCount = useSetRecoilState(stockPerQuarterCountState);
 
   useEffect(() => {
-    // // 默认拿8年的数据
+    // 默认拿8年的数据
     fetchPerQuarterStocks<IStockCount[]>({
       data_id: stock.No,
       start_date: getBeforeYears(8),

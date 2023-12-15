@@ -1,11 +1,11 @@
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { debounce, useMediaQuery } from "@mui/material";
-import { fetchIndicators } from "api/common";
+import { fetchFindMindAPI, fetchIndicators } from "api/common";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import { currentPageRouteState, stockPerQuarterCountState } from "recoil/atom";
 import { genFullDateObject, getBeforeYears } from "until";
-import { IIndicatorItem } from "types/common";
+import { IIndicatorItem, ITaipeiStockOverview } from "types/common";
 import { getSmaByMonth } from "lib/sma";
 import { useTheme } from "@mui/material";
 
@@ -79,3 +79,32 @@ export const useActiveTabElement = <T>(
     return ElementMap[renderTab as T];
   }, [isMobile, currentPageRoute?.subPath, tab, ElementMap]);
 };
+
+// 獲取台灣股票總覽數據
+export function useTaiPeiStockOverview() {
+  const [taipeiStockOverview, setTaipeiStockOverview] = useState<
+    ITaipeiStockOverview[]
+  >([]);
+
+  useEffect(() => {
+    if (localStorage["taipeiStockOverview"]) {
+      setTaipeiStockOverview(JSON.parse(localStorage["taipeiStockOverview"]));
+      return;
+    }
+
+    fetchFindMindAPI<ITaipeiStockOverview[]>({
+      dataset: "TaiwanStockInfo",
+    }).then((rst) => {
+      if (rst) {
+        const rstList = rst?.map((item) => ({
+          industry_category: item.industry_category,
+          stock_id: item.stock_id,
+        }));
+        localStorage["taipeiStockOverview"] = JSON.stringify(rstList);
+        setTaipeiStockOverview(rstList);
+      }
+    });
+  }, []);
+
+  return useMemo(() => taipeiStockOverview, [taipeiStockOverview]);
+}

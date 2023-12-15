@@ -1,4 +1,5 @@
 import { DefaultValue, atom } from "recoil";
+import { IReadTimeStockPRice } from "types/common";
 
 const localStorageEffect =
   (key: string) =>
@@ -50,4 +51,9 @@ export const currentPageRouteState = atom({
 export const openMobileNavigationDrawerState = atom({
   key: "open-mobile-navigation-drawer",
   default: false,
+});
+
+export const realTimeStockPriceState = atom({
+  key: "real-time-stock-price",
+  default: null as IReadTimeStockPRice | null,
 });

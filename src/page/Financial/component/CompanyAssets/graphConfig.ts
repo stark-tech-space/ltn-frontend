@@ -3,6 +3,16 @@ export const labelDataSets = {
   datasets: [
     {
       type: "line" as const,
+      label: "流動資產",
+      data: [],
+      backgroundColor: "#EDC240",
+      borderColor: "#EDC240",
+      borderWidth: 2,
+      yAxisID: "y",
+      fill: { above: "blue", below: "red" },
+    },
+    {
+      type: "line" as const,
       label: "長期投資",
       data: [],
       backgroundColor: "#0586f4",
@@ -66,6 +76,9 @@ export const lineGraphConfig = {
   plugins: {
     legend: {
       position: "bottom",
+    },
+    filler: {
+      propagate: false,
     },
   },
 };

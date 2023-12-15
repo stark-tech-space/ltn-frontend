@@ -71,7 +71,7 @@ export const fetchKeyMetrics = async (
 
 // findmind api
 export async function fetchFindMindAPI<T>(params: {
-  data_id: string;
+  data_id?: string;
   dataset: string;
   start_date?: string;
   end_date?: string;
