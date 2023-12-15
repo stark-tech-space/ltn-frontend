@@ -42,7 +42,7 @@ export default function EarningsPerShare() {
     if (tabIndex === 0) {
       return "單季度EPS";
     } else {
-      return "近4季累積EPS";
+      return "近四季累積EPS";
     }
   }, [tabIndex]);
 
