@@ -11,12 +11,12 @@ export const labelDataSets = {
       fill: false,
     },
     {
-      label: "總資產迴轉",
+      label: "總資產週轉",
       data: [],
       backgroundColor: "#0d9618",
       borderColor: "#0d9618",
       borderWidth: 2,
-      yAxisID: "y",
+      yAxisID: "y1",
       fill: false,
     },
     {
@@ -25,11 +25,11 @@ export const labelDataSets = {
       borderColor: "#9440ec",
       backgroundColor: "#9440ec",
       borderWidth: 2,
-      yAxisID: "y",
+      yAxisID: "y1",
       fill: false,
     },
     {
-      label: "ROA",
+      label: "ROE",
       data: [],
       borderColor: "#dc3911",
       backgroundColor: "#dc3911",
@@ -65,6 +65,20 @@ export const graphConfig = {
       title: {
         display: true,
         text: "%",
+        align: "end",
+        font: {
+          size: 12,
+          weight: "bold",
+        },
+      },
+    },
+    y1: {
+      type: "linear",
+      display: true,
+      position: "right",
+      title: {
+        display: true,
+        text: "數值",
         align: "end",
         font: {
           size: 12,
