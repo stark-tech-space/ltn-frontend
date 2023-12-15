@@ -1,8 +1,7 @@
 import { Stack, Box } from "@mui/material";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import TagCard from "../../../../component/tabCard";
 
-import { AgGridReact } from "ag-grid-react";
 import { PERIOD } from "types/common";
 import { Chart } from "react-chartjs-2";
 import { OPTIONS } from "./GraphConfig";
@@ -16,7 +15,7 @@ import { useAvgPriceByMonth } from "Hooks/common";
 import { IEaringPerShare } from "types/financial";
 import { maxBy, minBy } from "lodash";
 import moment from "moment";
-import { useTable } from "Hooks/useTable";
+import WrappedAgGrid from "component/WrappedAgGrid";
 
 function getAnnualData(rst: IEaringPerShare[], allPeriod: number) {
   const newRst = rst.map((item, index, arr) => {
@@ -27,7 +26,7 @@ function getAnnualData(rst: IEaringPerShare[], allPeriod: number) {
     );
     return { ...item, netIncomePerShare: newNetIncomePerShare };
   });
-  return newRst.reverse().slice(0, allPeriod);
+  return newRst.slice(0, allPeriod);
 }
 
 interface ISma {
@@ -51,7 +50,6 @@ export default function EarningsPerShare() {
   const [reportType, setReportType] = useState(PERIOD.QUARTER);
   const [graphData, setGraphData] = useState<IEaringPerShare[]>([]);
   const [smaData, setSmaData] = useState<ISma[]>([]);
-  const [gridReady, setGridReady] = useState(false);
 
   const avgPrice = useAvgPriceByMonth(period);
 
@@ -68,12 +66,20 @@ export default function EarningsPerShare() {
         .startOf("quarter")
         .format("YYYY-MM-DD"),
     }));
-    data && setGraphData(data.reverse() as any);
+    data && setGraphData(data as any);
   }, [period, reportType, stock, tabIndex]);
 
   useEffect(() => {
     fetchGraphData();
   }, [fetchGraphData, tabIndex]);
+
+  const netIncomePerShareDataSets = useMemo(() => {
+    if (tabIndex === 1 && reportType === PERIOD.QUARTER) {
+      return getAnnualData(graphData, allPeriod);
+    } else {
+      return graphData;
+    }
+  }, [graphData, tabIndex, allPeriod]);
 
   const columnHeaders = useMemo(() => {
     const columns: any[] = [
@@ -83,7 +89,7 @@ export default function EarningsPerShare() {
         pinned: "left",
       },
     ];
-    graphData?.forEach((item) => {
+    netIncomePerShareDataSets?.forEach((item) => {
       columns.push({
         field:
           reportType === PERIOD.QUARTER
@@ -92,11 +98,7 @@ export default function EarningsPerShare() {
       });
     });
     return columns;
-  }, [graphData, reportType]);
-
-  const gridRef = useRef<AgGridReact>(null);
-
-  useTable(gridRef, columnHeaders, gridReady);
+  }, [netIncomePerShareDataSets, reportType]);
 
   const tableRowData = useMemo(() => {
     const dataSources: { [key: string]: any } = {
@@ -107,7 +109,7 @@ export default function EarningsPerShare() {
             : "近四季EPS"
           : "EPS",
     };
-    graphData?.forEach((item) => {
+    netIncomePerShareDataSets?.forEach((item) => {
       if (reportType === PERIOD.ANNUAL) {
         dataSources[item.calendarYear] = item.netIncomePerShare.toFixed(2);
       } else {
@@ -116,15 +118,7 @@ export default function EarningsPerShare() {
       }
     });
     return [dataSources];
-  }, [graphData, tabIndex, reportType]);
-
-  const netIncomePerShareDataSets = useMemo(() => {
-    if (tabIndex === 1 && reportType === PERIOD.QUARTER) {
-      return getAnnualData(graphData, allPeriod);
-    } else {
-      return graphData;
-    }
-  }, [graphData, tabIndex, allPeriod]);
+  }, [netIncomePerShareDataSets, tabIndex, reportType]);
 
   const graphDataSets = useMemo(() => {
     const minDateInData = minBy(netIncomePerShareDataSets, "date")?.date || "";
@@ -198,9 +192,7 @@ export default function EarningsPerShare() {
             paddingBottom: "24px",
           }}
         >
-          <AgGridReact
-            ref={gridRef}
-            onGridReady={() => setGridReady(true)}
+          <WrappedAgGrid
             rowData={tableRowData as any}
             columnDefs={columnHeaders as any}
             defaultColDef={{
@@ -210,7 +202,6 @@ export default function EarningsPerShare() {
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}
-            domLayout="autoHeight"
           />
         </Box>
       </TagCard>
