@@ -74,3 +74,7 @@ body::-webkit-scrollbar-thumb {
 .ag-center-cols-viewport {
     min-height: unset !important;
 }
+
+.ag-cell-focus {
+    border: 1px solid #babfc7 !important;
+}

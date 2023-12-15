@@ -1,7 +1,6 @@
 import { Stack, Box } from "@mui/material";
 import { useState } from "react";
 import TagCard from "../../../../component/tabCard";
-import { AgGridReact } from "ag-grid-react";
 import GraphOperatNetIncomeRate from "./GraphOperatNetIncomeRate";
 import WrappedAgGrid from "component/WrappedAgGrid";
 
@@ -27,7 +26,7 @@ export default function OperatingNetIncomeRate() {
             columnDefs={columnHeaders as any}
             defaultColDef={{
               resizable: true,
-              initialWidth: 200,
+              initialWidth: 160,
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}

@@ -1,21 +1,17 @@
 import { Stack, Box } from "@mui/material";
 import TagCard from "../../../../component/tabCard";
 import IncomeGraph from "./IncomeGraph";
-import { useMemo, useRef, useState } from "react";
-import { AgGridReact } from "ag-grid-react";
+import { useMemo, useState } from "react";
+import WrappedAgGrid from "component/WrappedAgGrid";
 import numeral from "numeral";
-import { useTable } from "Hooks/useTable";
 
 export default function IncomeStatement() {
   const [graphData, setGraphData] = useState<any>({});
-  const [gridReady, setGridReady] = useState(false);
-
-  const gridRef = useRef<AgGridReact>(null);
 
   const defaultColDef = useMemo(() => {
     return {
       resizable: false,
-      initialWidth: 200,
+      initialWidth: 160,
       wrapHeaderText: true,
       autoHeaderHeight: true,
     };
@@ -119,8 +115,6 @@ export default function IncomeStatement() {
     return columns;
   }, [graphData]);
 
-  useTable(gridRef, columnHeaders, gridReady);
-
   return (
     <Stack rowGap={1}>
       <Box bgcolor="#fff" borderRadius="8px" p={{ xs: 2, md: 3 }}>
@@ -133,13 +127,10 @@ export default function IncomeStatement() {
             paddingBottom: "24px",
           }}
         >
-          <AgGridReact
-            ref={gridRef}
-            onGridReady={() => setGridReady(true)}
-            rowData={tableRowData}
+          <WrappedAgGrid
+            rowData={tableRowData as any}
             columnDefs={columnHeaders as any}
             defaultColDef={defaultColDef}
-            domLayout="autoHeight"
           />
         </Box>
       </TagCard>

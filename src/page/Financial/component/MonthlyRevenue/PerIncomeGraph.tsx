@@ -144,24 +144,29 @@ export default function PerStockIncomeChart({
           return {
             date: graphItem.date,
             sma: 0,
-            revenue: avgStockCount
+            revenuePerShare: avgStockCount
               ? +(graphItem.revenue / avgStockCount.StockCount).toFixed(2)
               : 0,
+            revenue: graphItem.revenue,
             growthByMonthRate: 0,
           };
         })
-        .filter(({ revenue }) => revenue);
+        .filter(({ revenuePerShare }) => revenuePerShare);
       const rst = data.map((item, index) => {
-        const prevMonthRevenue = index < 12 ? 1 : data[index - 1]?.revenue;
+        const prevYearRevenue = index < 12 ? 1 : data[index - 12]?.revenue;
         let growthByMonthRate = 0;
-        if (prevMonthRevenue && item.revenue) {
+        if (prevYearRevenue && item.revenue) {
           growthByMonthRate = +(
-            (item.revenue / prevMonthRevenue - 1) *
+            (item.revenue / prevYearRevenue - 1) *
             100
           ).toFixed(2);
         }
+
+        const { revenuePerShare, ...otherData } = item;
+
         return {
-          ...item,
+          ...otherData,
+          revenue: revenuePerShare,
           date: moment(item.date).format("YYYY-MM"),
           growthByMonthRate: index < 12 ? 1 : growthByMonthRate,
         };

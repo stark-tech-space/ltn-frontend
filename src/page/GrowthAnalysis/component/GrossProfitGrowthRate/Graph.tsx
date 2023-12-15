@@ -190,14 +190,14 @@ export default function Graph({
     if (reportType === PERIOD.QUARTER) {
       data?.forEach((item) => {
         columnHeaders.push({
-          field: `${item.calendarYear}-${item.quarter}`,
+          field: `${item.calendarYear}-Q${item.quarter}`,
         });
       });
       const dataSources: { [key: string]: any } = {
         title: title,
       };
       data?.forEach((item) => {
-        dataSources[`${item.calendarYear}-${item.quarter}`] = numeral(
+        dataSources[`${item.calendarYear}-Q${item.quarter}`] = numeral(
           type === 1
             ? //@ts-ignore
               +(item.revenue_year_difference * 100)
@@ -210,7 +210,7 @@ export default function Graph({
         title: subTitle,
       };
       data?.forEach((item) => {
-        dataSources2[`${item.calendarYear}-${item.quarter}`] = numeral(
+        dataSources2[`${item.calendarYear}-Q${item.quarter}`] = numeral(
           type === 1
             ? //@ts-ignore
               +(item.revenue_four_year_difference * 100)

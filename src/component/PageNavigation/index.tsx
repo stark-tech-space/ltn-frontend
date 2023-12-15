@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import {
   Stack,
   styled,
@@ -7,6 +7,11 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import { useSetRecoilState } from "recoil";
+import { currentPageRouteState } from "recoil/atom";
+import { useLocation } from "react-router-dom";
+import { ROUTES } from "router";
+import useMobileRoute from "Hooks/useMobileRoute";
 
 interface PageMenuProps<T> {
   menuConverter: Record<string, string>;
@@ -32,9 +37,30 @@ const PageNavigation: FC<PageMenuProps<string>> = ({
   ...props
 }) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const { pathname } = useLocation();
 
-  const [activeTab, setActiveTab] = useState<string>(defaultActiveTab);
+  const currentPageRoute = useMobileRoute();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [activeTab, setActiveTab] = useState<string>(
+    currentPageRoute?.subPath || defaultActiveTab
+  );
+  const setCurrentPageRoute = useSetRecoilState(currentPageRouteState);
+
+  useEffect(() => {
+    setActiveTab(currentPageRoute?.subPath || defaultActiveTab);
+  }, [currentPageRoute, defaultActiveTab]);
+
+  const handleClickTab = (key: string, value: string) => {
+    setActiveTab(key);
+    onChange(key);
+
+    setCurrentPageRoute({
+      path: pathname,
+      subPath: key,
+      routeName: ROUTES.find((route) => route.path === pathname)?.title || "",
+      routeSubName: menuConverter[key],
+    });
+  };
 
   if (isMobile) {
     return null;
@@ -74,10 +100,7 @@ const PageNavigation: FC<PageMenuProps<string>> = ({
             key={key}
             variant="button"
             isActive={key === activeTab}
-            onClick={() => {
-              setActiveTab(key);
-              onChange(key);
-            }}
+            onClick={() => handleClickTab(key, value)}
           >
             {value}
           </LinkTab>

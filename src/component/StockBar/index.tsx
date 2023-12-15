@@ -1,75 +1,66 @@
-import { Box, Chip, Stack, Typography, useTheme } from "@mui/material";
-import React, { useEffect, useMemo, useState } from "react";
-import dayjs from "dayjs";
-import { IRealTimeQuote } from "types/common";
-import { fetchQuote } from "api/common";
-import { addPlaceHolder, sleep, toFixed } from "until";
-
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import { useEffect, useMemo, useState } from "react";
+import moment from "moment";
+import { io } from "socket.io-client";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
-import { realTimeStockPriceState } from "recoil/atom";
-import ltnApi from "api/http/ltnApi";
-import moment from "moment";
+import { IReadTimeStockPrice, IRealTimePriceRst } from "types/common";
+import { addPlaceHolder, isClosedMarket, sleep } from "until";
+import { Box, Chip, Stack, Typography, useTheme } from "@mui/material";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import { COLOR_TEXT_CONVERTER, COLOR_TYPE } from "types/global";
 
 export default function TopStockBar() {
   const theme = useTheme();
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [quote, setQuote] = React.useState<IRealTimeQuote>(
-    {} as IRealTimeQuote
-  );
   const stock = useRecoilValue(currentStock);
-
-  // const realTimeQuote = useRecoilValue(realTimeStockPriceState);
-
-  // const priceInfo = useMemo(() => {
-  //   if (realTimeQuote) {
-  //     return realTimeQuote;
-  //   }
-  //   return quote;
-  // }, [realTimeQuote, quote]);
-
-  function getColor(value: number, nextValue: number) {
-    if (value > nextValue) {
-      return "#D92D20";
-    } else {
-      return "#27AE60";
-    }
-  }
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [realTimePrice, setRealTimePrice] = useState<IReadTimeStockPrice>();
 
   useEffect(() => {
-    const pollFetch = async () => {
-      if (!stock.Symbol) {
-        return;
-      }
-      setIsUpdating(true);
-      const rst = await fetchQuote(stock.Symbol).finally(async () => {
-        await sleep(1000);
-        setIsUpdating(false);
-      });
-      if (rst && rst[0]) {
-        setQuote(rst[0]);
-      }
+    const socket = io("wss://financial-data-gateway-dev.intltrip.com");
+    socket.on("connect", () => {
+      socket.emit("subscribe-stock-price", { stockId: stock.No });
+    });
 
-      // if (!stock.No) {
-      //   return;
-      // }
-      // const rst = await ltnApi.get(`/financial/stock-prices`, {
-      //   params: {
-      //     securityCode: stock.No,
-      //     priceType: "minute",
-      //     startDate: moment("2023-12-14 13:30:00").toISOString(),
-      //   },
-      // });
-      // console.log(
-      //   "rst:",
-      //   moment(rst.data[0].time).format("YYYY-MM-DD HH:mm:ss")
-      // );
+    socket.on("stock-price-minute", async (rst: IRealTimePriceRst) => {
+      setIsUpdating(false);
+      if (rst.success) {
+        setRealTimePrice(rst.data);
+        await sleep(500);
+      }
+    });
+
+    return () => {
+      socket.disconnect();
     };
-
-    pollFetch();
   }, [stock.No]);
+
+  const quote = useMemo(() => {
+    if (!realTimePrice) {
+      return;
+    }
+    const isClosed = isClosedMarket(realTimePrice.date);
+    const changePrice =
+      parseFloat(realTimePrice?.close) - parseFloat(realTimePrice?.prevClose);
+    const changeRate = (
+      (changePrice / parseFloat(realTimePrice?.prevClose)) *
+      100
+    ).toFixed(2);
+
+    const color =
+      COLOR_TEXT_CONVERTER[changePrice > 0 ? COLOR_TYPE.UP : COLOR_TYPE.DOWN];
+
+    return {
+      changePrice,
+      changeRate,
+      color,
+      price: +realTimePrice?.close,
+      isUp: changePrice > 0,
+      closedText: isClosed ? "收盤" : "",
+      updateText: isClosed ? "" : "更新",
+      time: moment(realTimePrice.date).format("YYYY-MM-DD HH:mm"),
+    };
+  }, [realTimePrice]);
 
   return (
     <Stack
@@ -117,12 +108,8 @@ export default function TopStockBar() {
         <Stack direction="row" alignItems="center" columnGap="6px">
           <Typography
             component="div"
-            sx={{
-              color: isUpdating
-                ? "#BDBDBD"
-                : getColor(quote.price, quote.previousClose),
-              fontWeight: 600,
-            }}
+            color={quote?.color}
+            fontWeight={600}
             fontSize={{ xs: "18px", md: "24px" }}
             lineHeight={1.2}
           >
@@ -138,17 +125,15 @@ export default function TopStockBar() {
           </Typography>
           <Chip
             icon={
-              quote.changesPercentage < 0 ? (
-                <ArrowDropDownIcon fontSize="small" />
-              ) : (
+              quote?.isUp ? (
                 <ArrowDropUpIcon fontSize="small" />
+              ) : (
+                <ArrowDropDownIcon fontSize="small" />
               )
             }
             label={
               quote
-                ? `${toFixed(quote?.change)} (${toFixed(
-                    quote.changesPercentage
-                  )}%)`
+                ? `${quote.changePrice.toFixed(2)} (${quote.changeRate}%)`
                 : ""
             }
             sx={{
@@ -165,11 +150,9 @@ export default function TopStockBar() {
         </Stack>
         <Typography
           component="span"
-          sx={{ fontSize: "12px", color: "#BDBDBD" }}
+          sx={{ fontSize: "12px", color: "#BDBDBD", opacity: quote ? 1 : 0 }}
         >
-          {` 收盤 | ${dayjs(quote.timestamp * 1000).format(
-            "YYYY/MM/DD HH:mm"
-          )} 更新`}
+          {` ${quote?.closedText} | ${quote?.time} ${quote?.updateText}`}
         </Typography>
       </Stack>
     </Stack>

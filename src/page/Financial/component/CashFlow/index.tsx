@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Box, Button, Stack } from "@mui/material";
-import { AgGridReact } from "ag-grid-react";
+import WrappedAgGrid from "component/WrappedAgGrid";
 import { useRecoilValue } from "recoil";
 import { getDataLimit } from "until";
 import { fetchCashFlowStatement } from "api/cashflow";
@@ -15,7 +15,7 @@ import { Chart as ReactChart } from "react-chartjs-2";
 import { ICashFLowItem } from "types/cashflow";
 import numeral from "numeral";
 import moment from "moment";
-import { useTable } from "Hooks/useTable";
+import PeriodController from "component/PeriodController";
 
 const GRAPH_FIELDS = [
   {
@@ -238,39 +238,10 @@ export default function CashFlow() {
     return rowData;
   }, [graphData, reportType, tab, stockCountByPeriod]);
 
-  const gridRef = useRef<AgGridReact>(null);
-  const [gridReady, setGridReady] = useState(false);
-
-  useTable(gridRef, columnHeaders, gridReady);
-
   return (
     <Stack rowGap={1}>
       <TagCard tabs={["現金流表", "每股現金流表"]} onChange={handleChangeTab}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          sx={{
-            mb: 3,
-            "&>button": {
-              mx: 1,
-              bgcolor: "transparent",
-              border: 0,
-              cursor: "pointer",
-            },
-          }}
-        >
-          {PERIOD_YEAR.map((item) => (
-            <Button
-              key={item.value}
-              sx={{
-                color: item.value === period ? "primary" : "#333",
-              }}
-              onClick={() => setPeriod(item.value)}
-            >
-              {item.label}
-            </Button>
-          ))}
-        </Stack>
+        <PeriodController onChangePeriod={setPeriod} />
         <Box height={510} bgcolor="#fff" pb={3}>
           {tab === 0 && (
             <ReactChart
@@ -297,15 +268,12 @@ export default function CashFlow() {
             paddingBottom: "24px",
           }}
         >
-          <AgGridReact
-            ref={gridRef}
-            onGridReady={() => setGridReady(true)}
+          <WrappedAgGrid
             rowData={tableRowData}
             columnDefs={columnHeaders as any}
-            domLayout="autoHeight"
             defaultColDef={{
               resizable: true,
-              initialWidth: 200,
+              initialWidth: 160,
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}

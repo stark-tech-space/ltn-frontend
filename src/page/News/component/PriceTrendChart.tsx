@@ -52,7 +52,6 @@ export default function PriceTrendChart() {
   const [isLoading, setIsLoading] = useState(false);
 
   const format = (data: IPrice[], isBusinessDay: boolean) => {
-    // debugger;
     if (isBusinessDay) {
       return data.map((item: any) => {
         const axTime = moment(item.time);
@@ -67,7 +66,7 @@ export default function PriceTrendChart() {
       });
     }
 
-    return data.slice(0, -1).map((item: any) => ({
+    return data.map((item: any) => ({
       time: moment(item.time).unix(),
       value: +item.price,
     }));

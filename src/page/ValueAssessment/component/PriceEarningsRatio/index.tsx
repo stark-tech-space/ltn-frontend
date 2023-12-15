@@ -25,7 +25,7 @@ export default function PriceEarningsRatio() {
             columnDefs={columnHeaders}
             defaultColDef={{
               resizable: false,
-              initialWidth: 200,
+              initialWidth: 160,
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}

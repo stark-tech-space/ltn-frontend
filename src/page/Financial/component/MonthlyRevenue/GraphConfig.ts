@@ -8,7 +8,7 @@ export const labelDataSets_01 = {
       borderColor: "#EB5757",
       backgroundColor: "#EB5757",
       borderWidth: 2,
-      yAxisID: "y",
+      yAxisID: "y1",
       fill: false,
     },
     {
@@ -18,7 +18,7 @@ export const labelDataSets_01 = {
       backgroundColor: "#f6e1b1",
       borderColor: "#e8af00",
       borderWidth: 1,
-      yAxisID: "y1",
+      yAxisID: "y",
       fill: false,
     },
   ],
@@ -160,7 +160,7 @@ export const OPTIONS_02 = {
       position: "left",
       title: {
         display: true,
-        text: "千元",
+        text: "元",
         align: "end",
         font: {
           size: 12,

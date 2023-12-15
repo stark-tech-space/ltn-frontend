@@ -133,12 +133,7 @@ export const StockInformation = () => {
           {addPlaceHolder(quote.previousClose)}
         </StyledValue>
       </Box>
-      <Box display="flex" alignItems="center" justifyContent="space-between">
-        <StyledLabel>市值</StyledLabel>
-        <StyledValue color="#000000">
-          {formNumberToUnit(quote.marketCap, "T", 12)}
-        </StyledValue>
-      </Box>
+
       <Divider sx={{ bgcolor: "#D0D5DD" }} />
       <CompanyInformation />
       {/*<Box display="flex" alignItems="center" justifyContent="space-between">
@@ -179,6 +174,7 @@ export const CompanyInformation = () => {
     useState<IBalanceSheetStatement>();
   const [keyMetrics, setKeyMetrics] = useState<IKeyMetrics>();
   const stock = useRecoilValue(currentStock);
+  const [quote, setQuote] = useState<IQuote>({} as IQuote);
 
   const taipeiStockOverview = useTaiPeiStockOverview();
 
@@ -214,6 +210,11 @@ export const CompanyInformation = () => {
         setKeyMetrics(undefined);
       }
     });
+    fetchQuote(stock.Symbol).then((rst) => {
+      if (rst && rst[0]) {
+        setQuote(rst[0]);
+      }
+    });
   }, [stock.Symbol]);
 
   return (
@@ -243,6 +244,12 @@ export const CompanyInformation = () => {
           {formNumberToUnit(companyState?.mktCap, "M", 6)}
         </StyledValue>
       </Box> */}
+      <Box display="flex" alignItems="center" justifyContent="space-between">
+        <StyledLabel>市值</StyledLabel>
+        <StyledValue color="#000000">
+          {formNumberToUnit(quote.marketCap, "T", 12)}
+        </StyledValue>
+      </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <StyledLabel>總債務 (百萬)</StyledLabel>
         <StyledValue color="#000000">

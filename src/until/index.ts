@@ -170,13 +170,19 @@ export const quarterToMonth = (quarter: string) => {
 
 export const genStartDateForPriceChart = (timeKey: PRICE_SCALE_PERIOD_ITEM) => {
   const HH_MM = "09:00";
+
   // 1天
   if (timeKey.type === PERIOD_TYPE.DAY) {
-    const now = moment().hour();
-    if (now >= 9) {
+    const now = moment();
+    if (now.isoWeekday() === 6) {
+      return moment(HH_MM, "HH:mm").subtract(1, "days").toISOString();
+    }
+    if (now.isoWeekday() === 7) {
+      return moment(HH_MM, "HH:mm").subtract(2, "days").toISOString();
+    }
+    if (now.hour() >= 9) {
       return moment(HH_MM, "HH:mm").toISOString();
     }
-
     return moment(HH_MM, "HH:mm").subtract(1, "days").toISOString();
   }
   if (timeKey.type === PERIOD_TYPE.MONTH) {
@@ -206,4 +212,20 @@ export const formatNumberFromCompanyCase = (value: string) => {
   const newValue = parseInt(value.replaceAll(/[(),]/g, ""));
 
   return newValue * sign;
+};
+
+export const isClosedMarket = (date: string) => {
+  const now = moment();
+  const momentDate = moment(date);
+
+  if (now.isoWeek() === 6 || now.isoWeek() === 7) {
+    return true;
+  }
+
+  return !momentDate.isBetween(
+    `${now.year()}-${now.month()}-${now.date()} 09:00`,
+    `${now.year()}-${now.month()}-${now.date()} 13:30`,
+    undefined,
+    "[]"
+  );
 };

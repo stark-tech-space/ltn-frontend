@@ -77,6 +77,10 @@ export default function GraphForeignInvestorsSelf({
           alignToPixels: true,
           offset: false,
           type: isMonthScale ? "category" : "time",
+          grid: {
+            offset: false,
+            drawTicks: true,
+          },
         },
         y: {
           stacked: true,
@@ -91,12 +95,21 @@ export default function GraphForeignInvestorsSelf({
           },
         },
       };
-
       if (!isMonthScale) {
         // @ts-ignore
         chartRef.current.options.scales.x!.time = {
-          unit: "year",
+          unit: period.value === 1 ? "month" : "year",
           tooltipFormat: "YYYY-MM",
+        };
+
+        chartRef.current.options.scales.x!.ticks = {
+          callback: function (this, value, index, values) {
+            if (period.value === 1) {
+              return moment(value).format("YYYY-MM");
+            } else {
+              return moment(value).format("YYYY");
+            }
+          },
         };
       }
 

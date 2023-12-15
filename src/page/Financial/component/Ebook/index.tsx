@@ -1,7 +1,7 @@
-import { Box, Link, Stack } from "@mui/material";
+import { Box, Link, Stack, Typography } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
 import { fetchEbooks } from "api/financial";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 
@@ -42,32 +42,41 @@ const CellQuarterReport = ({
   );
 };
 
-const CellAnnualReport = ({ fileUrl }: { fileUrl: string }) => {
-  return (
-    <Link
-      href={fileUrl}
-      target="_blank"
-      rel="noopener"
-      sx={{ color: "#405DF9", fontSize: "14px", height: 25 }}
-    >{`年度財務報告`}</Link>
-  );
+const CellAnnualReport = ({ value }: { value?: string }) => {
+  if (value) {
+    return (
+      <Link
+        href={value}
+        target="_blank"
+        rel="noopener"
+        sx={{ color: "#405DF9", fontSize: "14px", height: 25 }}
+      >{`年度財務報告`}</Link>
+    );
+  }
+  return <Typography sx={{ fontSize: "14px", height: 25 }}>無</Typography>;
 };
 
 export default function EBooks() {
   const stock = useRecoilValue(currentStock);
   const [eBooks, setEbooks] = useState<IEbooks[]>([]);
+  const gridRef = useRef<AgGridReact>();
 
   useEffect(() => {
+    // gridRef.current?.api?.showLoadingOverlay();
     fetchEbooks<{ list: IEbooks[] }>({
-      //   securityCode: stock.No,
-      //   size: 100,
-      //   page: 1,
-    }).then((rst) => {
-      if (rst?.list) {
-        setEbooks(rst.list);
-      }
-    });
-  }, [stock]);
+      securityCode: stock.No,
+      size: 100,
+      page: 1,
+    })
+      .then((rst) => {
+        if (rst?.list) {
+          setEbooks(rst.list);
+        }
+      })
+      .finally(() => {
+        // gridRef.current?.api.hideOverlay();
+      });
+  }, [stock.No]);
 
   const getRowHeight = useCallback((params: any) => {
     return params.data.quarter.length * 25 + 10;
@@ -117,15 +126,28 @@ export default function EBooks() {
     >
       <Box className="ag-theme-alpine" sx={{ minHeight: 150 }}>
         <AgGridReact
+          ref={gridRef as any}
           rowData={rowData}
           columnDefs={columnHeaders as any}
           domLayout="autoHeight"
-          loadingOverlayComponent={() => "Loading..."}
+          loadingOverlayComponent={() => (
+            <Typography
+              component="div"
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "50px",
+              }}
+            >
+              Loading...
+            </Typography>
+          )}
           getRowHeight={getRowHeight as any}
           defaultColDef={{
-            resizable: true,
             wrapHeaderText: true,
             autoHeaderHeight: true,
+            lockPosition: true,
           }}
         />
       </Box>

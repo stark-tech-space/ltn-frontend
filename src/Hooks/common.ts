@@ -8,6 +8,7 @@ import { genFullDateObject, getBeforeYears } from "until";
 import { IIndicatorItem, ITaipeiStockOverview } from "types/common";
 import { getSmaByMonth } from "lib/sma";
 import { useTheme } from "@mui/material";
+import useMobileRoute from "./useMobileRoute";
 
 export const useWindowResize = (node: HTMLDivElement, chart: any) => {
   const handleResize = debounce(() => {
@@ -71,13 +72,13 @@ export const useActiveTabElement = <T>(
   ElementMap: Record<any, ReactNode>
 ) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const currentPageRoute = useRecoilValue(currentPageRouteState);
+  const currentPageRoute = useMobileRoute();
+  // const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   return useMemo(() => {
-    const renderTab = isMobile ? currentPageRoute?.subPath : tab;
+    const renderTab = currentPageRoute?.subPath || tab;
     return ElementMap[renderTab as T];
-  }, [isMobile, currentPageRoute?.subPath, tab, ElementMap]);
+  }, [currentPageRoute?.subPath, tab, ElementMap]);
 };
 
 // 獲取台灣股票總覽數據

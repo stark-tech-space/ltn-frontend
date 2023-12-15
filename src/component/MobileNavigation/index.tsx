@@ -12,7 +12,7 @@ import {
 import { ROUTES } from "router";
 import SearchStockTextField from "component/SearchStockTextField";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import {
   currentPageRouteState,
@@ -22,13 +22,14 @@ import {
 export default function MobileDrawerNavigation() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const { pathname } = useLocation();
   const [open, setOpen] = useRecoilState(openMobileNavigationDrawerState);
   const [currentPageRoute, setPageRoute] = useRecoilState(
     currentPageRouteState
   );
 
   const na = useNavigate();
-  const [selectedPath, setSelectedPath] = React.useState("/financial");
+  const [selectedPath, setSelectedPath] = React.useState(pathname || "/");
 
   const selectedRoute = React.useMemo(
     () => ROUTES.find((item) => item.path === selectedPath),
@@ -50,6 +51,7 @@ export default function MobileDrawerNavigation() {
 
   const handleClickParentRoute = (route: any) => {
     if (!route.children) {
+      // debugger;
       na(route.path);
       setSelectedPath(route.path);
       setOpen(false);

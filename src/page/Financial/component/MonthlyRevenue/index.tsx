@@ -1,24 +1,18 @@
 import { Stack, Box } from "@mui/material";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import TagCard from "../../../../component/tabCard";
 import MonthlyIncomeChart from "./MonthlyGraph";
 import PerStockIncomeChart from "./PerIncomeGraph";
-import { AgGridReact } from "ag-grid-react";
-import { useTable } from "Hooks/useTable";
+import WrappedAgGrid from "component/WrappedAgGrid";
 
 export default function EarningsPerShare() {
   const [tabIndex, setTabIndex] = useState(0);
   const [graphData1, setGraphData1] = useState<any[][]>([]);
   const [graphData2, setGraphData2] = useState<any[][]>([]);
-  const [gridReady, setGridReady] = useState(false);
-
-  const gridref = useRef<AgGridReact>(null);
 
   const [columnHeaders, rowData] = useMemo(() => {
     return tabIndex === 0 ? graphData1 : graphData2;
   }, [tabIndex, graphData1, graphData2]);
-
-  useTable(gridref, columnHeaders, gridReady);
 
   return (
     <Stack rowGap={1}>
@@ -42,18 +36,15 @@ export default function EarningsPerShare() {
             paddingBottom: "24px",
           }}
         >
-          <AgGridReact
+          <WrappedAgGrid
             rowData={rowData || []}
-            ref={gridref}
-            onGridReady={() => setGridReady(true)}
             columnDefs={(columnHeaders as any) || []}
             defaultColDef={{
               resizable: false,
-              initialWidth: 200,
+              initialWidth: 160,
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}
-            domLayout="autoHeight"
           />
         </Box>
       </TagCard>

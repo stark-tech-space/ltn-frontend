@@ -60,10 +60,10 @@ function LinkTab(props: LinkTabProps) {
 export default function NavTabs() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const currentRoute = useRecoilValue(currentPageRouteState);
+
   const toggleDrawer = useSetRecoilState(openMobileNavigationDrawerState);
-  const route = useMobileRoute();
-  console.log("route", route);
+  const currentRoute = useMobileRoute();
+
   const [value, setValue] = React.useState(() => {
     return ROUTES.findIndex((item) => item.path === window.location.pathname);
   });
@@ -103,9 +103,9 @@ export default function NavTabs() {
               borderColor: "#BDBDBD",
             }}
           >
-            {currentRoute
-              ? `${currentRoute.routeName}/${currentRoute.routeSubName}`
-              : "最新動態"}
+            {`${currentRoute?.routeName}${
+              currentRoute?.routeSubName ? `/${currentRoute?.routeSubName}` : ""
+            }`}
           </Button>
         </Box>
       </Box>

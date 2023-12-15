@@ -118,7 +118,7 @@ export default function TimesInterestEarned() {
               date: dateMoment.format("YYYY-MM-DD"),
               calendarYear: dateMoment.format("YYYY"),
               month: dateMoment.format("MM"),
-              period: dateMoment.format("Q"),
+              period: `Q${dateMoment.format("Q")}`,
             }
           );
         })
@@ -173,7 +173,7 @@ export default function TimesInterestEarned() {
             columnDefs={columnHeaders as any}
             defaultColDef={{
               resizable: false,
-              initialWidth: 200,
+              initialWidth: 160,
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}

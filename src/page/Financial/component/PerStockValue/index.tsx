@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PERIOD } from "types/common";
 import { currentStock } from "recoil/selector";
 import { fetchCompanyRatios } from "api/common";
-import { AgGridReact } from "ag-grid-react";
+import WrappedAgGrid from "component/WrappedAgGrid";
 import { getDataLimit } from "until";
 import { OPTIONS, labelDataSets } from "./GraphConfig";
 import type { Chart } from "chart.js";
@@ -13,7 +13,6 @@ import PeriodController from "component/PeriodController";
 import TagCard from "../../../../component/tabCard";
 import { useAvgPriceByMonth } from "Hooks/common";
 import moment from "moment";
-import { useTable } from "Hooks/useTable";
 import { maxBy, minBy } from "lodash";
 
 export default function PerStockShare() {
@@ -42,11 +41,6 @@ export default function PerStockShare() {
         : avgPrice,
     [dataDateInfo, avgPrice]
   );
-
-  const gridRef = useRef<AgGridReact>(null);
-  const [gridReady, setGridReady] = useState(false);
-
-  useTable(gridRef, columnHeaders, gridReady);
 
   const fetchGraphData = useCallback(async () => {
     const limit = getDataLimit(reportType, period);
@@ -146,18 +140,15 @@ export default function PerStockShare() {
             paddingBottom: "24px",
           }}
         >
-          <AgGridReact
-            ref={gridRef}
-            onGridReady={() => setGridReady(true)}
-            rowData={rowData}
+          <WrappedAgGrid
+            rowData={rowData as any}
             columnDefs={columnHeaders as any}
             defaultColDef={{
               resizable: false,
-              initialWidth: 200,
+              initialWidth: 160,
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}
-            domLayout="autoHeight"
           />
         </Box>
       </TagCard>

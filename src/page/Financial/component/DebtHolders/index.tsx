@@ -1,9 +1,8 @@
 import { Stack, Box } from "@mui/material";
 import { useMemo, useRef, useState } from "react";
 import TagCard from "../../../../component/tabCard";
-import { AgGridReact } from "ag-grid-react";
+import WrappedAgGrid from "component/WrappedAgGrid";
 import GraphDebtHolder from "./GraphDebtHolder";
-import { useTable } from "Hooks/useTable";
 // import GraphMultiRatio from "./GraphMultiRatio";
 // import GraphSingleRatio from "./GraphSingleRatio";
 
@@ -11,14 +10,9 @@ export default function DebtHolders() {
   const [tabIndex, setTabIndex] = useState(0);
   const [graphTable, setGraphTable] = useState<any[][]>([[], []]);
 
-  const gridRef = useRef<AgGridReact>(null);
-  const [gridReady, setGridReady] = useState(false);
-
   const [columnHeaders, rowData] = useMemo(() => {
     return graphTable;
   }, [graphTable]);
-
-  useTable(gridRef, columnHeaders, gridReady);
 
   return (
     <Stack rowGap={1}>
@@ -37,19 +31,16 @@ export default function DebtHolders() {
             paddingBottom: "24px",
           }}
         >
-          <AgGridReact
-            ref={gridRef}
-            onGridReady={() => setGridReady(true)}
+          <WrappedAgGrid
             rowData={rowData}
             columnDefs={columnHeaders as any}
             defaultColDef={{
               resizable: false,
-              minWidth: 200,
+              minWidth: 160,
               flex: 1,
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}
-            domLayout="autoHeight"
           />
         </Box>
       </TagCard>

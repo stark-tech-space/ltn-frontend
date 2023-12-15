@@ -36,7 +36,7 @@ export default function DividendPolicy() {
         field: "AnnouncementDate",
         headerName: "公告日",
         pinned: "left",
-        width: 100,
+        width: 80,
       },
       {
         field: "CashEarningsDistribution",
@@ -50,10 +50,10 @@ export default function DividendPolicy() {
         field: "CashDividendPaymentDate",
         headerName: "現金股利發放日	",
       },
-      {
-        field: "SpecifiesDay",
-        headerName: "填息花費日數",
-      },
+      // {
+      //   field: "SpecifiesDay",
+      //   headerName: "填息花費日數",
+      // },
       {
         field: "StockEarningsDistribution",
         headerName: "股票股利",
@@ -76,25 +76,30 @@ export default function DividendPolicy() {
         CashDividendPaymentDate: item.CashDividendPaymentDate || "無",
         StockEarningsDistribution:
           item.StockEarningsDistribution?.toFixed(2) || "無",
-        SpecifiesDay: "無",
+        // SpecifiesDay: "無",
         ExceptDay: "無",
       };
     });
   }, [graphData]);
 
   return (
-    <Stack borderRadius="8px" bgcolor="#fff" p={3}>
+    <Stack
+      borderRadius={{ xs: 0, md: "8px", ld: "8px" }}
+      bgcolor="#fff"
+      p={{ xs: 2, md: 2, lg: 3 }}
+    >
       <Box className="ag-theme-alpine" sx={{ minHeight: 150 }}>
         <AgGridReact
           rowData={tableRowData}
           columnDefs={columnHeaders as any}
           domLayout="autoHeight"
           defaultColDef={{
-            resizable: true,
             flex: 1,
-            minWidth: 200,
+            initialWidth: 150,
+            minWidth: 150,
             wrapHeaderText: true,
             autoHeaderHeight: true,
+            lockPosition: true,
           }}
         />
       </Box>

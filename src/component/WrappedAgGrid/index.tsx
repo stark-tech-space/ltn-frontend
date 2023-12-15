@@ -1,12 +1,12 @@
 import { AgGridReact } from "ag-grid-react";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export default function WrappedAgGrid({
   rowData,
   columnDefs,
   defaultColDef = {
     resizable: false,
-    initialWidth: 200,
+    initialWidth: 160,
     wrapHeaderText: true,
     autoHeaderHeight: true,
   },
@@ -16,11 +16,18 @@ export default function WrappedAgGrid({
   defaultColDef?: any;
 }) {
   const gridRef = useRef<AgGridReact>(null);
+  const [isGridReady, setIsGridReady] = useState<boolean>(false);
 
   const sortedColDef = useMemo(
     () => columnDefs?.sort((a, b) => (a.field > b.field ? 1 : -1)) || [],
     [columnDefs]
   );
+
+  useEffect(() => {
+    if (gridRef.current && isGridReady) {
+      gridRef.current.columnApi.autoSizeAllColumns();
+    }
+  }, [isGridReady]);
 
   useEffect(() => {
     try {
@@ -38,8 +45,9 @@ export default function WrappedAgGrid({
       ref={gridRef}
       rowData={rowData}
       columnDefs={sortedColDef}
-      defaultColDef={defaultColDef}
+      defaultColDef={{ ...defaultColDef, lockPosition: true }}
       domLayout="autoHeight"
+      onGridReady={(e) => setIsGridReady(true)}
     />
   );
 }

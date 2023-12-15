@@ -26,7 +26,7 @@ export default function StockInstitutionalInvestorsBuySell() {
             columnDefs={columnHeader}
             defaultColDef={{
               resizable: true,
-              initialWidth: 200,
+              initialWidth: 160,
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}

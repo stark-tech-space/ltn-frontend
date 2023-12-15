@@ -1,6 +1,5 @@
 import { Stack, Box } from "@mui/material";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AgGridReact } from "ag-grid-react";
 import { Chart as ReactChart } from "react-chartjs-2";
 import { Chart } from "chart.js";
 
@@ -200,7 +199,7 @@ export default function ReinvestmentRate() {
             columnDefs={columnHeaders as any}
             defaultColDef={{
               resizable: false,
-              initialWidth: 200,
+              initialWidth: 160,
               wrapHeaderText: true,
               autoHeaderHeight: true,
             }}

@@ -1,4 +1,12 @@
-import { Box, Button, Divider, Stack, styled, useMediaQuery, useTheme } from "@mui/material";
+import {
+  Box,
+  Button,
+  Divider,
+  Stack,
+  styled,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { Link } from "react-router-dom";
 import logoAssets from "../../assets/logo.svg";
 import AddIcon from "@mui/icons-material/Add";
@@ -47,10 +55,13 @@ export default function AppHeader() {
             lg: 4,
           }}
         >
-          <StyledLogo to="/" sx={{ display: isMobile ? "none" : "inline-block" }} />
+          <StyledLogo
+            to="/"
+            sx={{ display: isMobile ? "none" : "inline-block" }}
+          />
           <SearchStockTextField />
         </Stack>
-        <MenuDrawer />
+        {/* <MenuDrawer /> */}
         {/* <Stack
           flexDirection="row"
           alignItems="center"

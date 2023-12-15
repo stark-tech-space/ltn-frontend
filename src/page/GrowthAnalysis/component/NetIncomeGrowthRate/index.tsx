@@ -1,7 +1,6 @@
 import { Stack, Box } from "@mui/material";
 import { useState } from "react";
 import TagCard from "../../../../component/tabCard";
-import { AgGridReact } from "ag-grid-react";
 import Graph from "./Graph";
 import WrappedAgGrid from "component/WrappedAgGrid";
 
@@ -23,10 +22,9 @@ export default function NetIncomeGrowthRate() {
             columnDefs={columnHeaders as any}
             defaultColDef={{
               resizable: false,
-              minWidth: 200,
+              initialWidth: 160,
               wrapHeaderText: true,
               autoHeaderHeight: true,
-              flex: 1,
             }}
           />
         </Box>

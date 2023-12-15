@@ -2,7 +2,7 @@ import { Box, Stack, useMediaQuery, useTheme } from "@mui/material";
 import { PageLayout } from "../../component/Layout";
 import BlockQuota from "./component/BlockQuota";
 import PriceTrendChart from "./component/PriceTrendChart";
-import { CompanyInformation, StockInformation } from "./component/RightSummary";
+import { StockInformation } from "./component/RightSummary";
 import BlockNewsList from "./component/BlockNewsList";
 import TabCard from "component/tabCard";
 import ArticleList from "./component/ArticleList";

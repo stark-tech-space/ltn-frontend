@@ -56,6 +56,7 @@ export const graphConfig = {
   responsive: true,
   locale: "zh-TW",
   maintainAspectRatio: false,
+  skipNulls: true,
   interaction: {
     intersect: false,
     mode: "index",

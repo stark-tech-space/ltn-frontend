@@ -175,15 +175,17 @@ export interface ILtnApiCommonData {
   size: number;
 }
 
-export interface IReadTimeStockPRice {
-  date: string;
-  close: number;
-  open: number;
-  high: number;
-  low: number;
+export interface IReadTimeStockPrice {
   stockId: string;
-  changePrice: number;
-  changeRate: number;
+  date: string;
+  close: string;
+  prevClose: string;
+  prevCloseDate: string;
+}
+
+export interface IRealTimePriceRst {
+  success: boolean;
+  data: IReadTimeStockPrice;
 }
 
 // taipei stock overview
