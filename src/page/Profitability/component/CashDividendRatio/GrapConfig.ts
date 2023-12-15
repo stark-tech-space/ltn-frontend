@@ -43,6 +43,10 @@ export const graphConfig = {
         unit: "year",
         tooltipFormat: "YYYY",
       },
+      grid: {
+        offset: false,
+        drawTicks: true,
+      },
     },
     y: {
       type: "linear",
