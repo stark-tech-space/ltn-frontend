@@ -12,7 +12,7 @@ export const OPTIONS = {
         title: function (context: any) {
           if (context[0]?.dataset?.yAxisID === "y") {
             return moment(context[0].raw.x, "YYYY-MM-DD")
-              .format("YYYYY-[Q]Q");
+              .format("YYYY-[Q]Q");
           }
           return context[0]?.label;
         },
