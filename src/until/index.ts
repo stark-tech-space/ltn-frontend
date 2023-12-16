@@ -174,6 +174,7 @@ export const genStartDateForPriceChart = (timeKey: PRICE_SCALE_PERIOD_ITEM) => {
   // 1天
   if (timeKey.type === PERIOD_TYPE.DAY) {
     const now = moment();
+
     if (now.isoWeekday() === 6) {
       return moment(HH_MM, "HH:mm").subtract(1, "days").toISOString();
     }

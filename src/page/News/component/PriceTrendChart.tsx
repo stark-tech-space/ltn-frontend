@@ -271,6 +271,13 @@ export default function PriceTrendChart() {
           },
         },
         handleScale: false,
+        handleScroll: {
+          // mouseWheel: false,
+          // pressedMouseMove: false,
+          // horzTouchDrag: false,
+          vertTouchDrag: false,
+          // treatVertTouchDragAsPageScroll: true,
+        },
       }
     );
 

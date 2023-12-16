@@ -51,3 +51,8 @@ export const openMobileNavigationDrawerState = atom({
   key: "open-mobile-navigation-drawer",
   default: false,
 });
+
+export const closedPriceState = atom({
+  key: "closed-price",
+  default: 0,
+});

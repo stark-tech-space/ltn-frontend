@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import moment from "moment";
 import { io } from "socket.io-client";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { currentStock } from "recoil/selector";
 import { IReadTimeStockPrice, IRealTimePriceRst } from "types/common";
 import { addPlaceHolder, isClosedMarket, sleep } from "until";
@@ -13,12 +13,14 @@ import {
   COLOR_TEXT_CONVERTER,
   COLOR_TYPE,
 } from "types/global";
+import { closedPriceState } from "recoil/atom";
 
 export default function TopStockBar() {
   const theme = useTheme();
   const stock = useRecoilValue(currentStock);
   const [isUpdating, setIsUpdating] = useState(false);
   const [realTimePrice, setRealTimePrice] = useState<IReadTimeStockPrice>();
+  const setClosedPrice = useSetRecoilState(closedPriceState);
 
   useEffect(() => {
     const socket = io("wss://financial-data-gateway-dev.intltrip.com");
@@ -30,6 +32,7 @@ export default function TopStockBar() {
       setIsUpdating(false);
       if (rst.success) {
         setRealTimePrice(rst.data);
+        setClosedPrice(+(rst.data.prevClose || 0));
         await sleep(500);
       }
     });

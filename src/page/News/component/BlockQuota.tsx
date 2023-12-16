@@ -11,6 +11,18 @@ import {
 } from "types/global";
 import { IEaringPerShare } from "types/financial";
 import { fetchQuote } from "api/news";
+import { fetchDividendHistorical } from "api/value";
+import { IDividendPerShareHistorical } from "types/value";
+import moment from "moment";
+import fmpApi from "api/http/fmpApi";
+import ltnApi from "api/http/ltnApi";
+import { closedPriceState } from "recoil/atom";
+import BigNumber from "bignumber.js";
+
+interface IPrice {
+  time: string;
+  price: number;
+}
 
 function getAnnualNetIncomePerShareData(
   rst: IEaringPerShare[],
@@ -118,6 +130,7 @@ export default function BlockQuota() {
   ]);
 
   const stock = useRecoilValue(currentStock);
+  const closedPrice = useRecoilValue(closedPriceState);
 
   useEffect(() => {
     (async () => {
@@ -145,7 +158,9 @@ export default function BlockQuota() {
               );
               item.value = value ? (value * 100).toFixed(3) : "0";
             } else {
-              item.value = value ? value.toFixed(3) : "0";
+              if (item.field !== "dividendYield") {
+                item.value = value ? value.toFixed(3) : "0";
+              }
             }
             item.color = value
               ? value > 0
@@ -173,6 +188,38 @@ export default function BlockQuota() {
       });
     })();
   }, [stock.Symbol, setBlockList]);
+
+  useEffect(() => {
+    (async () => {
+      const rst = await fmpApi.get<{
+        historical: IDividendPerShareHistorical[];
+      }>(
+        `/historical-price-full/stock_dividend/${stock.Symbol}?period=quarter&limit=4`
+      );
+      if (rst.data) {
+        const total = rst.data.historical.reduce((sum, item) => {
+          return sum + (item.dividend || 0);
+        }, 0);
+        setBlockList((old) => {
+          return old.map((item) => {
+            if (item.field === "dividendYield") {
+              return {
+                ...item,
+                value: closedPrice
+                  ? (
+                      +new BigNumber(total)
+                        .dividedBy(new BigNumber(closedPrice))
+                        .toFormat(2) * 100
+                    ).toFixed(2)
+                  : "0",
+              };
+            }
+            return item;
+          });
+        });
+      }
+    })();
+  }, [stock.Symbol, closedPrice]);
 
   return (
     <Stack
