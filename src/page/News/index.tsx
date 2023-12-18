@@ -1,15 +1,34 @@
-import { Box, Stack, useMediaQuery, useTheme } from "@mui/material";
+import { useMediaQuery, useTheme } from "@mui/material";
 import { PageLayout } from "../../component/Layout";
 import BlockQuota from "./component/BlockQuota";
-import PriceTrendChart from "./component/PriceTrendChart";
+
 import { StockInformation } from "./component/RightSummary";
 import BlockNewsList from "./component/BlockNewsList";
 import TabCard from "component/tabCard";
 import ArticleList from "./component/ArticleList";
+import { useEffect, useRef, useState } from "react";
+import moment from "moment";
+
+import { timeToTz } from "until";
+import {
+  PERIOD_TYPE,
+  PRICE_SCALE_PERIOD,
+  PRICE_SCALE_PERIOD_ITEM,
+  PRICE_SCALE_TYPE,
+} from "types/common";
+
+import { io } from "socket.io-client";
+
+import { Box, Button, Stack } from "@mui/material";
+
+import PriceTrendChart from "./component/PriceTrendChart";
+import KLineChart from "./component/KlineChart";
 
 function RealTimeNewsPage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  const [tabIndex, setTabIndex] = useState(0);
 
   return (
     <Stack gap={1}>
@@ -19,8 +38,13 @@ function RealTimeNewsPage() {
         justifyContent="space-between"
       >
         <Box flex={{ xs: 1, md: 2, lg: 2 }} gap={1}>
-          <TabCard tabs={["走勢圖"]}>
-            <PriceTrendChart />
+          <TabCard tabs={["走勢圖", "技術分析"]} onChange={setTabIndex}>
+            <div style={{ display: tabIndex === 0 ? "block" : "none" }}>
+              <PriceTrendChart />
+            </div>
+            <div style={{ display: tabIndex === 1 ? "block" : "none" }}>
+              <KLineChart />
+            </div>
           </TabCard>
         </Box>
         {isMobile && <BlockQuota />}
@@ -38,8 +62,6 @@ function RealTimeNewsPage() {
           <BlockNewsList />
         </Stack>
         <Box flex={1} gap={1}>
-          {/* <CompanyInformation />
-          <Box height="8px" /> */}
           <ArticleList />
         </Box>
       </Stack>
