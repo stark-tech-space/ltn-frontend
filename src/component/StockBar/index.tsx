@@ -58,9 +58,11 @@ export default function TopStockBar() {
       changePrice,
       changeRate,
       color:
-        COLOR_TEXT_CONVERTER[changePrice > 0 ? COLOR_TYPE.UP : COLOR_TYPE.DOWN],
+        COLOR_TEXT_CONVERTER[
+          changePrice >= 0 ? COLOR_TYPE.UP : COLOR_TYPE.DOWN
+        ],
       bgColor:
-        COLOR_BG_CONVERTER[changePrice > 0 ? COLOR_TYPE.UP : COLOR_TYPE.DOWN],
+        COLOR_BG_CONVERTER[changePrice >= 0 ? COLOR_TYPE.UP : COLOR_TYPE.DOWN],
       price: +realTimePrice?.close,
       isUp: changePrice > 0,
       closedText: isClosed ? "收盤" : "",
