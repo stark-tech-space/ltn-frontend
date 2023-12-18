@@ -266,7 +266,10 @@ export default function CompanyAssets() {
   const updateGraphLineChart = (data: IFields[]) => {
     if (chartRef.current) {
       const labels = data.map((item) => {
-        return `${item.year}/${quarterToMonth(item.quarter)}`;
+        return moment()
+          .year(Number(item.year))
+          .month(Number(quarterToMonth(item.quarter)));
+        // return `${item.year}/${quarterToMonth(item.quarter)}`;
       });
 
       chartRef.current.data.labels = labels;
@@ -281,6 +284,7 @@ export default function CompanyAssets() {
       );
       chartRef.current.update();
     }
+    console.log(chartRef);
   };
 
   const updateGraphPieChart = (data: IFields[]) => {
