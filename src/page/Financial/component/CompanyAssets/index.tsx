@@ -284,7 +284,6 @@ export default function CompanyAssets() {
       );
       chartRef.current.update();
     }
-    console.log(chartRef);
   };
 
   const updateGraphPieChart = (data: IFields[]) => {
