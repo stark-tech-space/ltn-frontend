@@ -161,7 +161,9 @@ export default function TopStockBar() {
           component="span"
           sx={{ fontSize: "12px", color: "#BDBDBD", opacity: quote ? 1 : 0 }}
         >
-          {` ${quote?.closedText} | ${quote?.time} ${quote?.updateText}`}
+          {` ${quote?.closedText ? `${quote?.closedText} |` : ""}  ${
+            quote?.time
+          } ${quote?.updateText}`}
         </Typography>
       </Stack>
     </Stack>

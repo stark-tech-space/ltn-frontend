@@ -13,12 +13,16 @@ import { currentStock } from "recoil/selector";
 import CircularLoading from "component/Loading";
 import { Box, Button, Stack } from "@mui/material";
 import * as lightweightCharts from "lightweight-charts";
-import { genStartDateForPriceChart, timeToTz } from "until";
-import { test_01 } from "./test";
+import { genStartDateForPriceChart, isClosedMarket, timeToTz } from "until";
 
 interface IPrice {
   time: string;
   price: number;
+}
+
+interface IGraphDataItem {
+  time: string;
+  value: number;
 }
 
 interface IStockPushedDataItem {
@@ -30,10 +34,6 @@ interface IStockRst {
   success: boolean;
   data: IStockPushedDataItem;
 }
-
-const isClosedMarket = (now: number) => {
-  return moment().isBefore("13:30:00");
-};
 
 // console.log(moment("2023-12-15T01:11:45.374Z").format("YYYY-MM-DD:HH:mm:ss"));
 
@@ -50,6 +50,8 @@ export default function PriceTrendChart() {
 
   const [graphPeriod, setGraphPeriod] = useState(PRICE_SCALE_PERIOD[0]);
   const [isLoading, setIsLoading] = useState(false);
+  const cachedData = useRef<any[]>([]);
+  const fullGraphDataLength = useRef(0);
 
   const format = (data: IPrice[], isBusinessDay: boolean) => {
     if (isBusinessDay) {
@@ -66,56 +68,33 @@ export default function PriceTrendChart() {
       });
     }
 
-    return data.map((item: any) => ({
+    const formatData = data.map((item: any) => ({
       time: moment(item.time).unix(),
       value: +item.price,
     }));
+    // console.log(
+    //   moment("2023-12-18T05:30:00.000Z").format("YYYY-MM-DD HH:mm:ss")
+    // );
+    return formatData;
+    const totalItems = 4 * 60 + 30;
 
-    // const totalItems = 4 * 60 + 30;
+    const all: any[] = new Array(totalItems).fill(0);
+    // debugger;
+    if (totalItems <= fullGraphDataLength.current) {
+      return formatData;
+    }
 
-    // const all: any[] = new Array(totalItems).fill(0);
-    // const test: any = [];
-
-    // return all.map((_, index) => {
-    //   if (index < formatData.length) {
-    //     // test.push({
-    //     //   ...formatData[index],
-    //     //   fmt: moment(formatData[index].time * 1000).format(
-    //     //     "YYYY-MM-DD:HH:mm:ss"
-    //     //   ),
-    //     // });
-    //     // console.log(
-    //     //   "has:",
-    //     //   moment(formatData[index].time * 1000).format("YYYY-MM-DD:HH:mm:ss")
-    //     // );
-
-    //     return { ...formatData[index] };
-    //   } else {
-    //     const t = moment("09:00", "HH:mm").unix() + index * 60;
-    //     // const date = moment(t * 1000);
-    //     // console.log("none", date.format("YYYY-MM-DD:HH:mm:ss"));
-
-    //     // test.push({
-    //     //   time: t,
-    //     //   value: undefined,
-    //     //   // fmt: date.format("YYYY-MM-DD:HH:mm:ss"),
-    //     // });
-
-    //     return {
-    //       time: t,
-    //       value: undefined,
-    //       // fmt: date.format("YYYY-MM-DD:HH:mm:ss"),
-    //     };
-    //   }
-    // });
-
-    // return list
-    //   .map((item) => ({ time: item.time, value: item.value }))
-    //   .reverse();
-
-    // return isClosedMarket(+data[data.length - 1].time)
-    //   ? formatData.slice(0, -1)
-    //   : formatData;
+    return all.map((_, index) => {
+      if (index <= formatData.length - 1) {
+        return { ...formatData[index] };
+      } else {
+        const t = moment("09:00", "HH:mm").unix() + index * 60 + 60;
+        return {
+          time: t,
+          value: undefined,
+        };
+      }
+    });
   };
 
   const genGraphData = (periodType: PERIOD_TYPE, data: IPrice[]) => {
@@ -272,11 +251,7 @@ export default function PriceTrendChart() {
         },
         handleScale: false,
         handleScroll: {
-          // mouseWheel: false,
-          // pressedMouseMove: false,
-          // horzTouchDrag: false,
           vertTouchDrag: false,
-          // treatVertTouchDragAsPageScroll: true,
         },
       }
     );
@@ -317,16 +292,16 @@ export default function PriceTrendChart() {
       })
       .then((rst: any) => {
         if (rst) {
+          fullGraphDataLength.current = rst.data.list;
           const graph = genGraphData(PERIOD_TYPE.DAY, rst.data.list);
+          cachedData.current = graph;
 
           series.applyOptions({
             lastPriceAnimation:
-              lightweightCharts.LastPriceAnimationMode.OnDataUpdate,
-            // lastPriceAnimation: isClosedMarket(+graph[graph.length - 1].time)
-            //   ? lightweightCharts.LastPriceAnimationMode.Disabled
-            //   : lightweightCharts.LastPriceAnimationMode.Continuous,
+              lightweightCharts.LastPriceAnimationMode.Disabled,
           });
           series.setData(graph as any);
+
           chart.timeScale().applyOptions({
             timeVisible: true,
             secondsVisible: false,
@@ -344,35 +319,56 @@ export default function PriceTrendChart() {
   }, [stock.No]);
 
   const updateLatestData = (rst: IStockRst) => {
-    // if (!rst.success || firstReceived.current) {
-    //   firstReceived.current = false;
-    //   return;
-    // }
-    // if (chartRef.current && rst.data) {
-    //   let nextData: { [key: string]: any } = {};
-    //   const axisTime = timeToTz(
-    //     new Date(rst.data.date).getTime() / 1000,
-    //     "Asia/Taipei"
-    //   );
-    //   if (graphPeriodType.current === PRICE_SCALE_TYPE.MINUTE) {
-    //     nextData.time = moment(
-    //       `${axisTime.hour()}:${axisTime.minute()}`,
-    //       "HH:mm"
-    //     ).unix();
-    //     nextData.value = +rst.data.close;
-    //   } else {
-    //     // 只有一天的数据才做分钟的刻度 （暂时如此）
-    //     nextData.time = {
-    //       year: axisTime.year(),
-    //       month: axisTime.month(),
-    //       day: axisTime.date(),
-    //     };
-    //     nextData.value = +rst.data.close;
-    //   }
-    //   console.log(nextData.time, axisTime.format("YYYY-MM-DD HH:mm"));
-    //   areaSeriesRef.current?.update(nextData as lightweightCharts.AreaData);
-    //   chartRef.current.timeScale().fitContent();
-    // }
+    if (
+      !rst.success ||
+      firstReceived.current ||
+      isClosedMarket(rst.data.date)
+    ) {
+      firstReceived.current = false;
+      return;
+    }
+    if (chartRef.current && rst.data) {
+      if (fullGraphDataLength.current <= cachedData.current.length) {
+        areaSeriesRef.current?.applyOptions({
+          lastPriceAnimation: lightweightCharts.LastPriceAnimationMode.Disabled,
+        });
+        return;
+      }
+      let nextData: { [key: string]: any } = {};
+      const axisTime = timeToTz(
+        new Date(rst.data.date).getTime() / 1000,
+        "Asia/Taipei"
+      );
+
+      if (graphPeriodType.current === PRICE_SCALE_TYPE.MINUTE) {
+        nextData.time = moment(
+          `${axisTime.hour()}:${axisTime.minute()}`,
+          "HH:mm"
+        ).unix();
+        nextData.value = +rst.data.close;
+        const newGraphData: any[] = cachedData.current.slice();
+
+        for (let i = 0; i < newGraphData.length; i++) {
+          if (!newGraphData[i].value) {
+            console.log("newGraphData[i]:", newGraphData[i]);
+            newGraphData[i] = { ...nextData };
+            cachedData.current[i] = { ...nextData };
+            console.log(nextData);
+            break;
+          }
+        }
+        areaSeriesRef.current?.setData(newGraphData as any);
+        chartRef.current.timeScale().fitContent();
+      } else {
+        // 只有一天的数据才做分钟的刻度 （暂时如此）
+        nextData.time = {
+          year: axisTime.year(),
+          month: axisTime.month(),
+          day: axisTime.date(),
+        };
+        nextData.value = +rst.data.close;
+      }
+    }
   };
 
   useEffect(() => {
@@ -385,28 +381,26 @@ export default function PriceTrendChart() {
     // 订阅分钟级别的股价
     socket.on("stock-price", (data: IStockRst) => {
       console.log("data:", data);
-      // console.log("graphPeriodType.current", graphPeriodType.current);
       if (graphPeriodType.current === PRICE_SCALE_TYPE.MINUTE) {
-        // console.log("ddd:", data.data);
         updateLatestData(data);
       }
     });
     // 订阅半小时级别的股价
     socket.on("stock-price-half-hour", (data: IStockRst) => {
       if (graphPeriodType.current === PRICE_SCALE_TYPE.HOURLY) {
-        updateLatestData(data);
+        // updateLatestData(data);
       }
     });
     // 订阅一小时级别的股价
     socket.on("stock-price-hour", (data: IStockRst) => {
       if (graphPeriodType.current === PRICE_SCALE_TYPE.HOUR) {
-        updateLatestData(data);
+        // updateLatestData(data);
       }
     });
     // 订阅一天级别的股价
     socket.on("stock-price-day", (data: IStockRst) => {
       if (graphPeriodType.current === PRICE_SCALE_TYPE.DAY) {
-        updateLatestData(data);
+        // updateLatestData(data);
       }
     });
     return () => {

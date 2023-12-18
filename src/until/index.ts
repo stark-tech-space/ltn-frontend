@@ -174,6 +174,12 @@ export const genStartDateForPriceChart = (timeKey: PRICE_SCALE_PERIOD_ITEM) => {
   // 1天
   if (timeKey.type === PERIOD_TYPE.DAY) {
     const now = moment();
+    if (now.isoWeekday() === 1) {
+      if (now.hour() < 9) {
+        return moment(HH_MM, "HH:mm").subtract(3, "days").toISOString();
+      }
+      return moment(HH_MM, "HH:mm").toISOString();
+    }
 
     if (now.isoWeekday() === 6) {
       return moment(HH_MM, "HH:mm").subtract(1, "days").toISOString();
@@ -181,6 +187,7 @@ export const genStartDateForPriceChart = (timeKey: PRICE_SCALE_PERIOD_ITEM) => {
     if (now.isoWeekday() === 7) {
       return moment(HH_MM, "HH:mm").subtract(2, "days").toISOString();
     }
+
     if (now.hour() >= 9) {
       return moment(HH_MM, "HH:mm").toISOString();
     }
@@ -215,18 +222,19 @@ export const formatNumberFromCompanyCase = (value: string) => {
   return newValue * sign;
 };
 
-export const isClosedMarket = (date: string) => {
-  const now = moment();
-  const momentDate = moment(date);
+export const isClosedMarket = (date?: string) => {
+  const now = date ? moment() : moment(date);
 
   if (now.isoWeek() === 6 || now.isoWeek() === 7) {
     return true;
   }
 
-  return !momentDate.isBetween(
-    `${now.year()}-${now.month()}-${now.date()} 09:00`,
-    `${now.year()}-${now.month()}-${now.date()} 13:30`,
-    undefined,
-    "[]"
-  );
+  if (now.hour() >= 13) {
+    return now.minute() > 30;
+  }
+
+  if (now.hour() < 9) {
+    return true;
+  }
+  return false;
 };
