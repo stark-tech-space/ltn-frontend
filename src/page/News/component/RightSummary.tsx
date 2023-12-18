@@ -52,7 +52,7 @@ export const StockInformation = () => {
   const stock = useRecoilValue(currentStock);
 
   useEffect(() => {
-    fetchQuote(stock.Symbol).then((rst) => {
+    /*fetchQuote(stock.Symbol).then((rst) => {
       if (rst && rst[0]) {
         setQuote(rst[0]);
       }
@@ -61,7 +61,7 @@ export const StockInformation = () => {
       if (rst && rst[0]) {
         setOthers(rst[0]);
       }
-    });
+    });*/
   }, [stock?.Symbol]);
 
   function getColor(value: number, nextValue: number) {
@@ -189,7 +189,7 @@ export const CompanyInformation = () => {
   }, [stock.No, companyState?.industry, taipeiStockOverview]);
 
   useEffect(() => {
-    fetchSymbolInfo(stock.Symbol).then((rst) => {
+    /*fetchSymbolInfo(stock.Symbol).then((rst) => {
       if (rst && rst[0]) {
         setCompanyState(rst[0]);
       } else {
@@ -214,7 +214,7 @@ export const CompanyInformation = () => {
       if (rst && rst[0]) {
         setQuote(rst[0]);
       }
-    });
+    });*/
   }, [stock.Symbol]);
 
   return (

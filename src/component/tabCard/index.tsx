@@ -6,6 +6,7 @@ interface ITabCard {
   disabled?: boolean;
   children: ReactNode;
   visible?: boolean;
+  defaultedValue?: number;
   onChange?: (current: any) => void;
 }
 
@@ -29,13 +30,14 @@ const ClickTabButton = styled(Button)(
 
 export default function TagCard({
   tabs,
+  defaultedValue = 0,
   onChange,
   disabled,
   children,
   visible = true,
 }: ITabCard) {
   const theme = useTheme();
-  const [tabIndex, setTabIndex] = React.useState(0);
+  const [tabIndex, setTabIndex] = React.useState(defaultedValue);
 
   const handleChangeTabIndex = (index: number) => {
     onChange?.(index);

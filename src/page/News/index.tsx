@@ -28,7 +28,7 @@ function RealTimeNewsPage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const [tabIndex, setTabIndex] = useState(0);
+  const [tabIndex, setTabIndex] = useState(1);
 
   return (
     <Stack gap={1}>
@@ -38,9 +38,18 @@ function RealTimeNewsPage() {
         justifyContent="space-between"
       >
         <Box flex={{ xs: 1, md: 2, lg: 2 }} gap={1}>
-          <TabCard tabs={["走勢圖", "技術分析"]} onChange={setTabIndex}>
-            <div style={{ display: tabIndex === 0 ? "block" : "none" }}>
-              <PriceTrendChart />
+          <TabCard
+            tabs={["走勢圖", "技術分析"]}
+            defaultedValue={1}
+            onChange={setTabIndex}
+          >
+            <div
+              style={{
+                display: tabIndex === 0 ? "block" : "none",
+                height: 480,
+              }}
+            >
+              {/* <PriceTrendChart /> */}
             </div>
             <div style={{ display: tabIndex === 1 ? "block" : "none" }}>
               <KLineChart />

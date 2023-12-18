@@ -23,23 +23,21 @@ export default function TopStockBar() {
   const setClosedPrice = useSetRecoilState(closedPriceState);
 
   useEffect(() => {
-    const socket = io("wss://financial-data-gateway-dev.intltrip.com");
-    socket.on("connect", () => {
-      socket.emit("subscribe-stock-price", { stockId: stock.No });
-    });
-
-    socket.on("stock-price-minute", async (rst: IRealTimePriceRst) => {
-      setIsUpdating(false);
-      if (rst.success) {
-        setRealTimePrice(rst.data);
-        setClosedPrice(+(rst.data.prevClose || 0));
-        await sleep(500);
-      }
-    });
-
-    return () => {
-      socket.disconnect();
-    };
+    // const socket = io("wss://financial-data-gateway-dev.intltrip.com");
+    // socket.on("connect", () => {
+    //   socket.emit("subscribe-stock-price", { stockId: stock.No });
+    // });
+    // socket.on("stock-price-minute", async (rst: IRealTimePriceRst) => {
+    //   setIsUpdating(false);
+    //   if (rst.success) {
+    //     setRealTimePrice(rst.data);
+    //     setClosedPrice(+(rst.data.prevClose || 0));
+    //     await sleep(500);
+    //   }
+    // });
+    // return () => {
+    //   socket.disconnect();
+    // };
   }, [stock.No]);
 
   const quote = useMemo(() => {
@@ -58,11 +56,13 @@ export default function TopStockBar() {
       changePrice,
       changeRate,
       color:
-        COLOR_TEXT_CONVERTER[changePrice > 0 ? COLOR_TYPE.UP : COLOR_TYPE.DOWN],
+        COLOR_TEXT_CONVERTER[
+          changePrice >= 0 ? COLOR_TYPE.UP : COLOR_TYPE.DOWN
+        ],
       bgColor:
-        COLOR_BG_CONVERTER[changePrice > 0 ? COLOR_TYPE.UP : COLOR_TYPE.DOWN],
+        COLOR_BG_CONVERTER[changePrice >= 0 ? COLOR_TYPE.UP : COLOR_TYPE.DOWN],
       price: +realTimePrice?.close,
-      isUp: changePrice > 0,
+      isUp: changePrice >= 0,
       closedText: isClosed ? "收盤" : "",
       updateText: isClosed ? "" : "更新",
       time: moment(realTimePrice.date).format("YYYY-MM-DD HH:mm"),
