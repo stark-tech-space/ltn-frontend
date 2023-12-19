@@ -51,7 +51,6 @@ export default function PriceTrendChart() {
   const [graphPeriod, setGraphPeriod] = useState(PRICE_SCALE_PERIOD[0]);
   const [isLoading, setIsLoading] = useState(false);
   const cachedData = useRef<any[]>([]);
-  const fullGraphDataLength = useRef(0);
 
   const format = (data: IPrice[], isBusinessDay: boolean) => {
     if (isBusinessDay) {
@@ -72,27 +71,24 @@ export default function PriceTrendChart() {
       time: moment(item.time).unix(),
       value: +item.price,
     }));
-    // console.log(
-    //   moment("2023-12-18T05:30:00.000Z").format("YYYY-MM-DD HH:mm:ss")
-    // );
-    return formatData;
-    const totalItems = 4 * 60 + 30;
 
-    const all: any[] = new Array(totalItems).fill(0);
-    // debugger;
-    if (totalItems <= fullGraphDataLength.current) {
-      return formatData;
+    const all: any[] = [];
+    const totalItems = 4 * 60 + 30;
+    for (let i = 0; i <= totalItems; i++) {
+      all.push({
+        time: moment("09:00", "HH:mm").unix() + i * 60,
+        value: undefined,
+      });
     }
 
-    return all.map((_, index) => {
-      if (index <= formatData.length - 1) {
-        return { ...formatData[index] };
-      } else {
-        const t = moment("09:00", "HH:mm").unix() + index * 60 + 60;
+    return all.map((item, index) => {
+      if (formatData?.[index] && formatData[index]?.value) {
         return {
-          time: t,
-          value: undefined,
+          time: item.time,
+          value: formatData[index].value,
         };
+      } else {
+        return item;
       }
     });
   };
@@ -262,7 +258,9 @@ export default function PriceTrendChart() {
       lineColor: "rgba( 239, 83, 80, 1)",
       lineWidth: 2,
       lineType: lightweightCharts.LineType.Simple,
-      lastPriceAnimation: lightweightCharts.LastPriceAnimationMode.Disabled,
+      lastPriceAnimation: isClosedMarket()
+        ? lightweightCharts.LastPriceAnimationMode.Disabled
+        : lightweightCharts.LastPriceAnimationMode.Continuous,
       priceFormat: {
         type: "custom",
         minMove: 2,
@@ -274,7 +272,7 @@ export default function PriceTrendChart() {
       autoScale: true,
       scaleMargins: {
         top: 0.1,
-        bottom: 0,
+        bottom: 0.001,
       },
     });
 
@@ -292,13 +290,13 @@ export default function PriceTrendChart() {
       })
       .then((rst: any) => {
         if (rst) {
-          fullGraphDataLength.current = rst.data.list;
           const graph = genGraphData(PERIOD_TYPE.DAY, rst.data.list);
           cachedData.current = graph;
 
           series.applyOptions({
-            lastPriceAnimation:
-              lightweightCharts.LastPriceAnimationMode.Disabled,
+            lastPriceAnimation: isClosedMarket()
+              ? lightweightCharts.LastPriceAnimationMode.Disabled
+              : lightweightCharts.LastPriceAnimationMode.Continuous,
           });
           series.setData(graph as any);
 
@@ -328,7 +326,7 @@ export default function PriceTrendChart() {
       return;
     }
     if (chartRef.current && rst.data) {
-      if (fullGraphDataLength.current <= cachedData.current.length) {
+      if (isClosedMarket(rst.data.date)) {
         areaSeriesRef.current?.applyOptions({
           lastPriceAnimation: lightweightCharts.LastPriceAnimationMode.Disabled,
         });
