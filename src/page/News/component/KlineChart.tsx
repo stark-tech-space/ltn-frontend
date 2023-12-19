@@ -1,49 +1,46 @@
-import { useEffect, useRef } from "react";
-
-import { Box } from "@mui/material";
+import { useEffect, useRef, useState } from "react";
+import { Box, Button, Divider, Stack, Typography } from "@mui/material";
 import {
   init,
   dispose,
   Chart as IKlineChart,
   registerLocale,
+  registerIndicator,
+  IndicatorSeries,
 } from "klinecharts";
 import ltnApi from "api/http/ltnApi";
 import { IApiKlineData, IKLineChartDataItem } from "types/news";
 import moment from "moment";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
-import { genStartDateForPriceChart } from "until";
-import {
-  PERIOD_TYPE,
-  PRICE_SCALE_PERIOD,
-  PRICE_SCALE_TYPE,
-} from "types/common";
+import { IFetchKlineDataPeriod, IFetchKlinePeriodRecord } from "types/common";
+import AutoGraphIcon from "@mui/icons-material/AutoGraph";
+import CircularLoading from "component/Loading";
 
-interface IKData {}
+registerLocale("zh-TW", {
+  time: "時間：",
+  open: "開：",
+  high: "高：",
+  low: "低：",
+  close: "收：",
+  volume: "成交量：",
+  turnover: "成交額：",
+  change: "漲幅：",
+});
 
-function genData(timestamp = new Date().getTime(), length = 800) {
-  let basePrice = 5000;
-  timestamp =
-    Math.floor(timestamp / 1000 / 60) * 60 * 1000 - length * 60 * 1000;
-  const dataList = [];
-  for (let i = 0; i < length; i++) {
-    const prices = [];
-    for (let j = 0; j < 4; j++) {
-      prices.push(basePrice + Math.random() * 60 - 30);
-    }
-    prices.sort();
-    const open = +prices[Math.round(Math.random() * 3)].toFixed(2);
-    const high = +prices[3].toFixed(2);
-    const low = +prices[0].toFixed(2);
-    const close = +prices[Math.round(Math.random() * 3)].toFixed(2);
-    const volume = Math.round(Math.random() * 100) + 10;
-    const turnover = ((open + high + low + close) / 4) * volume;
-    dataList.push({ timestamp, open, high, low, close, volume, turnover });
+function genFetchKlineStartDate(timeKey: IFetchKlineDataPeriod) {
+  const HH_MM = "09:00";
 
-    basePrice = close;
-    timestamp += 60 * 1000;
+  if (timeKey === IFetchKlineDataPeriod.Minute_Detail) {
+    return moment(HH_MM, "HH:mm").subtract(48, "hours").toISOString();
   }
-  return dataList;
+  if (timeKey === IFetchKlineDataPeriod.Hour_Detail) {
+    return moment(HH_MM, "HH:mm").subtract(45, "days").toISOString();
+  }
+  if (timeKey === IFetchKlineDataPeriod.Day_Detail) {
+    return moment(HH_MM, "HH:mm").subtract(24, "months").toISOString();
+  }
+  return moment(HH_MM, "HH:mm").subtract(5, "years").toISOString();
 }
 
 export default function KLineChart() {
@@ -51,70 +48,159 @@ export default function KLineChart() {
   const klineChartRef = useRef<any>(null);
 
   const stock = useRecoilValue(currentStock);
+  const [timeKey, setTimeKey] = useState(IFetchKlineDataPeriod.Minute_Detail);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const genGraphData = (data: IApiKlineData[]) => {
+    return data.map((item) => ({
+      timestamp: moment(item.time).unix() * 1000,
+      open: +item.open,
+      close: +item.close,
+      high: +item.high,
+      low: +item.low,
+      volume: +item.volume,
+      turnover:
+        (Number(item.open) +
+          Number(item.high) +
+          Number(item.low) +
+          Number(item.close)) /
+        (4 * Number(item.volume)),
+    }));
+  };
 
   useEffect(() => {
-    if (!klineNodeRef.current) return;
+    if (!klineNodeRef.current) {
+      return;
+    }
+    setIsLoading(true);
     klineChartRef.current = init(klineNodeRef.current, {
       locale: "zh-TW",
       timezone: "Asia/Taipei",
+      styles: {
+        indicator: {
+          bars: [
+            {
+              borderSize: 1,
+              borderDashedValue: [2, 2],
+              upColor: "rgba(45, 192, 142, .7)",
+              downColor: "rgba(249, 40, 85, .7)",
+              noChangeColor: "#888888",
+            },
+          ],
+        },
+      },
     }) as IKlineChart;
-
-    registerLocale("zh-TW", {
-      time: "時間：",
-      open: "開：",
-      high: "高：",
-      low: "低：",
-      close: "收：",
-      volume: "成交量：",
-      turnover: "成交額：",
-      change: "漲幅：",
-    });
-
+    klineChartRef.current.setZoomEnabled(false);
     ltnApi
-      .get<{ list: IApiKlineData[] }>(`/financial/stock-prices-detail`, {
+      .get<{ list: IApiKlineData[] }>(`/financial/stock-prices`, {
         params: {
           securityCode: stock.No,
-          startDate: genStartDateForPriceChart({
-            label: "1天",
-            value: 1,
-            type: PERIOD_TYPE.DAY,
-            period: PRICE_SCALE_TYPE.MINUTE,
-          }),
+          startDate: genFetchKlineStartDate(timeKey),
+          endDate: moment("13:30", "HH:MM").toISOString(),
           time: "desc",
+          priceType: timeKey,
         },
       })
       .then((rst) => {
         if (!rst) return;
-        const list: any[] = [];
-        const data: IKLineChartDataItem[] = rst.data.list.map((item) => {
-          list.push({
-            date: item.date,
-            open: item.open,
-            close: item.close,
-            high: item.high,
-            low: item.low,
-            volume: item.volume,
-            turnover: 0,
-            time: moment(item.date).format("YYYY-MM-DD HH:mm:ss"),
-          });
-          return {
-            timestamp: moment(item.date).unix() * 1000,
-            open: item.open,
-            close: item.close,
-            high: item.high,
-            low: item.low,
-            volume: item.volume,
-            turnover: 0,
-          };
-        });
-        klineChartRef.current.applyNewData(data);
-        // console.log("list:", list);
-      });
-
+        klineChartRef.current.createIndicator("VOL", true);
+        klineChartRef.current.applyNewData(
+          genGraphData(rst.data.list),
+          false,
+          () => {
+            setIsLoading(false);
+          }
+        );
+      })
+      .finally(() => setIsLoading(false));
     return () => {
       dispose(klineChartRef.current);
     };
-  }, [stock]);
+  }, [stock.No, timeKey]);
 
-  return <Box ref={klineNodeRef} height={480} />;
+  const handleClickTimeKey = (key: IFetchKlineDataPeriod) => {
+    if (isLoading) return;
+    setIsLoading(true);
+    setTimeKey(key);
+    ltnApi
+      .get<{ list: IApiKlineData[] }>(`/financial/stock-prices`, {
+        params: {
+          securityCode: stock.No,
+          startDate: genFetchKlineStartDate(key),
+          endDate: moment("13:30", "HH:MM").toISOString(),
+          time: "desc",
+          priceType: key,
+        },
+      })
+      .then((rst) => {
+        if (!rst) return;
+        klineChartRef.current.applyNewData(genGraphData(rst.data.list), false);
+      })
+      .finally(() => setIsLoading(false));
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (klineChartRef.current) {
+        klineChartRef.current.resize();
+      }
+    };
+    window.addEventListener("resize", handleResize, false);
+    return () => {
+      window.removeEventListener("resize", handleResize, false);
+    };
+  }, []);
+
+  return (
+    <Stack>
+      <Stack
+        direction={"row"}
+        columnGap={1}
+        alignItems="center"
+        borderBottom="1px solid #ebedf1"
+        borderTop="1px solid #ebedf1"
+        pl={1}
+        height="38px"
+        // width="calc(100% - 41px)"
+        boxSizing={"border-box"}
+      >
+        <Typography component="span" px={1}>
+          {stock.Name}
+        </Typography>
+        <Divider orientation="vertical" />
+        <Stack
+          direction="row"
+          alignItems="center"
+          sx={{
+            "&>button": {
+              px: "6px",
+              mx: "4px",
+              bgcolor: "transparent",
+              border: 0,
+              cursor: "pointer",
+              color: "#333",
+            },
+          }}
+        >
+          {IFetchKlinePeriodRecord.map((item) => (
+            <button
+              key={item.type}
+              style={{ color: item.type === timeKey ? "#405DF9" : "#333" }}
+              onClick={() => handleClickTimeKey(item.type)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </Stack>
+        {/* <Divider orientation="vertical" />
+        <Button sx={{ color: "#333" }} startIcon={<AutoGraphIcon />}>
+          技術指標
+        </Button> */}
+      </Stack>
+      <Box position="relative" height={510}>
+        <CircularLoading open={isLoading} />
+        <Box ref={klineNodeRef} height={510} />
+      </Box>
+    </Stack>
+  );
 }

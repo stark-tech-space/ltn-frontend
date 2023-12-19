@@ -193,3 +193,44 @@ export interface ITaipeiStockOverview {
   industry_category: string;
   stock_id: string;
 }
+
+export enum IFetchKlineDataPeriod {
+  Minute_Detail = "minute_detail",
+  Five_Minute_Detail = "five_minute_detail",
+  Quarter_Detail = "quarter_detail",
+  Hour_Detail = "hour_detail",
+  Two_Hour_Detail = "two_hour_detail",
+  Four_Hour_Detail = "four_hour_detail",
+  Day_Detail = "day_detail",
+  Week_Detail = "week_detail",
+  Month_Detail = "month_detail",
+  Year_Detail = "year_detail",
+}
+
+export const IFetchKlinePeriodRecord = [
+  {
+    label: "1m",
+    value: 1,
+    type: IFetchKlineDataPeriod.Minute_Detail,
+  },
+  {
+    label: "H",
+    value: 1,
+    type: IFetchKlineDataPeriod.Hour_Detail,
+  },
+  {
+    label: "D",
+    value: 1,
+    type: IFetchKlineDataPeriod.Day_Detail,
+  },
+  {
+    label: "W",
+    value: 1,
+    type: IFetchKlineDataPeriod.Week_Detail,
+  },
+  // {
+  //   label: "Y",
+  //   value: 1,
+  //   type: IFetchKlineDataPeriod.Year_Detail,
+  // },
+];

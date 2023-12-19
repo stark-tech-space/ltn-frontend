@@ -238,3 +238,39 @@ export const isClosedMarket = (date?: string) => {
   }
   return false;
 };
+
+export const genStartDateForKlineChart = (timeKey: PRICE_SCALE_PERIOD_ITEM) => {
+  const HH_MM = "09:00";
+
+  // 1天
+  if (timeKey.type === PERIOD_TYPE.DAY) {
+    const now = moment();
+    if (now.isoWeekday() === 1) {
+      if (now.hour() < 9) {
+        return moment(HH_MM, "HH:mm").subtract(3, "days").toISOString();
+      }
+      return moment(HH_MM, "HH:mm").toISOString();
+    }
+
+    if (now.isoWeekday() === 6) {
+      return moment(HH_MM, "HH:mm").subtract(1, "days").toISOString();
+    }
+    if (now.isoWeekday() === 7) {
+      return moment(HH_MM, "HH:mm").subtract(2, "days").toISOString();
+    }
+
+    if (now.hour() >= 9) {
+      return moment(HH_MM, "HH:mm").toISOString();
+    }
+    return moment(HH_MM, "HH:mm").subtract(1, "days").toISOString();
+  }
+  if (timeKey.type === PERIOD_TYPE.MONTH) {
+    return moment(HH_MM, "HH:mm")
+      .subtract(1 * timeKey.value, "months")
+      .add(1, "days")
+      .toISOString();
+  }
+  return moment(HH_MM, "HH:mm")
+    .subtract(1 * timeKey.value, "years")
+    .toISOString();
+};

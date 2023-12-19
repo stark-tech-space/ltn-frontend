@@ -23,21 +23,21 @@ export default function TopStockBar() {
   const setClosedPrice = useSetRecoilState(closedPriceState);
 
   useEffect(() => {
-    // const socket = io("wss://financial-data-gateway-dev.intltrip.com");
-    // socket.on("connect", () => {
-    //   socket.emit("subscribe-stock-price", { stockId: stock.No });
-    // });
-    // socket.on("stock-price-minute", async (rst: IRealTimePriceRst) => {
-    //   setIsUpdating(false);
-    //   if (rst.success) {
-    //     setRealTimePrice(rst.data);
-    //     setClosedPrice(+(rst.data.prevClose || 0));
-    //     await sleep(500);
-    //   }
-    // });
-    // return () => {
-    //   socket.disconnect();
-    // };
+    const socket = io("wss://financial-data-gateway-dev.intltrip.com");
+    socket.on("connect", () => {
+      socket.emit("subscribe-stock-price", { stockId: stock.No });
+    });
+    socket.on("stock-price-minute", async (rst: IRealTimePriceRst) => {
+      setIsUpdating(false);
+      if (rst.success) {
+        setRealTimePrice(rst.data);
+        setClosedPrice(+(rst.data.prevClose || 0));
+        await sleep(500);
+      }
+    });
+    return () => {
+      socket.disconnect();
+    };
   }, [stock.No]);
 
   const quote = useMemo(() => {

@@ -133,7 +133,7 @@ export default function BlockQuota() {
   const closedPrice = useRecoilValue(closedPriceState);
 
   useEffect(() => {
-    /*(async () => {
+    (async () => {
       const [rst1, rst2, rst3] = await Promise.all([
         fetchCompanyRatios(stock.Symbol, PERIOD.QUARTER, 4),
         fetchGrowthRates(stock.Symbol, PERIOD.QUARTER, 1),
@@ -186,11 +186,11 @@ export default function BlockQuota() {
 
         return values;
       });
-    })();*/
+    })();
   }, [stock.Symbol, setBlockList]);
 
   useEffect(() => {
-    /* (async () => {
+    (async () => {
       const rst = await fmpApi.get<{
         historical: IDividendPerShareHistorical[];
       }>(
@@ -218,7 +218,7 @@ export default function BlockQuota() {
           });
         });
       }
-    })();*/
+    })();
   }, [stock.Symbol, closedPrice]);
 
   return (

@@ -204,7 +204,7 @@ export interface IKeyMetrics {
 
 export interface IApiKlineData {
   // 时间戳，毫秒级别，必要字段
-  date: number;
+  time: number;
   // 开盘价，必要字段
   open: number;
   // 收盘价，必要字段

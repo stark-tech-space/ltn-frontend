@@ -14,7 +14,7 @@ export default function CircularLoading({ open }: { open: boolean }) {
       display="flex"
       justifyContent="center"
       alignItems="center"
-      // bgcolor="rgba(0,0,0,0.0015)"
+      bgcolor="rgba(0,0,0,0.01)"
       zIndex={100}
     >
       <Fade in>
