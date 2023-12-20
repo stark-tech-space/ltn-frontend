@@ -5,16 +5,14 @@ import {
   dispose,
   Chart as IKlineChart,
   registerLocale,
-  registerIndicator,
-  IndicatorSeries,
 } from "klinecharts";
 import ltnApi from "api/http/ltnApi";
-import { IApiKlineData, IKLineChartDataItem } from "types/news";
+import { IApiKlineData } from "types/news";
 import moment from "moment";
 import { useRecoilValue } from "recoil";
 import { currentStock } from "recoil/selector";
 import { IFetchKlineDataPeriod, IFetchKlinePeriodRecord } from "types/common";
-import AutoGraphIcon from "@mui/icons-material/AutoGraph";
+// import AutoGraphIcon from "@mui/icons-material/AutoGraph";
 import CircularLoading from "component/Loading";
 
 registerLocale("zh-TW", {
@@ -34,6 +32,9 @@ function genFetchKlineStartDate(timeKey: IFetchKlineDataPeriod) {
   if (timeKey === IFetchKlineDataPeriod.Minute_Detail) {
     return moment(HH_MM, "HH:mm").subtract(48, "hours").toISOString();
   }
+  if (timeKey === IFetchKlineDataPeriod.Five_Minute_Detail) {
+    return moment(HH_MM, "HH:mm").subtract(48, "hours").toISOString();
+  }
   if (timeKey === IFetchKlineDataPeriod.Hour_Detail) {
     return moment(HH_MM, "HH:mm").subtract(45, "days").toISOString();
   }
@@ -48,7 +49,9 @@ export default function KLineChart() {
   const klineChartRef = useRef<any>(null);
 
   const stock = useRecoilValue(currentStock);
-  const [timeKey, setTimeKey] = useState(IFetchKlineDataPeriod.Week_Detail);
+  const [timeKey, setTimeKey] = useState(
+    IFetchKlineDataPeriod.Five_Minute_Detail
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   const genGraphData = (data: IApiKlineData[]) => {
@@ -91,6 +94,9 @@ export default function KLineChart() {
       },
     }) as IKlineChart;
     klineChartRef.current.setZoomEnabled(false);
+    klineChartRef.current.setMaxOffsetLeftDistance(0);
+    klineChartRef.current.setMaxOffsetRightDistance(20);
+
     ltnApi
       .get<{ list: IApiKlineData[] }>(`/financial/stock-prices`, {
         params: {
@@ -103,20 +109,16 @@ export default function KLineChart() {
       })
       .then((rst) => {
         if (!rst) return;
+        const data = genGraphData(rst.data.list);
         klineChartRef.current.createIndicator("VOL", true);
-        klineChartRef.current.applyNewData(
-          genGraphData(rst.data.list),
-          false,
-          () => {
-            setIsLoading(false);
-          }
-        );
+
+        klineChartRef.current.applyNewData(data, false, () => {});
       })
       .finally(() => setIsLoading(false));
     return () => {
       dispose(klineChartRef.current);
     };
-  }, [stock.No, timeKey]);
+  }, [stock.No]);
 
   const handleClickTimeKey = (key: IFetchKlineDataPeriod) => {
     if (isLoading) return;

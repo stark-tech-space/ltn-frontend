@@ -208,16 +208,21 @@ export enum IFetchKlineDataPeriod {
 }
 
 export const IFetchKlinePeriodRecord = [
+  // {
+  //   label: "1m",
+  //   value: 1,
+  //   type: IFetchKlineDataPeriod.Minute_Detail,
+  // },
   {
-    label: "1m",
+    label: "5m",
     value: 1,
-    type: IFetchKlineDataPeriod.Minute_Detail,
+    type: IFetchKlineDataPeriod.Five_Minute_Detail,
   },
-  {
-    label: "H",
-    value: 1,
-    type: IFetchKlineDataPeriod.Hour_Detail,
-  },
+  // {
+  //   label: "H",
+  //   value: 1,
+  //   type: IFetchKlineDataPeriod.Hour_Detail,
+  // },
   {
     label: "D",
     value: 1,
