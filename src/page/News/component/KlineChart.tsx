@@ -48,9 +48,7 @@ export default function KLineChart() {
   const klineChartRef = useRef<any>(null);
 
   const stock = useRecoilValue(currentStock);
-  const [timeKey, setTimeKey] = useState(
-    IFetchKlineDataPeriod.Five_Minute_Detail
-  );
+  const [timeKey, setTimeKey] = useState(IFetchKlineDataPeriod.Week_Detail);
   const [isLoading, setIsLoading] = useState(false);
 
   const genGraphData = (data: IApiKlineData[]) => {
