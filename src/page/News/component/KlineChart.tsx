@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Box, Button, Divider, Stack, Typography } from "@mui/material";
+import { Box, Divider, Stack, Typography } from "@mui/material";
 import {
   init,
   dispose,
@@ -28,7 +28,6 @@ registerLocale("zh-TW", {
 
 function genFetchKlineStartDate(timeKey: IFetchKlineDataPeriod) {
   const HH_MM = "09:00";
-
   if (timeKey === IFetchKlineDataPeriod.Minute_Detail) {
     return moment(HH_MM, "HH:mm").subtract(48, "hours").toISOString();
   }
@@ -163,7 +162,6 @@ export default function KLineChart() {
         borderTop="1px solid #ebedf1"
         pl={1}
         height="38px"
-        // width="calc(100% - 41px)"
         boxSizing={"border-box"}
       >
         <Typography component="span" px={1}>
