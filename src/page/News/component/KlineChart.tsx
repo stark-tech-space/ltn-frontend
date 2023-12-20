@@ -77,6 +77,16 @@ export default function KLineChart() {
       locale: "zh-TW",
       timezone: "Asia/Taipei",
       styles: {
+        candle: {
+          bar: {
+            upColor: "rgba(249, 40, 85, .7)",
+            downColor: "rgba(45, 192, 142, .7)",
+            upBorderColor: "rgba(249, 40, 85, .7)",
+            downBorderColor: "rgba(45, 192, 142, .7)",
+            upWickColor: "rgba(249, 40, 85, .7)",
+            downWickColor: "rgba(45, 192, 142, .7)",
+          },
+        },
         indicator: {
           bars: [
             {
