@@ -23,6 +23,7 @@
         "bignumber.js": "^9.1.2",
         "chart.js": "^4.4.0",
         "chartjs-adapter-moment": "^1.0.1",
+        "copy-to-clipboard": "^3.3.3",
         "dayjs": "^1.11.10",
         "klinecharts": "^9.7.1",
         "lightweight-charts": "^4.1.1",

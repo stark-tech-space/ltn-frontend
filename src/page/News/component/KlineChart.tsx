@@ -1,5 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { Box, Divider, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Divider,
+  Fade,
+  IconButton,
+  Stack,
+  SxProps,
+  Typography,
+} from "@mui/material";
 import {
   init,
   dispose,
@@ -14,6 +23,14 @@ import { currentStock } from "recoil/selector";
 import { IFetchKlineDataPeriod, IFetchKlinePeriodRecord } from "types/common";
 // import AutoGraphIcon from "@mui/icons-material/AutoGraph";
 import CircularLoading from "component/Loading";
+import ShareIcon from "@mui/icons-material/Share";
+import CodeIcon from "@mui/icons-material/Code";
+import { copyAsync } from "until";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert, { AlertProps } from "@mui/material/Alert";
+import Slide, { SlideProps } from "@mui/material/Slide";
+
+import { TransitionProps } from "@mui/material/transitions";
 
 registerLocale("zh-TW", {
   time: "時間：",
@@ -43,13 +60,22 @@ function genFetchKlineStartDate(timeKey: IFetchKlineDataPeriod) {
   return moment(HH_MM, "HH:mm").subtract(5, "years").toISOString();
 }
 
-export default function KLineChart() {
+export default function KLineChart({
+  height = 510,
+}: {
+  height?: number | string;
+}) {
   const klineNodeRef = useRef<HTMLDivElement>(null);
   const klineChartRef = useRef<any>(null);
 
   const stock = useRecoilValue(currentStock);
   const [timeKey, setTimeKey] = useState(IFetchKlineDataPeriod.Week_Detail);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [snackBarState, setSnackBarState] = useState({
+    open: false,
+    message: "",
+  });
 
   const genGraphData = (data: IApiKlineData[]) => {
     return data.map((item) => ({
@@ -160,55 +186,95 @@ export default function KLineChart() {
     };
   }, []);
 
+  const handleShareUrl = () => {
+    const widgetUrl = `${window.location.origin}/embed/${stock.No}`;
+    copyAsync(widgetUrl);
+    setSnackBarState({ open: true, message: "成功圖表複製網址" });
+  };
+
+  const handleCopyEmbedCode = () => {
+    const embedCode = `
+      <iframe width="100%" height="510" src="${window.location.origin}/embed/${stock.No}" title="LTN Stock embed widget demo" frameborder="0" allow="accelerometer;  clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    `;
+    copyAsync(embedCode);
+    setSnackBarState({ open: true, message: "成功複製內嵌程式碼" });
+  };
+
   return (
-    <Stack>
-      <Stack
-        direction={"row"}
-        columnGap={1}
-        alignItems="center"
-        borderBottom="1px solid #ebedf1"
-        borderTop="1px solid #ebedf1"
-        pl={1}
-        height="38px"
-        boxSizing={"border-box"}
-      >
-        <Typography component="span" px={1}>
-          {stock.Name}
-        </Typography>
-        <Divider orientation="vertical" />
+    <>
+      <Stack>
         <Stack
-          direction="row"
+          direction={"row"}
+          columnGap={1}
           alignItems="center"
-          sx={{
-            "&>button": {
-              px: "6px",
-              mx: "4px",
-              bgcolor: "transparent",
-              border: 0,
-              cursor: "pointer",
-              color: "#333",
-            },
-          }}
+          borderBottom="1px solid #ebedf1"
+          borderTop="1px solid #ebedf1"
+          pl={1}
+          height="48px"
+          boxSizing={"border-box"}
+          justifyContent="space-between"
         >
-          {IFetchKlinePeriodRecord.map((item) => (
-            <button
-              key={item.type}
-              style={{ color: item.type === timeKey ? "#405DF9" : "#333" }}
-              onClick={() => handleClickTimeKey(item.type)}
+          <Stack direction="row" alignItems="center" columnGap={1}>
+            <Typography component="span" px={1}>
+              {stock.Name}
+            </Typography>
+            <Divider orientation="vertical" />
+            <Stack
+              direction="row"
+              alignItems="center"
+              sx={{
+                "&>button": {
+                  px: "6px",
+                  mx: "4px",
+                  bgcolor: "transparent",
+                  border: 0,
+                  cursor: "pointer",
+                  color: "#333",
+                },
+              }}
             >
-              {item.label}
-            </button>
-          ))}
+              {IFetchKlinePeriodRecord.map((item) => (
+                <button
+                  key={item.type}
+                  style={{ color: item.type === timeKey ? "#405DF9" : "#333" }}
+                  onClick={() => handleClickTimeKey(item.type)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </Stack>
+          </Stack>
+
+          <Stack direction="row" alignItems="center" columnGap={2} pr="49px">
+            <IconButton onClick={handleShareUrl}>
+              <ShareIcon htmlColor="#405df9" fontSize="small" />
+            </IconButton>
+            <IconButton onClick={handleCopyEmbedCode}>
+              <CodeIcon htmlColor="#405df9" />
+            </IconButton>
+          </Stack>
         </Stack>
-        {/* <Divider orientation="vertical" />
-        <Button sx={{ color: "#333" }} startIcon={<AutoGraphIcon />}>
-          技術指標
-        </Button> */}
+        <Box position="relative" height={height}>
+          <CircularLoading open={isLoading} />
+          <Box ref={klineNodeRef} height={height} />
+        </Box>
       </Stack>
-      <Box position="relative" height={510}>
-        <CircularLoading open={isLoading} />
-        <Box ref={klineNodeRef} height={510} />
-      </Box>
-    </Stack>
+      <Snackbar
+        open={snackBarState.open}
+        onClose={() => setSnackBarState((old) => ({ ...old, open: false }))}
+        TransitionComponent={Fade}
+        message="複製成功"
+        autoHideDuration={1200}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <MuiAlert
+          onClose={() => setSnackBarState((old) => ({ ...old, open: false }))}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {snackBarState.message}
+        </MuiAlert>
+      </Snackbar>
+    </>
   );
 }

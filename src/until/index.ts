@@ -1,5 +1,6 @@
 import BigNumber from "bignumber.js";
 import moment from "moment";
+import copyText from "copy-to-clipboard";
 import {
   IFinMindDataItem,
   ILTNDataItem,
@@ -273,4 +274,8 @@ export const genStartDateForKlineChart = (timeKey: PRICE_SCALE_PERIOD_ITEM) => {
   return moment(HH_MM, "HH:mm")
     .subtract(1 * timeKey.value, "years")
     .toISOString();
+};
+
+export const copyAsync = (text: string) => {
+  copyText(text);
 };

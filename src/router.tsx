@@ -15,6 +15,7 @@ import { VALUE_ASSESSMENT_CONVERTER } from "types/valueAssessment";
 import { INDICATORS_CONVERTER } from "types/indicators";
 import { CHIPS_PAGE_CONVERTER } from "types/chips";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Widget from "page/Embed";
 
 const router = createBrowserRouter([
   {
@@ -54,6 +55,10 @@ const router = createBrowserRouter([
         element: <ChipsPage />,
       },
     ],
+  },
+  {
+    path: "/embed/:stock_id",
+    element: <Widget />,
   },
 ]);
 
